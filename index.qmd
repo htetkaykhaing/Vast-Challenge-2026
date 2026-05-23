@@ -7,5 +7,9 @@ This is a Quarto website.
 To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
 
 ```{r}
-1 + 1
+pacman:: p_load(tidyverse, jsonlite)
+```
+
+```{r}
+mc1_data <- fromJSON("data/MC1_final_00.json")
 ```
