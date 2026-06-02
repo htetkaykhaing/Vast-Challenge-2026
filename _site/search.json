@@ -1,0 +1,51 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Vast-Challenge-2026",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\npacman:: p_load(tidyverse, jsonlite)\n\n\nmc2_data &lt;- fromJSON(\"data/MC2_data.json\")"
+  },
+  {
+    "objectID": "data/MC2 data description.html",
+    "href": "data/MC2 data description.html",
+    "title": "MC2 Data description",
+    "section": "",
+    "text": "This folder contains the data for the anomalous postings originating from Tenant Thread.\nThis data is based on the actions taken by the employees and personal agents inside of Tenant Thread.\n\n\nThe anomalous posting is sent to SaidIt by John Windward on May 17, 2046 at 4:21am.\n\n\n\nMC2_Data.json – A timeline of events gathered by the internal systems. org_chart.json – The organization chart of Tenant Thread including people and departments. Compatible with networkX node_link_graph.\n\n\n\nDerived from data:\n{\n   \"description\": \"string\",\n   \"events\": [\n      {\n         \"short_name\": \"string\",\n         \"parties\": \"array\",\n         \"when\": \"float\",\n         \"details\": \"object\",\n         \"id\": \"int\"\n      }\n   ]\n}\n\n\n\nThe data is structured as a timeline. The events are ordered and indicate the operations performed by people, autonomous agents and office systems.\nField meanings: - short_name: The action taken - parties: Which people/agents/systems were involved. - when: Unix timestamp. The challenge occurs in May 2046, and timestamps should be in that month. - details: Additional information about the action taken. The contents vary by the contents of short_name. - id: A unique id for each record."
+  },
+  {
+    "objectID": "data/MC2 data description.html#key-event",
+    "href": "data/MC2 data description.html#key-event",
+    "title": "MC2 Data description",
+    "section": "",
+    "text": "The anomalous posting is sent to SaidIt by John Windward on May 17, 2046 at 4:21am."
+  },
+  {
+    "objectID": "data/MC2 data description.html#files",
+    "href": "data/MC2 data description.html#files",
+    "title": "MC2 Data description",
+    "section": "",
+    "text": "MC2_Data.json – A timeline of events gathered by the internal systems. org_chart.json – The organization chart of Tenant Thread including people and departments. Compatible with networkX node_link_graph."
+  },
+  {
+    "objectID": "data/MC2 data description.html#schema",
+    "href": "data/MC2 data description.html#schema",
+    "title": "MC2 Data description",
+    "section": "",
+    "text": "Derived from data:\n{\n   \"description\": \"string\",\n   \"events\": [\n      {\n         \"short_name\": \"string\",\n         \"parties\": \"array\",\n         \"when\": \"float\",\n         \"details\": \"object\",\n         \"id\": \"int\"\n      }\n   ]\n}"
+  },
+  {
+    "objectID": "data/MC2 data description.html#data-description",
+    "href": "data/MC2 data description.html#data-description",
+    "title": "MC2 Data description",
+    "section": "",
+    "text": "The data is structured as a timeline. The events are ordered and indicate the operations performed by people, autonomous agents and office systems.\nField meanings: - short_name: The action taken - parties: Which people/agents/systems were involved. - when: Unix timestamp. The challenge occurs in May 2046, and timestamps should be in that month. - details: Additional information about the action taken. The contents vary by the contents of short_name. - id: A unique id for each record."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  }
+]
