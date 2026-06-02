@@ -5,6 +5,9 @@ website:
   title: "Vast-Challenge-2026"
   navbar:
     left:
+    - text: "Proposal"
+    - text: "Meeting Minutes"
+    right:
       - href: index.qmd
         text: Home
       - about.qmd
