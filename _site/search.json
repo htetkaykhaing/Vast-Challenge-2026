@@ -1,12 +1,5 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Vast-Challenge-2026",
-    "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\npacman:: p_load(tidyverse, jsonlite)\n\n\nmc2_data &lt;- fromJSON(\"data/MC2_data.json\")"
-  },
-  {
     "objectID": "data/MC2 data description.html",
     "href": "data/MC2 data description.html",
     "title": "MC2 Data description",
@@ -47,5 +40,12 @@
     "title": "About",
     "section": "",
     "text": "About this site\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Vast-Challenge-2026",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\npacman:: p_load(tidyverse, jsonlite)\n\n\nmc2_data &lt;- fromJSON(\"data/MC2_data.json\")"
   }
 ]
