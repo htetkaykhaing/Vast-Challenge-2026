@@ -8,10 +8,10 @@ website:
     - text: "Proposal"
       href: "proposal.qmd"
     - text: "Meeting Minutes"
+      href: "meeting_minutes.qmd"
     right:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+    - text: "The Team"
+      href: "team.qmd"
 
 format:
   html:

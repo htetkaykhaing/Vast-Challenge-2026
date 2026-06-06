@@ -1,0 +1,12 @@
+---
+title: "The Team"
+---
+
+We developed this project for ISSS608 (Visual Analytics and Applications) during Term 3 of the Academic Year 2025-26 in Singapore Management University under the guidance of Dr. Kam Tin Seong, Associate Professor of Information Systems.
+
+Members
+
+- Htet Kay Khaing
+- Jedidiah Asaf Tallulembang 
+- Lei Yuhe
+

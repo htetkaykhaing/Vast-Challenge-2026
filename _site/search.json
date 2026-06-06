@@ -1,5 +1,19 @@
 [
   {
+    "objectID": "team.html",
+    "href": "team.html",
+    "title": "The Team",
+    "section": "",
+    "text": "We developed this project for ISSS608 (Visual Analytics and Applications) during Term 3 of the Academic Year 2025-26 in Singapore Management University under the guidance of Dr. Kam Tin Seong, Associate Professor of Information Systems.\nMembers\n\nHtet Kay Khaing\nJedidiah Asaf Tallulembang\nLei Yuhe"
+  },
+  {
+    "objectID": "meeting_minutes.html",
+    "href": "meeting_minutes.html",
+    "title": "Meeting Minutes",
+    "section": "",
+    "text": "ISSS608 Group 1 Meeting Minutes"
+  },
+  {
     "objectID": "data/MC2 data description.html",
     "href": "data/MC2 data description.html",
     "title": "MC2 Data description",
@@ -33,13 +47,6 @@
     "title": "MC2 Data description",
     "section": "",
     "text": "The data is structured as a timeline. The events are ordered and indicate the operations performed by people, autonomous agents and office systems.\nField meanings: - short_name: The action taken - parties: Which people/agents/systems were involved. - when: Unix timestamp. The challenge occurs in May 2046, and timestamps should be in that month. - details: Additional information about the action taken. The contents vary by the contents of short_name. - id: A unique id for each record."
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "About this site\n\n1 + 1\n\n[1] 2"
   },
   {
     "objectID": "index.html",
