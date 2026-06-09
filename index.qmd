@@ -11,5 +11,5 @@ pacman:: p_load(tidyverse, jsonlite)
 ```
 
 ```{r}
-mc2_data <- fromJSON("data/MC2_data.json")
+mc2_data <- fromJSON("data/MC1_final_00.json")
 ```

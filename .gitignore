@@ -6,4 +6,5 @@
 .quarto
 
 /.quarto/
+data/
 **/*.quarto_ipynb

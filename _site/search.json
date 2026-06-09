@@ -14,45 +14,108 @@
     "text": "ISSS608 Group 1 Meeting Minutes"
   },
   {
-    "objectID": "data/MC2 data description.html",
-    "href": "data/MC2 data description.html",
-    "title": "MC2 Data description",
+    "objectID": "data/mc1 data description.html",
+    "href": "data/mc1 data description.html",
+    "title": "MC1 — Multi-Agent Crisis Data",
     "section": "",
-    "text": "This folder contains the data for the anomalous postings originating from Tenant Thread.\nThis data is based on the actions taken by the employees and personal agents inside of Tenant Thread.\n\n\nThe anomalous posting is sent to SaidIt by John Windward on May 17, 2046 at 4:21am.\n\n\n\nMC2_Data.json – A timeline of events gathered by the internal systems. org_chart.json – The organization chart of Tenant Thread including people and departments. Compatible with networkX node_link_graph.\n\n\n\nDerived from data:\n{\n   \"description\": \"string\",\n   \"events\": [\n      {\n         \"short_name\": \"string\",\n         \"parties\": \"array\",\n         \"when\": \"float\",\n         \"details\": \"object\",\n         \"id\": \"int\"\n      }\n   ]\n}\n\n\n\nThe data is structured as a timeline. The events are ordered and indicate the operations performed by people, autonomous agents and office systems.\nField meanings: - short_name: The action taken - parties: Which people/agents/systems were involved. - when: Unix timestamp. The challenge occurs in May 2046, and timestamps should be in that month. - details: Additional information about the action taken. The contents vary by the contents of short_name. - id: A unique id for each record."
+    "text": "This folder contains the data for the multi-agent LLM crisis for our corporate communications team. There was an exposé, an communications embargo around a company merger, and social media firestorm recently. The data is based on 7 interacting AI agents who communicate across multiple channels and make real-time decisions about what to publish and what not to.\n\n\n\n\n\n\n\n\n\n\n\n\nFile\nDescription\nSize\n\n\n\n\nMC1_final.json\nMC1 dataset containing the two weeks leading up to the release of information\n\n\n\nREADME.md\nThis documentation file\n—\n\n\n\n\nEach JSON file follows this structure.\n{\n  \"rounds\": [\n    {\n      \"hour\": \"2046-05-17 9 AM\",\n      \"environment_context\": {\n        \"event_narrative\": \"...\",\n        \"market_snapshot\": { ... },\n        \"media_events\": [ ... ],\n        \"agents_unavailable\": [ ... ]\n      },\n      \"agent_outputs\": [\n        {\n          \"agent_id\": \"legal_agent\",\n          \"internal_state\": {\n            \"reacting\": \"...\",\n            \"rationalizing\": \"...\",\n            \"deliberating\": \"...\"\n          },\n          \"communications\": [\n            {\n              \"message_id\": \"...\",\n              \"channel\": \"comms_huddle\",\n              \"message_text\": \"...\",\n            }\n          ],\n          \"declared_action\": \"MONITORING\"\n        }\n      ]\n    }\n  ]\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nAgent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEntity\nDescription\n\n\n\n\nTenantThread\nThe company being acquired whose records are being presented. A proptech platform providing tenant management tools including the controversial “Retention Optimizer” scoring system.\n\n\nCivicLoom\nThe company acquiring TenantThread in the merger. Identity is embargoed until 6:00 PM on the crisis day.\n\n\nProject HarborCrest\nInternal codename for the CivicLoom–TenantThread merger.\n\n\nResidentIQ\nAnother PropTech company being discussed in the SaltWind Journal.\n\n\nSaltWind Journal\nLocal newspaper running stories on the property tech industry.\n\n\nOceanCrunch\nTech media outlet. Sarah Kowalski is a reporter.\n\n\n@HorizonMgmt, @PinnacleResidential\nMajor clients of TennatThread.\n\n\n\n\n\n\n\nAgents have many different communications channels available to them, for agent-to-agent, agent-to-person and agent-to-other-system actions. Agents are also empowered to publish social media post with minimal oversight."
   },
   {
-    "objectID": "data/MC2 data description.html#key-event",
-    "href": "data/MC2 data description.html#key-event",
-    "title": "MC2 Data description",
+    "objectID": "data/mc1 data description.html#overview",
+    "href": "data/mc1 data description.html#overview",
+    "title": "MC1 — Multi-Agent Crisis Data",
     "section": "",
-    "text": "The anomalous posting is sent to SaidIt by John Windward on May 17, 2046 at 4:21am."
+    "text": "This folder contains the data for the multi-agent LLM crisis for our corporate communications team. There was an exposé, an communications embargo around a company merger, and social media firestorm recently. The data is based on 7 interacting AI agents who communicate across multiple channels and make real-time decisions about what to publish and what not to."
   },
   {
-    "objectID": "data/MC2 data description.html#files",
-    "href": "data/MC2 data description.html#files",
-    "title": "MC2 Data description",
+    "objectID": "data/mc1 data description.html#files",
+    "href": "data/mc1 data description.html#files",
+    "title": "MC1 — Multi-Agent Crisis Data",
     "section": "",
-    "text": "MC2_Data.json – A timeline of events gathered by the internal systems. org_chart.json – The organization chart of Tenant Thread including people and departments. Compatible with networkX node_link_graph."
+    "text": "File\nDescription\nSize\n\n\n\n\nMC1_final.json\nMC1 dataset containing the two weeks leading up to the release of information\n\n\n\nREADME.md\nThis documentation file\n—\n\n\n\n\nEach JSON file follows this structure.\n{\n  \"rounds\": [\n    {\n      \"hour\": \"2046-05-17 9 AM\",\n      \"environment_context\": {\n        \"event_narrative\": \"...\",\n        \"market_snapshot\": { ... },\n        \"media_events\": [ ... ],\n        \"agents_unavailable\": [ ... ]\n      },\n      \"agent_outputs\": [\n        {\n          \"agent_id\": \"legal_agent\",\n          \"internal_state\": {\n            \"reacting\": \"...\",\n            \"rationalizing\": \"...\",\n            \"deliberating\": \"...\"\n          },\n          \"communications\": [\n            {\n              \"message_id\": \"...\",\n              \"channel\": \"comms_huddle\",\n              \"message_text\": \"...\",\n            }\n          ],\n          \"declared_action\": \"MONITORING\"\n        }\n      ]\n    }\n  ]\n}"
   },
   {
-    "objectID": "data/MC2 data description.html#schema",
-    "href": "data/MC2 data description.html#schema",
-    "title": "MC2 Data description",
+    "objectID": "data/mc1 data description.html#agents",
+    "href": "data/mc1 data description.html#agents",
+    "title": "MC1 — Multi-Agent Crisis Data",
     "section": "",
-    "text": "Derived from data:\n{\n   \"description\": \"string\",\n   \"events\": [\n      {\n         \"short_name\": \"string\",\n         \"parties\": \"array\",\n         \"when\": \"float\",\n         \"details\": \"object\",\n         \"id\": \"int\"\n      }\n   ]\n}"
+    "text": "Agent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance."
   },
   {
-    "objectID": "data/MC2 data description.html#data-description",
-    "href": "data/MC2 data description.html#data-description",
-    "title": "MC2 Data description",
+    "objectID": "data/mc1 data description.html#companies-codenames",
+    "href": "data/mc1 data description.html#companies-codenames",
+    "title": "MC1 — Multi-Agent Crisis Data",
     "section": "",
-    "text": "The data is structured as a timeline. The events are ordered and indicate the operations performed by people, autonomous agents and office systems.\nField meanings: - short_name: The action taken - parties: Which people/agents/systems were involved. - when: Unix timestamp. The challenge occurs in May 2046, and timestamps should be in that month. - details: Additional information about the action taken. The contents vary by the contents of short_name. - id: A unique id for each record."
+    "text": "Entity\nDescription\n\n\n\n\nTenantThread\nThe company being acquired whose records are being presented. A proptech platform providing tenant management tools including the controversial “Retention Optimizer” scoring system.\n\n\nCivicLoom\nThe company acquiring TenantThread in the merger. Identity is embargoed until 6:00 PM on the crisis day.\n\n\nProject HarborCrest\nInternal codename for the CivicLoom–TenantThread merger.\n\n\nResidentIQ\nAnother PropTech company being discussed in the SaltWind Journal.\n\n\nSaltWind Journal\nLocal newspaper running stories on the property tech industry.\n\n\nOceanCrunch\nTech media outlet. Sarah Kowalski is a reporter.\n\n\n@HorizonMgmt, @PinnacleResidential\nMajor clients of TennatThread."
+  },
+  {
+    "objectID": "data/mc1 data description.html#communication-channels",
+    "href": "data/mc1 data description.html#communication-channels",
+    "title": "MC1 — Multi-Agent Crisis Data",
+    "section": "",
+    "text": "Agents have many different communications channels available to them, for agent-to-agent, agent-to-person and agent-to-other-system actions. Agents are also empowered to publish social media post with minimal oversight."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Vast-Challenge-2026",
     "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\npacman:: p_load(tidyverse, jsonlite)\n\n\nmc2_data &lt;- fromJSON(\"data/MC2_data.json\")"
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\npacman:: p_load(tidyverse, jsonlite)\n\n\nmc2_data &lt;- fromJSON(\"data/MC1_final_00.json\")"
+  },
+  {
+    "objectID": "proposal.html",
+    "href": "proposal.html",
+    "title": "Project Proposal",
+    "section": "",
+    "text": "The project aims to understand how things can go wrong when people, systems, and tools have to work together under pressure. In VAST Challenge 2026 Mini-Challenge 1, TenantThread broke an embargo on its merger with CivicLoom Realty Partners when the news appeared early on FleX instead of the planned 6:00 PM release on 5 June 2046. This was not just a simple mistake of posting too early but a wider breakdown across Legal, PR, Social Media, Platform Trust, and an automated tool called “The Judge”, along with side channels and public accounts. The key question is whether this was a deliberate leak or a system failure. This project builds a visual analytics system to help reconstruct the sequence of events, compare normal and abnormal communication patterns, and identify early warning signs of the breach."
+  },
+  {
+    "objectID": "proposal.html#motivation",
+    "href": "proposal.html#motivation",
+    "title": "Project Proposal",
+    "section": "",
+    "text": "The project aims to understand how things can go wrong when people, systems, and tools have to work together under pressure. In VAST Challenge 2026 Mini-Challenge 1, TenantThread broke an embargo on its merger with CivicLoom Realty Partners when the news appeared early on FleX instead of the planned 6:00 PM release on 5 June 2046. This was not just a simple mistake of posting too early but a wider breakdown across Legal, PR, Social Media, Platform Trust, and an automated tool called “The Judge”, along with side channels and public accounts. The key question is whether this was a deliberate leak or a system failure. This project builds a visual analytics system to help reconstruct the sequence of events, compare normal and abnormal communication patterns, and identify early warning signs of the breach."
+  },
+  {
+    "objectID": "proposal.html#objectives",
+    "href": "proposal.html#objectives",
+    "title": "Project Proposal",
+    "section": "Objectives",
+    "text": "Objectives\nThis project aims to develop an interactive visual analytics tool to help analysts investigate the TenantThread embargo breach. The key objectives are:\n\nReconstruct the release sequence by showing the key events, actors, decisions, and links that led to the early release of merger information.\nCompare normal and abnormal behaviour by analysing how communication changed from routine activity to crisis behaviour.\nIdentify actor and channel shifts by examining how different actors used official, internal, side, personal, and anonymous channels during the crisis.\nDetect sensitive language patterns by tracking how deal-related, embargo-related and crisis-related language changed over time.\nAssess the role of The Judge by examining whether it worked as a control tool or only as a warning system..\nDetect early warning signs that could explain the breach and support legal analysis of whether it was a planned leak or a breakdown under pressure"
+  },
+  {
+    "objectID": "proposal.html#data",
+    "href": "proposal.html#data",
+    "title": "Project Proposal",
+    "section": "Data",
+    "text": "Data\nThe project will use the data from VAST Challenge 2026 Mini-Challenge 1, which includes TenantThread’s internal and public communications before the embargo breach. The data will be organised into three tables:\n\nRound-level table: one row per round or hour, with the timestamp, event headline, crisis stage, market information, social state, and communication count.\nCommunication-level table: one row per message, with the timestamp, actor role, actor label, channel, message type, content, and sensitive language flags.\nParticipants table: one row per participant, with the participant label, role, and channel usage.\n\nThe communications will be classified into four stages: pre-crisis, crisis before release, premature release, and post-embargo.\n\nKnown data quality issues:\nStock price fields in the market_snapshot for 5th June hourly rounds contain corrupted values ($18, $180). These will be replaced with prices quoted in agent messages for that period."
+  },
+  {
+    "objectID": "proposal.html#methodology",
+    "href": "proposal.html#methodology",
+    "title": "Project Proposal",
+    "section": "Methodology",
+    "text": "Methodology"
+  },
+  {
+    "objectID": "proposal.html#prototype-sketch",
+    "href": "proposal.html#prototype-sketch",
+    "title": "Project Proposal",
+    "section": "Prototype Sketch",
+    "text": "Prototype Sketch"
+  },
+  {
+    "objectID": "proposal.html#r-packages",
+    "href": "proposal.html#r-packages",
+    "title": "Project Proposal",
+    "section": "R Packages",
+    "text": "R Packages"
+  },
+  {
+    "objectID": "proposal.html#project-schedule",
+    "href": "proposal.html#project-schedule",
+    "title": "Project Proposal",
+    "section": "Project Schedule",
+    "text": "Project Schedule"
   }
 ]

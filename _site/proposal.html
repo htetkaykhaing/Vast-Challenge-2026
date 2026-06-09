@@ -117,8 +117,23 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#motivation" id="toc-motivation" class="nav-link active" data-scroll-target="#motivation">Motivation</a></li>
+  <li><a href="#objectives" id="toc-objectives" class="nav-link" data-scroll-target="#objectives">Objectives</a></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data">Data</a>
+  <ul class="collapse">
+  <li><a href="#known-data-quality-issues" id="toc-known-data-quality-issues" class="nav-link" data-scroll-target="#known-data-quality-issues">Known data quality issues:</a></li>
+  </ul></li>
+  <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">Methodology</a></li>
+  <li><a href="#prototype-sketch" id="toc-prototype-sketch" class="nav-link" data-scroll-target="#prototype-sketch">Prototype Sketch</a></li>
+  <li><a href="#r-packages" id="toc-r-packages" class="nav-link" data-scroll-target="#r-packages">R Packages</a></li>
+  <li><a href="#project-schedule" id="toc-project-schedule" class="nav-link" data-scroll-target="#project-schedule">Project Schedule</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -134,6 +149,12 @@ ul.task-list li input[type="checkbox"] {
 
     
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">June 9, 2026</p>
+    </div>
+  </div>
     
   </div>
   
@@ -142,8 +163,50 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="motivation" class="level2">
+<h2 class="anchored" data-anchor-id="motivation">Motivation</h2>
+<p>The project aims to understand how things can go wrong when people, systems, and tools have to work together under pressure. In <a href="https://vast-challenge.github.io/2026/MC1.html">VAST Challenge 2026 Mini-Challenge 1</a>, TenantThread broke an embargo on its merger with CivicLoom Realty Partners when the news appeared early on FleX instead of the planned 6:00 PM release on 5 June 2046. This was not just a simple mistake of posting too early but a wider breakdown across Legal, PR, Social Media, Platform Trust, and an automated tool called “The Judge”, along with side channels and public accounts. The key question is whether this was a deliberate leak or a system failure. This project builds a visual analytics system to help reconstruct the sequence of events, compare normal and abnormal communication patterns, and identify early warning signs of the breach.</p>
+</section>
+<section id="objectives" class="level2">
+<h2 class="anchored" data-anchor-id="objectives">Objectives</h2>
+<p>This project aims to develop an interactive visual analytics tool to help analysts investigate the TenantThread embargo breach. The key objectives are:</p>
+<ul>
+<li><strong>Reconstruct the release sequence</strong> by showing the key events, actors, decisions, and links that led to the early release of merger information.</li>
+<li><strong>Compare normal and abnormal behaviour</strong> by analysing how communication changed from routine activity to crisis behaviour.</li>
+<li><strong>Identify actor and channel shifts</strong> by examining how different actors used official, internal, side, personal, and anonymous channels during the crisis.</li>
+<li><strong>Detect sensitive language patterns</strong> by tracking how deal-related, embargo-related and crisis-related language changed over time.</li>
+<li><strong>Assess the role of The Judge</strong> by examining whether it worked as a control tool or only as a warning system..</li>
+<li><strong>Detect early warning signs</strong> that could explain the breach and support legal analysis of whether it was a planned leak or a breakdown under pressure</li>
+</ul>
+</section>
+<section id="data" class="level2">
+<h2 class="anchored" data-anchor-id="data">Data</h2>
+<p>The project will use the data from VAST Challenge 2026 Mini-Challenge 1, which includes TenantThread’s internal and public communications before the embargo breach. The data will be organised into three tables:</p>
+<ul>
+<li><strong>Round-level table</strong>: one row per round or hour, with the timestamp, event headline, crisis stage, market information, social state, and communication count.</li>
+<li><strong>Communication-level table</strong>: one row per message, with the timestamp, actor role, actor label, channel, message type, content, and sensitive language flags.</li>
+<li><strong>Participants table</strong>: one row per participant, with the participant label, role, and channel usage.</li>
+</ul>
+<p>The communications will be classified into four stages: pre-crisis, crisis before release, premature release, and post-embargo.</p>
+<section id="known-data-quality-issues" class="level3">
+<h3 class="anchored" data-anchor-id="known-data-quality-issues">Known data quality issues:</h3>
+<p>Stock price fields in the market_snapshot for 5th June hourly rounds contain corrupted values ($18, $180). These will be replaced with prices quoted in agent messages for that period.</p>
+</section>
+</section>
+<section id="methodology" class="level2">
+<h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
+</section>
+<section id="prototype-sketch" class="level2">
+<h2 class="anchored" data-anchor-id="prototype-sketch">Prototype Sketch</h2>
+</section>
+<section id="r-packages" class="level2">
+<h2 class="anchored" data-anchor-id="r-packages">R Packages</h2>
+</section>
+<section id="project-schedule" class="level2">
+<h2 class="anchored" data-anchor-id="project-schedule">Project Schedule</h2>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
