@@ -5,7 +5,7 @@ title: "Meeting Minutes"
 
 ## Project Meeting 1
 
-**Date:** 23/03/2026
+**Date:** 23/05/2026
 **Time:** 3:30 PM - 4:00 PM
 **In Attendance:** JD, Kay, Phoebe
 
@@ -48,7 +48,7 @@ The team decided to reconvene in the next meeting to finalize the project topic 
 
 After reviewing the challenges, the team agreed to proceed with MC2 as the project topic.
 
-The team decided that MC2 was the more suitable option for the project based on the challenge requirements, available data, and the team’s ability to complete the project using the knowledge and skills gained from class.
+The team decided that MC2 was the more suitable option for the project based on the challenge requirements, available data, and the team's ability to complete the project using the knowledge and skills gained from class.
 
 ### Agenda Item 2: Draft Project Proposal
 
@@ -73,7 +73,7 @@ The team agreed to combine the individual sections and review the overall propos
 ## Project Meeting 3
 
 **Date:** 06/06/2026
-**Time:** To be confirmed
+**Time:** 9:30 PM - 10:00 PM
 **In Attendance:** JD, Kay, Phoebe
 
 ### Agenda Items
@@ -92,7 +92,7 @@ We discussed the proposal structure, including the motivation, objectives, data,
 
 Although the team had previously decided to proceed with MC2, we revisited the decision after further reviewing the challenge requirements.
 
-After discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team’s ability to complete the project within the given timeframe.
+After discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team's ability to complete the project within the given timeframe.
 
 This decision replaces the earlier decision made during Project Meeting 2.
 
