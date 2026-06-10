@@ -109,6 +109,5 @@ These packages will support the development of a visual analytics system that he
 knitr::include_graphics("output-2.png")
 ```
 
-The schedule is structured so that analysis, application development, and documentation are completed before the poster presentation. The final submission date is treated as an administrative submission deadline rather than a period for further content changes.
 
 
