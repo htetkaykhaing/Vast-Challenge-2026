@@ -5,9 +5,9 @@ title: "Meeting Minutes"
 
 ## Project Meeting 1
 
-**Date:** 23/05/2026
-**Time:** 3:30 PM - 4:00 PM
-**In Attendance:** JD, Kay, Phoebe
+- **Date:** 23/05/2026
+- **Time:** 3:30 PM - 4:00 PM
+- **In Attendance:** JD, Kay, Phoebe
 
 ### Agenda Items
 
@@ -34,9 +34,9 @@ The team decided to reconvene in the next meeting to finalize the project topic 
 
 ## Project Meeting 2
 
-**Date:** 02/06/2026
-**Time:** 8:15 PM - 9:00 PM
-**In Attendance:** JD, Kay, Phoebe
+- **Date:** 02/06/2026
+- **Time:** 8:15 PM - 9:00 PM
+- **In Attendance:** JD, Kay, Phoebe
 
 ### Agenda Items
 
@@ -60,9 +60,9 @@ The team also discussed how to structure the proposal so that each section would
 
 The team divided the work for the project proposal as follows:
 
-* **JD:** Meeting Minutes, R Packages, and Project Schedule Draft
-* **Phoebe:** Methodology Draft and Prototype Sketches
-* **Kay:** Motivation, Objectives, and Data
+- **JD:** Meeting Minutes, R Packages, and Project Schedule Draft
+- **Phoebe:** Methodology Draft and Prototype Sketches
+- **Kay:** Motivation, Objectives, and Data
 
 Each member will work on their assigned sections and update the team once their parts are ready for review.
 
