@@ -32,14 +32,83 @@ Stock price fields in the market_snapshot for 5th June hourly rounds contain cor
 
 
 
-## Prototype Sketch
+## Prototype Sketches
 
+```{r}
+#| echo: false
+#| out-width: "90%"
+#| fig-align: "center"
+
+knitr::include_graphics("output-4.png")
+```
 
 ## R Packages
 
+The following R packages will be used to support data preparation, text analysis, timeline reconstruction, network analysis, behaviour comparison, and Shiny application development for Mini-Challenge 1.
+
+### Utility and Data Preparation
+
+* **jsonlite:** To import and parse the MC1 JSON dataset, which contains nested records such as rounds, environment context, communications, internal agent states, participants, and message metadata.
+* **tidyverse:** To clean, transform, filter, and summarize the dataset into analysis-ready tables.
+* **dplyr:** To group and compare communication records by agent, channel, message type, timestamp, and event period.
+* **tidyr:** To unnest nested JSON fields such as communications, internal states, media events, market snapshots, and agent metadata.
+* **purrr:** To handle repeated list-column operations when processing nested agent outputs and communications.
+* **lubridate:** To convert timestamps into proper date-time formats and support time-based filtering around the embargo breach.
+* **stringr:** To clean and extract keywords from message content, internal deliberations, public posts, hashtags, and references to Project HarborCrest or CivicLoom.
+* **DT:** To provide interactive tables for inspecting raw messages, filtered communications, and evidence linked to key events.
+
+### Text Analytics
+
+* **tidytext:** To tokenize messages and internal states for keyword frequency, phrase extraction, and comparison between normal communications and breach-related communications.
+* **quanteda:** To build document-feature matrices and compare language patterns across agents, channels, and time periods.
+* **tm:** To support text preprocessing such as corpus creation, stopword removal, and document-term matrix construction.
+* **SnowballC:** To apply stemming where useful, so related word forms can be grouped during text analysis.
+* **sentimentr:** To estimate sentiment and tone shifts in agent communications before and during the embargo breach.
+* **widyr:** To identify word correlations and co-occurring terms, such as links between Project HarborCrest, CivicLoom, embargo, The Judge, FleX, and announcement.
+
+### Timeline and Event Sequence Visualization
+
+* **ggplot2:** To create event timelines, agent activity charts, channel usage charts, and behaviour comparison plots.
+* **plotly:** To make timeline and activity visualizations interactive through hover labels, zooming, and filtering.
+* **timevis:** To create an interactive timeline showing the sequence of events leading up to the premature release.
+* **ggrepel:** To improve readability of annotated timeline labels, especially for key decision points and breach-related messages.
+
+### Network and Causal Relationship Analysis
+
+* **igraph:** To construct agent-to-agent and agent-to-system communication networks.
+* **tidygraph:** To manipulate network data using tidy data principles.
+* **ggraph:** To visualize relationships between agents, channels, decisions, public posts, and compliance checks.
+* **visNetwork:** To build an interactive network graph that allows users to explore who communicated with whom, through which channel, and around which key events.
+* **networkD3:** To create Sankey-style flow diagrams showing how information moved from internal deliberations to public FleX posts.
+* **DiagrammeR:** To create directed causal diagrams that explain the chain of decisions and system elements that allowed embargoed information to pass through enforcement.
+
+### Behaviour Comparison and Anomaly Detection
+
+* **anomalize:** To identify unusual changes in communication volume, channel usage, posting behaviour, or agent activity before the breach.
+* **zoo:** To calculate rolling averages and compare the breach period against prior baseline behaviour.
+* **scales:** To format dates, counts, and percentage changes clearly in visualizations.
+* **forcats:** To reorder categorical variables such as agents, channels, and message types based on frequency or importance.
+
+### Shiny Application Development
+
+* **shiny:** To build the main interactive visual analytics application.
+* **bslib:** To design a clean and modern dashboard interface.
+* **shinyWidgets:** To provide interactive filters such as agent selector, channel selector, date range selector, and message type selector.
+* **shinycssloaders:** To display loading indicators while large visualizations are being generated.
+* **shinydashboard:** To structure the application into sections such as overview, event timeline, network view, text analysis, anomaly detection, and evidence table.
+
+These packages will support the development of a visual analytics system that helps users reconstruct the embargo breach, identify the key agents and decisions involved, compare breach behaviour against normal system behaviour, and detect earlier warning signs where agent behaviour differed from expected behaviour.
 
 ## Project Schedule
 
+```{r}
+#| echo: false
+#| out-width: "90%"
+#| fig-align: "center"
 
+knitr::include_graphics("output-2.png")
+```
+
+The schedule is structured so that analysis, application development, and documentation are completed before the poster presentation. The final submission date is treated as an administrative submission deadline rather than a period for further content changes.
 
 
