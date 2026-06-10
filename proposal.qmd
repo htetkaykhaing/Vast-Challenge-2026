@@ -43,6 +43,7 @@ Create flag columns, for example deal_terms, embargo_terms, crisis_terms.This is
 
 ### Temporal Analysis 
 To visualise how external pressure, internal communication patterns, and behavioural signals evolve over the 20-day period. 
+
 - Market price across all 23 rounds, with communication volume.
 - The hourly communication volume and stock price on the crisis day.
 - Behavioural signal such as side-channel message volume, daily deal_term message count, and daily internal deliberation length.
@@ -56,6 +57,7 @@ Reconstruct the decision chain from the first structural failure to the breach, 
 
 ### Network Analysis
 Construct communication network, using the 'recipents' field to define direct edges from sender to each recipients. Message frequency between agents will represent the edge weight. 
+
 - Degree centrality: measures the number of distinct agents each node communicates with. A spike in out-degree for a particular agent in the breach window indicates that the agent expanded their communication reach during the crisis. 
 - Betweenness centrality: identifies who is the gatekeeper, whose absence or non-compliance will cause systemic effects. 
 - Eigenvector centrality: identifies agents who are connected to other influential agents. 
@@ -63,6 +65,7 @@ Construct communication network, using the 'recipents' field to define direct ed
 
 ### Text Analysis 
 Perform sentiment analysis on the two layers of communication, which are the content field and deliberating field. 
+
 Keyness testing to identify which terms were statistically over-represented in the Breach and Crisis windows relative to the Pre-crisis baseline.
 
 
