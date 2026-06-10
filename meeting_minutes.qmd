@@ -1,61 +1,111 @@
 ---
 title: "Meeting Minutes"
 ---
+# ISSS608 Group 1 Meeting Minutes
 
-ISSS608 Group 1 Meeting Minutes
-Project Meeting 1
-Date: 23/03/2026 Time: 3:30 PM - 4:00 PM In Attendance: JD, Kay, Phoebe
-Agenda Items
+## Project Meeting 1
+
+**Date:** 23/03/2026
+**Time:** 3:30 PM - 4:00 PM
+**In Attendance:** JD, Kay, Phoebe
+
+### Agenda Items
+
 1. Discussion on VAST Challenge options
 2. Allocation of initial challenge exploration
-Agenda Item 1: Discussion on VAST Challenge Options
+
+### Agenda Item 1: Discussion on VAST Challenge Options
+
 Prior to the meeting, the team reviewed the different VAST Challenge options and discussed which challenge would be most suitable for the project.
+
 During the meeting, the team discussed both MC1 and MC2 as possible project topics. The purpose of the discussion was to understand the requirements of each challenge and assess which one would be more feasible based on the team’s current knowledge and skills.
+
 JD decided to explore MC2, while Phoebe and Kay decided to explore MC1. This was done so that the team could compare the two challenges before making a final decision.
-Agenda Item 2: Allocation of Initial Challenge Exploration
+
+### Agenda Item 2: Allocation of Initial Challenge Exploration
+
 The team agreed to individually explore the assigned challenges and review the requirements, data, and possible approaches.
+
 JD would focus on MC2, while Phoebe and Kay would focus on MC1.
+
 The team decided to reconvene in the next meeting to finalize the project topic based on the findings from both challenges.
 
-Project Meeting 2
-Date: 02/06/2026 Time: 8:15 PM - 9:00 PM In Attendance: JD, Kay, Phoebe
-Agenda Items
+---
+
+## Project Meeting 2
+
+**Date:** 02/06/2026
+**Time:** 8:15 PM - 9:00 PM
+**In Attendance:** JD, Kay, Phoebe
+
+### Agenda Items
+
 1. Decide on project topic
 2. Draft project proposal
 3. Division of tasks
-Agenda Item 1: Decide on Project Topic
+
+### Agenda Item 1: Decide on Project Topic
+
 After reviewing the challenges, the team agreed to proceed with MC2 as the project topic.
+
 The team decided that MC2 was the more suitable option for the project based on the challenge requirements, available data, and the team’s ability to complete the project using the knowledge and skills gained from class.
-Agenda Item 2: Draft Project Proposal
+
+### Agenda Item 2: Draft Project Proposal
+
 The team discussed the main components required for the project proposal. These included the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes.
+
 The team also discussed how to structure the proposal so that each section would be clearly written and aligned with the chosen MC2 challenge.
-Agenda Item 3: Division of Tasks
+
+### Agenda Item 3: Division of Tasks
+
 The team divided the work for the project proposal as follows:
-* JD: Meeting Minutes, R Packages, and Project Schedule Draft
-* Phoebe: Methodology Draft and Prototype Sketches
-* Kay: Motivation, Objectives, and Data
+
+* **JD:** Meeting Minutes, R Packages, and Project Schedule Draft
+* **Phoebe:** Methodology Draft and Prototype Sketches
+* **Kay:** Motivation, Objectives, and Data
+
 Each member will work on their assigned sections and update the team once their parts are ready for review.
+
 The team agreed to combine the individual sections and review the overall proposal before submission.
 
-Project Meeting 3
-Date: 06/06/2026 Time: To be confirmed In Attendance: JD, Kay, Phoebe
-Agenda Items
+---
+
+## Project Meeting 3
+
+**Date:** 06/06/2026
+**Time:** To be confirmed
+**In Attendance:** JD, Kay, Phoebe
+
+### Agenda Items
+
 1. Finalization of project proposal
 2. Reconsideration of project topic
 3. Action items before proposal submission
-Agenda Item 1: Finalization of Project Proposal
-The team met to review the progress of the project proposal and ensure that all required sections were being prepared before the submission deadline.
-We discussed the proposal structure, including the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes. The team agreed that the proposal should be finalized as soon as possible so that it can be reviewed, edited, and published on Vercel before the deadline.
-Agenda Item 2: Reconsideration of Project Topic
-Although the team had previously decided to proceed with MC2, we revisited the decision after further reviewing the challenge requirements.
-After discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team’s ability to complete the project within the given timeframe.
-This decision replaces the earlier decision made during Project Meeting 2.
-Agenda Item 3: Action Items
-The team agreed to update the project proposal so that all references to MC2 are changed to MC1.
-The team also agreed to revise the methodology, prototype sketches, R packages, and project schedule to ensure that they are aligned with MC1 instead of MC2.
-The updated division of work is as follows:
-* JD: Meeting Minutes, R Packages, and Project Schedule Draft
-* Phoebe: Methodology Draft and Prototype Sketches
-* Kay: Motivation, Objectives, and Data
-Each member will update their respective sections and share them with the team for final review before submission.
 
+### Agenda Item 1: Finalization of Project Proposal
+
+The team met to review the progress of the project proposal and ensure that all required sections were being prepared before the submission deadline.
+
+We discussed the proposal structure, including the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes. The team agreed that the proposal should be finalized as soon as possible so that it can be reviewed, edited, and published on Vercel before the deadline.
+
+### Agenda Item 2: Reconsideration of Project Topic
+
+Although the team had previously decided to proceed with MC2, we revisited the decision after further reviewing the challenge requirements.
+
+After discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team’s ability to complete the project within the given timeframe.
+
+This decision replaces the earlier decision made during Project Meeting 2.
+
+### Agenda Item 3: Action Items
+
+The team agreed to update the project proposal so that all references to MC2 are changed to MC1.
+
+The team also agreed to revise the methodology, prototype sketches, R packages, and project schedule to ensure that they are aligned with MC1 instead of MC2.
+
+The updated division of work is as follows:
+
+* **JD:** Meeting Minutes, R Packages, and Project Schedule Draft
+* **Phoebe:** Methodology Draft and Prototype Sketches
+* **Kay:** Motivation, Objectives, and Data
+
+Each member will update their respective sections and share them with the team for final review before submission.
