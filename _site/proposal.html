@@ -129,8 +129,16 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#known-data-quality-issues" id="toc-known-data-quality-issues" class="nav-link" data-scroll-target="#known-data-quality-issues">Known data quality issues:</a></li>
   </ul></li>
   <li><a href="#methodology" id="toc-methodology" class="nav-link" data-scroll-target="#methodology">Methodology</a></li>
-  <li><a href="#prototype-sketch" id="toc-prototype-sketch" class="nav-link" data-scroll-target="#prototype-sketch">Prototype Sketch</a></li>
-  <li><a href="#r-packages" id="toc-r-packages" class="nav-link" data-scroll-target="#r-packages">R Packages</a></li>
+  <li><a href="#prototype-sketches" id="toc-prototype-sketches" class="nav-link" data-scroll-target="#prototype-sketches">Prototype Sketches</a></li>
+  <li><a href="#r-packages" id="toc-r-packages" class="nav-link" data-scroll-target="#r-packages">R Packages</a>
+  <ul class="collapse">
+  <li><a href="#utility-and-data-preparation" id="toc-utility-and-data-preparation" class="nav-link" data-scroll-target="#utility-and-data-preparation">Utility and Data Preparation</a></li>
+  <li><a href="#text-analytics" id="toc-text-analytics" class="nav-link" data-scroll-target="#text-analytics">Text Analytics</a></li>
+  <li><a href="#timeline-and-event-sequence-visualization" id="toc-timeline-and-event-sequence-visualization" class="nav-link" data-scroll-target="#timeline-and-event-sequence-visualization">Timeline and Event Sequence Visualization</a></li>
+  <li><a href="#network-and-causal-relationship-analysis" id="toc-network-and-causal-relationship-analysis" class="nav-link" data-scroll-target="#network-and-causal-relationship-analysis">Network and Causal Relationship Analysis</a></li>
+  <li><a href="#behaviour-comparison-and-anomaly-detection" id="toc-behaviour-comparison-and-anomaly-detection" class="nav-link" data-scroll-target="#behaviour-comparison-and-anomaly-detection">Behaviour Comparison and Anomaly Detection</a></li>
+  <li><a href="#shiny-application-development" id="toc-shiny-application-development" class="nav-link" data-scroll-target="#shiny-application-development">Shiny Application Development</a></li>
+  </ul></li>
   <li><a href="#project-schedule" id="toc-project-schedule" class="nav-link" data-scroll-target="#project-schedule">Project Schedule</a></li>
   </ul>
 </nav>
@@ -152,7 +160,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">June 9, 2026</p>
+      <p class="date-modified">June 10, 2026</p>
     </div>
   </div>
     
@@ -196,14 +204,97 @@ ul.task-list li input[type="checkbox"] {
 <section id="methodology" class="level2">
 <h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
 </section>
-<section id="prototype-sketch" class="level2">
-<h2 class="anchored" data-anchor-id="prototype-sketch">Prototype Sketch</h2>
+<section id="prototype-sketches" class="level2">
+<h2 class="anchored" data-anchor-id="prototype-sketches">Prototype Sketches</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="output-4.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="r-packages" class="level2">
 <h2 class="anchored" data-anchor-id="r-packages">R Packages</h2>
+<p>The following R packages will be used to support data preparation, text analysis, timeline reconstruction, network analysis, behaviour comparison, and Shiny application development for Mini-Challenge 1.</p>
+<section id="utility-and-data-preparation" class="level3">
+<h3 class="anchored" data-anchor-id="utility-and-data-preparation">Utility and Data Preparation</h3>
+<ul>
+<li><strong>jsonlite:</strong> To import and parse the MC1 JSON dataset, which contains nested records such as rounds, environment context, communications, internal agent states, participants, and message metadata.</li>
+<li><strong>tidyverse:</strong> To clean, transform, filter, and summarize the dataset into analysis-ready tables.</li>
+<li><strong>dplyr:</strong> To group and compare communication records by agent, channel, message type, timestamp, and event period.</li>
+<li><strong>tidyr:</strong> To unnest nested JSON fields such as communications, internal states, media events, market snapshots, and agent metadata.</li>
+<li><strong>purrr:</strong> To handle repeated list-column operations when processing nested agent outputs and communications.</li>
+<li><strong>lubridate:</strong> To convert timestamps into proper date-time formats and support time-based filtering around the embargo breach.</li>
+<li><strong>stringr:</strong> To clean and extract keywords from message content, internal deliberations, public posts, hashtags, and references to Project HarborCrest or CivicLoom.</li>
+<li><strong>DT:</strong> To provide interactive tables for inspecting raw messages, filtered communications, and evidence linked to key events.</li>
+</ul>
+</section>
+<section id="text-analytics" class="level3">
+<h3 class="anchored" data-anchor-id="text-analytics">Text Analytics</h3>
+<ul>
+<li><strong>tidytext:</strong> To tokenize messages and internal states for keyword frequency, phrase extraction, and comparison between normal communications and breach-related communications.</li>
+<li><strong>quanteda:</strong> To build document-feature matrices and compare language patterns across agents, channels, and time periods.</li>
+<li><strong>tm:</strong> To support text preprocessing such as corpus creation, stopword removal, and document-term matrix construction.</li>
+<li><strong>SnowballC:</strong> To apply stemming where useful, so related word forms can be grouped during text analysis.</li>
+<li><strong>sentimentr:</strong> To estimate sentiment and tone shifts in agent communications before and during the embargo breach.</li>
+<li><strong>widyr:</strong> To identify word correlations and co-occurring terms, such as links between Project HarborCrest, CivicLoom, embargo, The Judge, FleX, and announcement.</li>
+</ul>
+</section>
+<section id="timeline-and-event-sequence-visualization" class="level3">
+<h3 class="anchored" data-anchor-id="timeline-and-event-sequence-visualization">Timeline and Event Sequence Visualization</h3>
+<ul>
+<li><strong>ggplot2:</strong> To create event timelines, agent activity charts, channel usage charts, and behaviour comparison plots.</li>
+<li><strong>plotly:</strong> To make timeline and activity visualizations interactive through hover labels, zooming, and filtering.</li>
+<li><strong>timevis:</strong> To create an interactive timeline showing the sequence of events leading up to the premature release.</li>
+<li><strong>ggrepel:</strong> To improve readability of annotated timeline labels, especially for key decision points and breach-related messages.</li>
+</ul>
+</section>
+<section id="network-and-causal-relationship-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="network-and-causal-relationship-analysis">Network and Causal Relationship Analysis</h3>
+<ul>
+<li><strong>igraph:</strong> To construct agent-to-agent and agent-to-system communication networks.</li>
+<li><strong>tidygraph:</strong> To manipulate network data using tidy data principles.</li>
+<li><strong>ggraph:</strong> To visualize relationships between agents, channels, decisions, public posts, and compliance checks.</li>
+<li><strong>visNetwork:</strong> To build an interactive network graph that allows users to explore who communicated with whom, through which channel, and around which key events.</li>
+<li><strong>networkD3:</strong> To create Sankey-style flow diagrams showing how information moved from internal deliberations to public FleX posts.</li>
+<li><strong>DiagrammeR:</strong> To create directed causal diagrams that explain the chain of decisions and system elements that allowed embargoed information to pass through enforcement.</li>
+</ul>
+</section>
+<section id="behaviour-comparison-and-anomaly-detection" class="level3">
+<h3 class="anchored" data-anchor-id="behaviour-comparison-and-anomaly-detection">Behaviour Comparison and Anomaly Detection</h3>
+<ul>
+<li><strong>anomalize:</strong> To identify unusual changes in communication volume, channel usage, posting behaviour, or agent activity before the breach.</li>
+<li><strong>zoo:</strong> To calculate rolling averages and compare the breach period against prior baseline behaviour.</li>
+<li><strong>scales:</strong> To format dates, counts, and percentage changes clearly in visualizations.</li>
+<li><strong>forcats:</strong> To reorder categorical variables such as agents, channels, and message types based on frequency or importance.</li>
+</ul>
+</section>
+<section id="shiny-application-development" class="level3">
+<h3 class="anchored" data-anchor-id="shiny-application-development">Shiny Application Development</h3>
+<ul>
+<li><strong>shiny:</strong> To build the main interactive visual analytics application.</li>
+<li><strong>bslib:</strong> To design a clean and modern dashboard interface.</li>
+<li><strong>shinyWidgets:</strong> To provide interactive filters such as agent selector, channel selector, date range selector, and message type selector.</li>
+<li><strong>shinycssloaders:</strong> To display loading indicators while large visualizations are being generated.</li>
+<li><strong>shinydashboard:</strong> To structure the application into sections such as overview, event timeline, network view, text analysis, anomaly detection, and evidence table.</li>
+</ul>
+<p>These packages will support the development of a visual analytics system that helps users reconstruct the embargo breach, identify the key agents and decisions involved, compare breach behaviour against normal system behaviour, and detect earlier warning signs where agent behaviour differed from expected behaviour.</p>
+</section>
 </section>
 <section id="project-schedule" class="level2">
 <h2 class="anchored" data-anchor-id="project-schedule">Project Schedule</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="output-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
 </section>
