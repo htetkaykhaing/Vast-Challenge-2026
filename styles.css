@@ -1,1 +1,132 @@
-/* css styles */
+body {
+  font-family: "Asap", sans-serif;
+  color: #2f3a40;
+  background-color: #f6f8fa;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Asap", sans-serif;
+  color: #1d3440;
+  font-weight: 700;
+}
+
+h2 {
+  border-bottom: 1px solid #d9e2e7;
+  padding-bottom: 6px;
+  margin-top: 36px;
+}
+
+h3, a {
+  color: #1f5f6b;
+}
+
+a:hover {
+  color: #a7661c;
+}
+
+.hero-card {
+  font-family: "Asap", sans-serif;
+  background-color: #ffffff;
+  border: 1px solid #d9e2e7;
+  border-left: 6px solid #1f5f6b;
+  border-radius: 18px;
+  padding: 30px 34px;
+  margin: 24px 0 34px 0;
+}
+
+.hero-card h1 {
+  font-size: 2.4rem;
+}
+
+.hero-card h2 {
+  color: #1f5f6b;
+  font-size: 1.35rem;
+  margin-top: 0;
+}
+
+.navbar {
+  font-family: "Asap", sans-serif;
+  background-color: #1d3440;
+  border-bottom: 3px solid #a7661c;
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.navbar .navbar-brand:hover,
+.navbar .nav-link:hover {
+  color: #f1d49b !important;
+}
+
+.navbar .dropdown-menu .dropdown-item {
+  color: #1d3440 !important;
+  background-color: #ffffff !important;
+  font-weight: 600;
+}
+
+.navbar .dropdown-menu .dropdown-item:hover {
+  color: #1f5f6b !important;
+  background-color: #edf3f5 !important;
+}
+
+.column {
+  background-color: #ffffff;
+  border: 1px solid #d9e2e7;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+}
+
+.column h3 {
+  margin-top: 0;
+}
+
+.column a[href$=".html"] {
+  display: inline-block;
+  background-color: #1f5f6b;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 20px;
+  text-decoration: none;
+}
+
+.column a[href$=".html"]:hover {
+  background-color: #a7661c;
+  color: #ffffff;
+}
+
+.callout-note {
+  border-left: 5px solid #1f5f6b;
+}
+
+.callout-tip {
+  border-left: 5px solid #2f7d4f;
+}
+
+.callout-warning {
+  border-left: 5px solid #a7661c;
+}
+
+thead {
+  background-color: #1d3440;
+  color: #ffffff;
+}
+
+thead th {
+  color: #ffffff;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f0f4f6;
+}
+
+.highlight {
+  background-color: #fff3df;
+  border-left: 5px solid #a7661c;
+  padding: 12px 16px;
+  border-radius: 10px;
+}

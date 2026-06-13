@@ -79,9 +79,65 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Vast-Challenge-2026",
+    "title": "Tracing the Embargo Breach",
     "section": "",
-    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\npacman:: p_load(tidyverse, jsonlite)\n\n\nmc2_data &lt;- fromJSON(\"data/MC1_final_00.json\")"
+    "text": "TenantThread’s merger announcement was supposed to remain under embargo until 6:00 PM on 5 June 2046. However, merger-related information appeared publicly on FleX before the official release time.\nThis project uses visual analytics to investigate how the breach happened, who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure."
+  },
+  {
+    "objectID": "index.html#visual-analytics-for-vast-challenge-2026-mini-challenge-1",
+    "href": "index.html#visual-analytics-for-vast-challenge-2026-mini-challenge-1",
+    "title": "Tracing the Embargo Breach",
+    "section": "",
+    "text": "TenantThread’s merger announcement was supposed to remain under embargo until 6:00 PM on 5 June 2046. However, merger-related information appeared publicly on FleX before the official release time.\nThis project uses visual analytics to investigate how the breach happened, who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure."
+  },
+  {
+    "objectID": "index.html#project-background",
+    "href": "index.html#project-background",
+    "title": "Tracing the Embargo Breach",
+    "section": "Project Background",
+    "text": "Project Background\nTenantThread is a property technology company involved in a sensitive merger with CivicLoom Realty Partners. The deal, codenamed Project HarborCrest, was under strict information embargo. At the same time, TenantThread was facing rising public pressure over its Retention Optimizer product and growing criticism from SaltWind Journal and social media users.\nAn automated compliance tool known as The Judge was introduced to prevent embargo breaches. However, during the crisis, embargoed merger information still appeared publicly before the official release time.\nThis project investigates the communication records from the two weeks leading up to the breach to understand what happened."
+  },
+  {
+    "objectID": "index.html#investigation-focus",
+    "href": "index.html#investigation-focus",
+    "title": "Tracing the Embargo Breach",
+    "section": "Investigation Focus",
+    "text": "Investigation Focus\nThe central question of this project is:\n\n\nDid TenantThread deliberately leak the merger, or did the system break down under pressure?\n\n\nThe analysis focuses on three areas:\n\nKey events and relationships that led to the inappropriate release.\nBehavioural changes between normal communication and crisis-period communication.\nLeading indicators that showed the release was possible before it happened."
+  },
+  {
+    "objectID": "index.html#analytical-approach",
+    "href": "index.html#analytical-approach",
+    "title": "Tracing the Embargo Breach",
+    "section": "Analytical Approach",
+    "text": "Analytical Approach\nThis project applies a structured visual analytics workflow to reconstruct the breach.\n\n\n\n\n\nflowchart LR\n  A[Raw MC1 JSON Data] --&gt; B[Data Preparation]\n  B --&gt; C[Event Timeline]\n  B --&gt; D[Actor-Channel Analysis]\n  B --&gt; E[Sensitive Language Tracking]\n  C --&gt; F[Embargo Breach Sequence]\n  D --&gt; F\n  E --&gt; F\n  F --&gt; G[Leading Indicators]\n  G --&gt; H[Final Interpretation]\n\n\n\n\n\n\nThe analysis begins by transforming the nested MC1 JSON data into clean round-level and communication-level tables. These tables are then used to build visualisations that show how the breach developed over time."
+  },
+  {
+    "objectID": "index.html#key-visual-analytics-components",
+    "href": "index.html#key-visual-analytics-components",
+    "title": "Tracing the Embargo Breach",
+    "section": "Key Visual Analytics Components",
+    "text": "Key Visual Analytics Components\n\n\n\nEvent Timeline\nThe timeline reconstructs the main sequence of events leading to the premature release. It highlights important triggers, decision points and public communication moments.\n\n\nActor-Channel Heatmap\nThe heatmap shows how actors used different channels across the crisis period. This helps reveal shifts from routine communication to side-channel and public-facing activity.\n\n\n\nSensitive Language Tracker\nThis view tracks deal-related, embargo-related and crisis-related terms over time. It helps identify when communication became more risky.\n\n\nLeading Indicators View\nThis view identifies early warning signs, such as side-channel coordination, continued sensitive discussion after warnings, and public signalling before the official release."
+  },
+  {
+    "objectID": "index.html#preliminary-finding",
+    "href": "index.html#preliminary-finding",
+    "title": "Tracing the Embargo Breach",
+    "section": "Preliminary Finding",
+    "text": "Preliminary Finding\nThe preliminary finding is that the breach was not a planned leak by one individual from the start. Instead, it appears to be a system breakdown under pressure.\nAs the crisis intensified, TenantThread’s communication behaviour changed. The team moved from routine checking to urgent story control. After SaltWind’s 5:00 PM story, Legal treated the embargo as already overtaken by events and gave the “GO” at 5:19 PM. This led to merger-related posts being released before the official 6:00 PM embargo lift."
+  },
+  {
+    "objectID": "index.html#expected-outcome",
+    "href": "index.html#expected-outcome",
+    "title": "Tracing the Embargo Breach",
+    "section": "Expected Outcome",
+    "text": "Expected Outcome\nThe expected outcome is an interactive visual analytics system that allows users to:\n\ntrace the full release pathway\ncompare normal and abnormal communication behaviour\nidentify the actors, channels and decisions involved\ndetect warning signs before the breach, and\nassess whether the breach was deliberate or caused by system failure under pressure.\n\nThe final project will combine timeline analysis, behavioural comparison and evidence-based interpretation to support CivicLoom’s legal investigation."
+  },
+  {
+    "objectID": "index.html#project-sections",
+    "href": "index.html#project-sections",
+    "title": "Tracing the Embargo Breach",
+    "section": "Project Sections",
+    "text": "Project Sections\n\n\n\nProposal\nThe proposal explains the motivation, objectives, data, methodology, prototype sketches, R packages and project schedule.\nView Proposal\n\n\n\nMethodology\nThe methodology section documents the data preparation, wrangling logic, derived variables and visual analytics design.\nView Methodology\n\n\n\nFindings\nThe findings section presents the final visual analysis and interpretation of the embargo breach.\nView Findings"
   },
   {
     "objectID": "proposal.html",

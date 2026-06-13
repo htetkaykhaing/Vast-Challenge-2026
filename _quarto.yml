@@ -7,6 +7,14 @@ website:
     left:
     - text: "Proposal"
       href: "proposal.qmd"
+    - text: "Methodology"
+      menu:
+      - text: "Data Preparation"
+        href: "dataprep.qmd"
+      - text: "Statistical Analysis"
+        href: "analysis.qmd"
+      - text: "Visualisation"
+        href: "visual.qmd"
     - text: "Meeting Minutes"
       href: "meeting_minutes.qmd"
     right:
@@ -15,9 +23,8 @@ website:
 
 format:
   html:
-    theme:
-      - cosmo
-      - brand
+    embed-resources: true
+    theme: minty
     css: styles.css
     toc: true
 
