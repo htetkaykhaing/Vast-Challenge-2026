@@ -7,48 +7,6 @@
     "text": "We developed this project for ISSS608 (Visual Analytics and Applications) during Term 3 of the Academic Year 2025-26 in Singapore Management University under the guidance of Dr. Kam Tin Seong, Associate Professor of Information Systems.\nMembers\n\nHtet Kay Khaing\nJedidiah Asaf Tallulembang\nLei Yuhe"
   },
   {
-    "objectID": "Methodology/dataprep.html",
-    "href": "Methodology/dataprep.html",
-    "title": "Data Preparation",
-    "section": "",
-    "text": "This document walks through how we parse, clean, and reshape the raw VAST Challenge 2026 Mini-Challenge 1 dataset into the three relational tables, which are Rounds, Communications, and Participants."
-  },
-  {
-    "objectID": "Methodology/dataprep.html#loading-packages",
-    "href": "Methodology/dataprep.html#loading-packages",
-    "title": "Data Preparation",
-    "section": "1.1 Loading Packages",
-    "text": "1.1 Loading Packages\nWe use the following packages:\n\njsonlite - parse the JSON source file\ntidyverse - data wrangling and string operations\nlubridate - timestamp parsing\ntidytext - tokenisation for keyword flagging and text analysis\nknitr - formatted table output\n\n\npacman::p_load(jsonlite, tidyverse, lubridate, tidytext, knitr)"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#loading-data",
-    "href": "Methodology/dataprep.html#loading-data",
-    "title": "Data Preparation",
-    "section": "1.2 Loading Data",
-    "text": "1.2 Loading Data\nWe load the single JSON file provided for VAST Challenge 2026 Mini-Challenge 1.\n\nmc1_raw &lt;- fromJSON(\"data/MC1_final_00.json\", simplifyVector = FALSE)\nrounds_raw &lt;- mc1_raw$rounds\ncat(\"Total rounds:\", length(rounds_raw), \"\\n\")\n\nTotal rounds: 23 \n\n\nThe dataset contains 23 rounds, spanning 17 May 2046 to 5 June 2046 (the day of the embargo breach). Each round holds an environment_context object, a flat list of communications, and a participants list recording each agent’s status for that round."
-  },
-  {
-    "objectID": "Methodology/dataprep.html#top-level-schema",
-    "href": "Methodology/dataprep.html#top-level-schema",
-    "title": "Data Preparation",
-    "section": "2.1 Top-level schema",
-    "text": "2.1 Top-level schema\nEach round has four keys:\n\n\n\n\n\n\n\nKey\nDescription\n\n\n\n\nhour\nTimestamp for the round start\n\n\nenvironment_context\nExternal conditions: market data, events, headlines\n\n\ncommunications\nAll messages sent in that round\n\n\nparticipants\nAgent metadata and declared actions"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#agents",
-    "href": "Methodology/dataprep.html#agents",
-    "title": "Data Preparation",
-    "section": "2.2 Agents",
-    "text": "2.2 Agents\n\n\n\n\n\n\n\n\n\n\nAgent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance."
-  },
-  {
-    "objectID": "Methodology/dataprep.html#communication-channels-and-message-types",
-    "href": "Methodology/dataprep.html#communication-channels-and-message-types",
-    "title": "Data Preparation",
-    "section": "2.3 Communication channels and message types",
-    "text": "2.3 Communication channels and message types\n\n\nCode\n# Flatten all communications to inspect channels and message types\nall_comms_raw &lt;- map_dfr(rounds_raw, function(rnd) {\n  map_dfr(rnd$communications, function(msg) {\n    tibble(\n      channel      = msg$channel      %||% NA_character_,\n      message_type = msg$message_type %||% NA_character_\n    )\n  })\n})\n\nall_comms_raw %&gt;%\n  count(channel, message_type, name = \"count\") %&gt;%\n  arrange(desc(count)) %&gt;%\n  kable()\n\n\n\n\n\nchannel\nmessage_type\ncount\n\n\n\n\ncomms_huddle\nbroadcast\n388\n\n\none_on_one_chat\none_on_one_chat\n248\n\n\nside_huddle\nside_huddle\n111\n\n\ncomms_huddle\naction\n88\n\n\npersonal_post\npublic_post\n37\n\n\nofficial_post\npublic_post\n28\n\n\nanonymous_post\npublic_post\n12\n\n\n\n\n\nChannels fall into two broad groups:\n\nInternal: comms_huddle, side_huddle, one_on_one_chat\nPublic: official_post, personal_post, anonymous_post"
-  },
-  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Tracing the Embargo Breach",
@@ -140,6 +98,118 @@
     "text": "Date: 06/06/2026 Time: 9:30 PM - 10:00 PM In Attendance: JD, Kay, Phoebe\n\n\n\nFinalization of project proposal\nReconsideration of project topic\nAction items before proposal submission\n\n\n\n\nThe team met to review the progress of the project proposal and ensure that all required sections were being prepared before the submission deadline.\nWe discussed the proposal structure, including the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes. The team agreed that the proposal should be finalized as soon as possible so that it can be reviewed, edited, and published on Vercel before the deadline.\n\n\n\nAlthough the team had previously decided to proceed with MC2, we revisited the decision after further reviewing the challenge requirements.\nAfter discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team’s ability to complete the project within the given timeframe.\nThis decision replaces the earlier decision made during Project Meeting 2.\n\n\n\nThe team agreed to update the project proposal so that all references to MC2 are changed to MC1.\nThe team also agreed to revise the methodology, prototype sketches, R packages, and project schedule to ensure that they are aligned with MC1 instead of MC2.\nThe updated division of work is as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will update their respective sections and share them with the team for final review before submission."
   },
   {
+    "objectID": "Methodology/dataprep.html",
+    "href": "Methodology/dataprep.html",
+    "title": "Data Preparation",
+    "section": "",
+    "text": "This document walks through how we parse, clean, and reshape the raw VAST Challenge 2026 Mini-Challenge 1 dataset into the three relational tables, which are Rounds, Communications, and Participants."
+  },
+  {
+    "objectID": "Methodology/dataprep.html#loading-packages",
+    "href": "Methodology/dataprep.html#loading-packages",
+    "title": "Data Preparation",
+    "section": "1.1 Loading Packages",
+    "text": "1.1 Loading Packages\nWe use the following packages:\n\njsonlite - parse the JSON source file\ntidyverse - data wrangling and string operations\nlubridate - timestamp parsing\ntidytext - tokenisation for keyword flagging and text analysis\nknitr - formatted table output\n\n\npacman::p_load(jsonlite, tidyverse, lubridate, tidytext, knitr)"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#loading-data",
+    "href": "Methodology/dataprep.html#loading-data",
+    "title": "Data Preparation",
+    "section": "1.2 Loading Data",
+    "text": "1.2 Loading Data\nWe load the single JSON file provided for VAST Challenge 2026 Mini-Challenge 1.\n\nmc1_raw &lt;- fromJSON(\"data/MC1_final_00.json\", simplifyVector = FALSE)\nrounds_raw &lt;- mc1_raw$rounds\ncat(\"Total rounds:\", length(rounds_raw), \"\\n\")\n\nTotal rounds: 23 \n\n\nThe dataset contains 23 rounds, spanning 17 May 2046 to 5 June 2046 (the day of the embargo breach). Each round holds an environment_context object, a flat list of communications, and a participants list recording each agent’s status for that round."
+  },
+  {
+    "objectID": "Methodology/dataprep.html#top-level-schema",
+    "href": "Methodology/dataprep.html#top-level-schema",
+    "title": "Data Preparation",
+    "section": "2.1 Top-level schema",
+    "text": "2.1 Top-level schema\nEach round has four keys:\n\n\n\n\n\n\n\nKey\nDescription\n\n\n\n\nhour\nTimestamp for the round start\n\n\nenvironment_context\nExternal conditions: market data, events, headlines\n\n\ncommunications\nAll messages sent in that round\n\n\nparticipants\nAgent metadata and declared actions"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#agents",
+    "href": "Methodology/dataprep.html#agents",
+    "title": "Data Preparation",
+    "section": "2.2 Agents",
+    "text": "2.2 Agents\n\n\n\n\n\n\n\n\n\n\nAgent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance."
+  },
+  {
+    "objectID": "Methodology/dataprep.html#communication-channels-and-message-types",
+    "href": "Methodology/dataprep.html#communication-channels-and-message-types",
+    "title": "Data Preparation",
+    "section": "2.3 Communication channels and message types",
+    "text": "2.3 Communication channels and message types\n\n\nCode\n# Flatten all communications to inspect channels and message types\nall_comms_raw &lt;- map_dfr(rounds_raw, function(rnd) {\n  map_dfr(rnd$communications, function(msg) {\n    tibble(\n      channel      = msg$channel      %||% NA_character_,\n      message_type = msg$message_type %||% NA_character_\n    )\n  })\n})\n\nall_comms_raw %&gt;%\n  count(channel, message_type, name = \"count\") %&gt;%\n  arrange(desc(count)) %&gt;%\n  kable()\n\n\n\n\n\nchannel\nmessage_type\ncount\n\n\n\n\ncomms_huddle\nbroadcast\n388\n\n\none_on_one_chat\none_on_one_chat\n248\n\n\nside_huddle\nside_huddle\n111\n\n\ncomms_huddle\naction\n88\n\n\npersonal_post\npublic_post\n37\n\n\nofficial_post\npublic_post\n28\n\n\nanonymous_post\npublic_post\n12\n\n\n\n\n\nChannels fall into two broad groups:\n\nInternal: comms_huddle, side_huddle, one_on_one_chat\nPublic: official_post, personal_post, anonymous_post"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#extracting-fields",
+    "href": "Methodology/dataprep.html#extracting-fields",
+    "title": "Data Preparation",
+    "section": "4.1 Extracting fields",
+    "text": "4.1 Extracting fields\nWe extract one row per round from environment_context, including the (corrupted) raw stock price for cleaning in section Section 4.2.\n\n\nCode\nrounds_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd &lt;- rounds_raw[[i]]\n  ctx &lt;- rnd$environment_context\n  ms  &lt;- ctx$market_snapshot\n\n  tibble(\n    round_index        = i,\n    hour               = ymd_hms(rnd$hour),\n    event_headline     = ctx$event_headline   %||% NA_character_,\n    event_narrative    = ctx$event_narrative  %||% NA_character_,\n    social_state       = ctx$social_state     %||% NA_character_,\n    stock_price_raw    = ms$stock_price       %||% NA_character_,\n    pct_change_raw     = ms$percent_change    %||% NA_character_,\n    market_sentiment   = ms$sentiment         %||% NA_character_,\n    critical_deadlines = paste(unlist(ctx$critical_deadlines %||% list()),\n                               collapse = \"; \"),\n    news               = paste(unlist(ctx$news %||% list()),\n                               collapse = \"; \"),\n    agents_unavailable = paste(unlist(ctx$agents_unavailable %||% list()),\n                               collapse = \", \")\n  )\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")\n\nglimpse(rounds_tbl)\n\n\nRows: 23\nColumns: 12\n$ round_index        &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, …\n$ hour               &lt;dttm&gt; 2046-05-17 09:00:00, 2046-05-18 09:00:00, 2046-05-…\n$ event_headline     &lt;chr&gt; \"Q2 planning kickoff — AG inquiries flagged\", \"Cres…\n$ event_narrative    &lt;chr&gt; \"Pre-crisis Day 1 (2046-05-17, Thursday). Q2 planni…\n$ social_state       &lt;chr&gt; \"Quiet. ResidentIQ gaining positive 'privacy-first'…\n$ stock_price_raw    &lt;chr&gt; \"$38.70\", \"$38.40\", \"$37.90\", \"$37.50\", \"$37.20\", \"…\n$ pct_change_raw     &lt;chr&gt; \"-0.5%\", \"-0.8%\", \"-1.3%\", \"-1.1%\", \"-0.8%\", \"-1.1%…\n$ market_sentiment   &lt;chr&gt; \"neutral\", \"neutral\", \"cautious\", \"cautious\", \"caut…\n$ critical_deadlines &lt;chr&gt; \"Board risk summary framework due end of week\", \"\",…\n$ news               &lt;chr&gt; \"\", \"\", \"\", \"\", \"Ajay hints at 'career-defining' de…\n$ agents_unavailable &lt;chr&gt; \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\",…\n$ crisis_stage       &lt;fct&gt; Pre-crisis, Pre-crisis, Pre-crisis, Pre-crisis, Pre…"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#sec-data-cleaning",
+    "href": "Methodology/dataprep.html#sec-data-cleaning",
+    "title": "Data Preparation",
+    "section": "4.2 Cleaning corrupted stock prices",
+    "text": "4.2 Cleaning corrupted stock prices\n\n\n\n\n\n\nWarningKnown Data Quality Issues\n\n\n\n\nevent_headline for rounds 15 and 16 both read \"10:00 AM.\", corrected using the hour timestamp instead.\nstock_price for several crisis-day rounds contains corrupted values ($180, NULL), replaced with prices quoted in agent messages.\n\n\n\n\n\nCode\n# Prices recovered from agent message content for each corrupt round\nstock_price_fixes &lt;- tribble(\n  ~round_index, ~stock_price_clean,\n  14L,  28.70,    # 09:00 — NULL, opening price from agent content\n  15L,  31.50,    # 10:00 — NULL, interpolated from agent content\n  16L,  NA_real_, # 11:00 — $180 corrupt, no reliable quote found\n  19L,  26.90,    # 14:00 — $18.0 corrupt, use 13:00 price as reference\n  20L,  32.80,    # 15:00 — $18.0 corrupt, quoted in side-huddle\n  21L,  33.05,    # 16:00 — NULL, Sentinel 5:12 PM update\n  22L,  33.05,    # 17:00 — NULL, same post-market reference\n  23L,  33.05     # 18:00 — NULL, after-hours Sentinel final report\n)\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(c(\"stock_price_raw_num\", \"is_corrupt\",\n                   \"stock_price_clean\", \"pct_change_clean\"))) %&gt;%\n  mutate(\n    stock_price_raw_num = as.numeric(str_remove(stock_price_raw, \"\\\\$\")),\n    is_corrupt = round_index %in% stock_price_fixes$round_index |\n                 stock_price_raw_num %in% c(18, 18.0, 180) |\n                 is.na(stock_price_raw)\n  ) %&gt;%\n  left_join(stock_price_fixes, by = \"round_index\") %&gt;%\n  mutate(\n    stock_price_clean = if_else(\n      !is_corrupt,\n      stock_price_raw_num,\n      stock_price_clean\n    ),\n    pct_change_clean = as.numeric(str_remove(pct_change_raw, \"%\"))\n  )"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#extracting-fields-1",
+    "href": "Methodology/dataprep.html#extracting-fields-1",
+    "title": "Data Preparation",
+    "section": "5.1 Extracting fields",
+    "text": "5.1 Extracting fields\nWe flatten all messages from all rounds into a single data frame. Internal state sub-fields (reacting, rationalizing, deliberating) are extracted as separate columns.\n\n\nCode\ncomms_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd  &lt;- rounds_raw[[i]]\n  hour &lt;- ymd_hms(rnd$hour)\n\n  map_dfr(rnd$communications, function(msg) {\n    ist &lt;- msg$internal_state %||% list()\n\n    tibble(\n      round_index    = i,\n      round_hour     = hour,\n      message_id     = msg$message_id     %||% NA_character_,\n      agent_id       = msg$agent_id       %||% NA_character_,\n      agent_role     = msg$agent_role     %||% NA_character_,\n      agent_label    = msg$agent_label    %||% NA_character_,\n      channel        = msg$channel        %||% NA_character_,\n      message_type   = msg$message_type   %||% NA_character_,\n      responding_to  = msg$responding_to  %||% NA_character_,\n      content        = msg$content        %||% NA_character_,\n      timestamp      = ymd_hms(msg$timestamp %||% NA_character_),\n      recipients     = paste(unlist(msg$recipients %||% list()), collapse = \", \"),\n      # Internal state sub-fields\n      st_reacting      = ist$reacting      %||% NA_character_,\n      st_rationalizing = ist$rationalizing %||% NA_character_,\n      st_deliberating  = ist$deliberating  %||% NA_character_\n    )\n  })\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")\n\ncat(\"Total messages:\", nrow(comms_tbl), \"\\n\")\n\n\nTotal messages: 912"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#deriving-temporal-and-structural-columns",
+    "href": "Methodology/dataprep.html#deriving-temporal-and-structural-columns",
+    "title": "Data Preparation",
+    "section": "5.2 Deriving temporal and structural columns",
+    "text": "5.2 Deriving temporal and structural columns\n\n\nCode\ncomms_tbl &lt;- comms_tbl %&gt;%\n  mutate(\n    date              = as_date(timestamp),\n    hour_of_day       = hour(timestamp),\n    day_of_week       = wday(timestamp, label = TRUE),\n    is_crisis_day     = date == as_date(\"2046-06-05\"),\n    # Minutes elapsed since first message in dataset (for continuous timeline)\n    minutes_since_start = as.numeric(difftime(timestamp,\n                                               min(timestamp, na.rm = TRUE),\n                                               units = \"mins\")),\n    # Channel groupings\n    channel_type      = case_when(\n      channel %in% c(\"comms_huddle\", \"side_huddle\", \"one_on_one_chat\") ~ \"Internal\",\n      channel %in% c(\"official_post\", \"personal_post\", \"anonymous_post\") ~ \"Public\",\n      TRUE ~ \"Other\"\n    ),\n    is_side_channel   = channel %in% c(\"side_huddle\", \"one_on_one_chat\"),\n    is_public         = channel %in% c(\"official_post\", \"personal_post\", \"anonymous_post\"),\n    is_anonymous      = channel == \"anonymous_post\",\n    is_broadcast      = recipients == \"ALL\",\n    recipient_count   = if_else(\n      is_broadcast,\n      NA_integer_,\n      str_count(recipients, \",\") + 1L\n    ),\n    has_internal_state = !is.na(st_reacting) | !is.na(st_rationalizing) |\n                         !is.na(st_deliberating)\n  )"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#keyword-flagging",
+    "href": "Methodology/dataprep.html#keyword-flagging",
+    "title": "Data Preparation",
+    "section": "5.3 Keyword flagging",
+    "text": "5.3 Keyword flagging\nWe create three Boolean flag columns on content and (where present) st_deliberating, covering deal-related, embargo-related, and crisis-related terms. A combined text field full_text is used for this scan.\n\n\nCode\ndeal_terms    &lt;- c(\"merger\", \"acquisition\", \"deal\", \"civicloom\", \"harborcrest\",\n                   \"counterparty\", \"nda\", \"term sheet\", \"due diligence\", \"signing\",\n                   \"strategic\", \"transaction\", \"partner\")\n\nembargo_terms &lt;- c(\"embargo\", \"hold\", \"silence\", \"6 pm\", \"6:00\", \"release\",\n                   \"clearance\", \"judge\", \"compliance\", \"unauthorized\", \"approved\",\n                   \"restricted\", \"monitor\")\n\ncrisis_terms  &lt;- c(\"breach\", \"leak\", \"premature\", \"crisis\", \"firestorm\",\n                   \"escalate\", \"saltwind\", \"oceancrunch\", \"ag inquiry\",\n                   \"investigation\", \"viral\", \"senate\", \"attorney general\")\n\nflag_text &lt;- function(text_col, terms) {\n  pattern &lt;- paste(terms, collapse = \"|\")\n  str_detect(str_to_lower(text_col), pattern)\n}\n\ncomms_tbl &lt;- comms_tbl %&gt;%\n  mutate(\n    full_text          = paste(coalesce(content, \"\"),\n                                coalesce(st_deliberating, \"\"), sep = \" \"),\n    flag_deal_terms    = flag_text(full_text, deal_terms),\n    flag_embargo_terms = flag_text(full_text, embargo_terms),\n    flag_crisis_terms  = flag_text(full_text, crisis_terms),\n    flag_any           = flag_deal_terms | flag_embargo_terms | flag_crisis_terms\n  )\n\nDT::datatable(comms_tbl, caption = \"Communications Table\", options = list(pageLength = 5),class = \"nowrap\")"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#back-filling-comm_count-into-rounds-table",
+    "href": "Methodology/dataprep.html#back-filling-comm_count-into-rounds-table",
+    "title": "Data Preparation",
+    "section": "5.4 Back-filling comm_count into rounds table",
+    "text": "5.4 Back-filling comm_count into rounds table\n\n\nCode\ncomm_counts &lt;- comms_tbl %&gt;%\n  count(round_index, name = \"comm_count\")\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(\"comm_count\")) %&gt;%\n  left_join(comm_counts, by = \"round_index\")\n\nDT::datatable(rounds_tbl, caption = \"Rounds Table\", options = list(pageLength = 5),class = \"nowrap\")"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#extracting-fields-2",
+    "href": "Methodology/dataprep.html#extracting-fields-2",
+    "title": "Data Preparation",
+    "section": "6.1 Extracting fields",
+    "text": "6.1 Extracting fields\nWe extract one row per agent per round from the participants list, then parse declared_action into a clean action type and a separate content field.\n\n\nCode\nparticipants_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd &lt;- rounds_raw[[i]]\n  map_dfr(rnd$participants %||% list(), function(p) {\n    meta &lt;- p$agent_round_metadata %||% list()\n    tibble(\n      round_index         = i,\n      round_hour          = ymd_hms(rnd$hour),\n      agent_id            = p$agent_id            %||% NA_character_,\n      agent_role          = p$agent_role           %||% NA_character_,\n      agent_label         = p$agent_label          %||% NA_character_,\n      declared_action_raw = p$declared_action      %||% NA_character_,\n      sentiment_at_turn   = meta$sentiment_at_turn %||% NA_character_,\n      action_classification = meta$action_classification %||% NA_character_\n    )\n  })\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#parsing-declared-action-type",
+    "href": "Methodology/dataprep.html#parsing-declared-action-type",
+    "title": "Data Preparation",
+    "section": "6.2 Parsing declared action type",
+    "text": "6.2 Parsing declared action type\ndeclared_action can be a short token (e.g. MONITORING) or a long string containing post content. We extract the action type prefix and store the remainder as action_content.\n\n\nCode\nparticipants_tbl &lt;- participants_tbl %&gt;%\n  mutate(\n    action_type = case_when(\n      is.na(declared_action_raw)                            ~ NA_character_,\n      str_starts(declared_action_raw, \"MONITORING\")         ~ \"MONITORING\",\n      str_starts(declared_action_raw, \"POSTED_ON_FLEX\")     ~ \"POSTED_ON_FLEX\",\n      str_starts(declared_action_raw, \"POSTED_ANONYMOUS\")   ~ \"POSTED_ANONYMOUS\",\n      str_starts(declared_action_raw, \"POSTED_PERSONAL\")    ~ \"POSTED_PERSONAL\",\n      str_starts(declared_action_raw, \"COMPLIANCE_WARNING\") ~ \"COMPLIANCE_WARNING\",\n      TRUE                                                  ~ \"OTHER\"\n    ),\n    action_content = str_remove(declared_action_raw,\n                                \"^(MONITORING|POSTED_ON_FLEX|POSTED_ANONYMOUS|POSTED_PERSONAL|COMPLIANCE_WARNING)[:\\\\s—]*\")\n  )\n\nDT::datatable(participants_tbl, options = list(pageLength = 5),class = \"nowrap\")"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#expanding-broadcast-messages",
+    "href": "Methodology/dataprep.html#expanding-broadcast-messages",
+    "title": "Data Preparation",
+    "section": "7.1 Expanding broadcast messages",
+    "text": "7.1 Expanding broadcast messages\nDirect messages between agents.\n\n\nCode\n# Active agents per round (from participants table)\nactive_agents_per_round &lt;- participants_tbl %&gt;%\n  select(round_index, agent_id) %&gt;%\n  distinct()\n\n# Separate broadcast vs direct messages\ndirect_msgs &lt;- comms_tbl %&gt;%\n  filter(!is_broadcast, !is.na(recipients), recipients != \"\") %&gt;%\n  separate_rows(recipients, sep = \",\\\\s*\") %&gt;%\n  select(message_id, round_index, crisis_stage, timestamp, channel,\n         sender = agent_id, recipient = recipients)\n\nDT::datatable(direct_msgs, options = list(pageLength = 5),class = \"nowrap\")\n\n\n\n\n\n\nMessages broadcasted among agents.\n\n\nCode\nbroadcast_msgs &lt;- comms_tbl %&gt;%\n  filter(is_broadcast) %&gt;%\n  select(message_id, round_index, crisis_stage, timestamp, channel,\n         sender = agent_id) %&gt;%\n  left_join(active_agents_per_round, by = \"round_index\") %&gt;%\n  rename(recipient = agent_id) %&gt;%\n  filter(recipient != sender)\n\nDT::datatable(broadcast_msgs, options = list(pageLength = 5),class = \"nowrap\")\n\n\n\n\n\n\nCode\nedges_tbl &lt;- bind_rows(direct_msgs, broadcast_msgs) %&gt;%\n  # Remove messages with no identified recipient\n  filter(!is.na(recipient), recipient != \"\") %&gt;%\n  # Exclude internal-state-only rows (no actual sender)\n  filter(!is.na(sender))\n\ncat(\"Total directed edges:\", nrow(edges_tbl), \"\\n\")\n\n\nTotal directed edges: 2003"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#adding-edge-weights-by-crisis-stage",
+    "href": "Methodology/dataprep.html#adding-edge-weights-by-crisis-stage",
+    "title": "Data Preparation",
+    "section": "7.2 Adding edge weights by crisis stage",
+    "text": "7.2 Adding edge weights by crisis stage\n\nedges_weighted &lt;- edges_tbl %&gt;%\n  group_by(sender, recipient, channel, crisis_stage) %&gt;%\n  summarise(\n    weight         = n(),\n    first_contact  = min(timestamp, na.rm = TRUE),\n    last_contact   = max(timestamp, na.rm = TRUE),\n    .groups        = \"drop\"\n  )\n\nDT::datatable(edges_weighted, options = list(pageLength = 5),class = \"nowrap\")"
+  },
+  {
     "objectID": "proposal.html",
     "href": "proposal.html",
     "title": "Project Proposal",
@@ -194,89 +264,5 @@
     "title": "Project Proposal",
     "section": "Project Schedule",
     "text": "Project Schedule"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#extracting-fields",
-    "href": "Methodology/dataprep.html#extracting-fields",
-    "title": "Data Preparation",
-    "section": "4.1 Extracting fields",
-    "text": "4.1 Extracting fields\nWe extract one row per round from environment_context, including the (corrupted) raw stock price for cleaning in section Section 4.2.\n\n\nCode\nrounds_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd &lt;- rounds_raw[[i]]\n  ctx &lt;- rnd$environment_context\n  ms  &lt;- ctx$market_snapshot\n\n  tibble(\n    round_index        = i,\n    hour               = ymd_hms(rnd$hour),\n    event_headline     = ctx$event_headline   %||% NA_character_,\n    event_narrative    = ctx$event_narrative  %||% NA_character_,\n    social_state       = ctx$social_state     %||% NA_character_,\n    stock_price_raw    = ms$stock_price       %||% NA_character_,\n    pct_change_raw     = ms$percent_change    %||% NA_character_,\n    market_sentiment   = ms$sentiment         %||% NA_character_,\n    critical_deadlines = paste(unlist(ctx$critical_deadlines %||% list()),\n                               collapse = \"; \"),\n    news               = paste(unlist(ctx$news %||% list()),\n                               collapse = \"; \"),\n    agents_unavailable = paste(unlist(ctx$agents_unavailable %||% list()),\n                               collapse = \", \")\n  )\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")\n\nglimpse(rounds_tbl)\n\n\nRows: 23\nColumns: 12\n$ round_index        &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, …\n$ hour               &lt;dttm&gt; 2046-05-17 09:00:00, 2046-05-18 09:00:00, 2046-05-…\n$ event_headline     &lt;chr&gt; \"Q2 planning kickoff — AG inquiries flagged\", \"Cres…\n$ event_narrative    &lt;chr&gt; \"Pre-crisis Day 1 (2046-05-17, Thursday). Q2 planni…\n$ social_state       &lt;chr&gt; \"Quiet. ResidentIQ gaining positive 'privacy-first'…\n$ stock_price_raw    &lt;chr&gt; \"$38.70\", \"$38.40\", \"$37.90\", \"$37.50\", \"$37.20\", \"…\n$ pct_change_raw     &lt;chr&gt; \"-0.5%\", \"-0.8%\", \"-1.3%\", \"-1.1%\", \"-0.8%\", \"-1.1%…\n$ market_sentiment   &lt;chr&gt; \"neutral\", \"neutral\", \"cautious\", \"cautious\", \"caut…\n$ critical_deadlines &lt;chr&gt; \"Board risk summary framework due end of week\", \"\",…\n$ news               &lt;chr&gt; \"\", \"\", \"\", \"\", \"Ajay hints at 'career-defining' de…\n$ agents_unavailable &lt;chr&gt; \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\",…\n$ crisis_stage       &lt;fct&gt; Pre-crisis, Pre-crisis, Pre-crisis, Pre-crisis, Pre…"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#data-cleaning",
-    "href": "Methodology/dataprep.html#data-cleaning",
-    "title": "Data Preparation",
-    "section": "4.2 Cleaning corrupted stock prices",
-    "text": "4.2 Cleaning corrupted stock prices\n\n\n\n\n\n\nWarningKnown Data Quality Issues\n\n\n\n\nevent_headline for rounds 15 and 16 both read \"10:00 AM.\", corrected using the hour timestamp instead.\nstock_price for several crisis-day rounds contains corrupted values ($180, NULL), replaced with prices quoted in agent messages.\n\n\n\n\n\nCode\n# Prices recovered from agent message content for each corrupt round\nstock_price_fixes &lt;- tribble(\n  ~round_index, ~stock_price_clean,\n  14L,  28.70,    # 09:00 — NULL, opening price from agent content\n  15L,  31.50,    # 10:00 — NULL, interpolated from agent content\n  16L,  NA_real_, # 11:00 — $180 corrupt, no reliable quote found\n  19L,  26.90,    # 14:00 — $18.0 corrupt, use 13:00 price as reference\n  20L,  32.80,    # 15:00 — $18.0 corrupt, quoted in side-huddle\n  21L,  33.05,    # 16:00 — NULL, Sentinel 5:12 PM update\n  22L,  33.05,    # 17:00 — NULL, same post-market reference\n  23L,  33.05     # 18:00 — NULL, after-hours Sentinel final report\n)\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(c(\"stock_price_raw_num\", \"is_corrupt\",\n                   \"stock_price_clean\", \"pct_change_clean\"))) %&gt;%\n  mutate(\n    stock_price_raw_num = as.numeric(str_remove(stock_price_raw, \"\\\\$\")),\n    is_corrupt = round_index %in% stock_price_fixes$round_index |\n                 stock_price_raw_num %in% c(18, 18.0, 180) |\n                 is.na(stock_price_raw)\n  ) %&gt;%\n  left_join(stock_price_fixes, by = \"round_index\") %&gt;%\n  mutate(\n    stock_price_clean = if_else(\n      !is_corrupt,\n      stock_price_raw_num,\n      stock_price_clean\n    ),\n    pct_change_clean = as.numeric(str_remove(pct_change_raw, \"%\"))\n  )"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#extracting-fields-1",
-    "href": "Methodology/dataprep.html#extracting-fields-1",
-    "title": "Data Preparation",
-    "section": "5.1 Extracting fields",
-    "text": "5.1 Extracting fields\nWe flatten all messages from all rounds into a single data frame. Internal state sub-fields (reacting, rationalizing, deliberating) are extracted as separate columns.\n\n\nCode\ncomms_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd  &lt;- rounds_raw[[i]]\n  hour &lt;- ymd_hms(rnd$hour)\n\n  map_dfr(rnd$communications, function(msg) {\n    ist &lt;- msg$internal_state %||% list()\n\n    tibble(\n      round_index    = i,\n      round_hour     = hour,\n      message_id     = msg$message_id     %||% NA_character_,\n      agent_id       = msg$agent_id       %||% NA_character_,\n      agent_role     = msg$agent_role     %||% NA_character_,\n      agent_label    = msg$agent_label    %||% NA_character_,\n      channel        = msg$channel        %||% NA_character_,\n      message_type   = msg$message_type   %||% NA_character_,\n      responding_to  = msg$responding_to  %||% NA_character_,\n      content        = msg$content        %||% NA_character_,\n      timestamp      = ymd_hms(msg$timestamp %||% NA_character_),\n      recipients     = paste(unlist(msg$recipients %||% list()), collapse = \", \"),\n      # Internal state sub-fields\n      st_reacting      = ist$reacting      %||% NA_character_,\n      st_rationalizing = ist$rationalizing %||% NA_character_,\n      st_deliberating  = ist$deliberating  %||% NA_character_\n    )\n  })\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")\n\ncat(\"Total messages:\", nrow(comms_tbl), \"\\n\")\n\n\nTotal messages: 912"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#deriving-temporal-and-structural-columns",
-    "href": "Methodology/dataprep.html#deriving-temporal-and-structural-columns",
-    "title": "Data Preparation",
-    "section": "5.2 Deriving temporal and structural columns",
-    "text": "5.2 Deriving temporal and structural columns\n\n\nCode\ncomms_tbl &lt;- comms_tbl %&gt;%\n  mutate(\n    date              = as_date(timestamp),\n    hour_of_day       = hour(timestamp),\n    day_of_week       = wday(timestamp, label = TRUE),\n    is_crisis_day     = date == as_date(\"2046-06-05\"),\n    # Minutes elapsed since first message in dataset (for continuous timeline)\n    minutes_since_start = as.numeric(difftime(timestamp,\n                                               min(timestamp, na.rm = TRUE),\n                                               units = \"mins\")),\n    # Channel groupings\n    channel_type      = case_when(\n      channel %in% c(\"comms_huddle\", \"side_huddle\", \"one_on_one_chat\") ~ \"Internal\",\n      channel %in% c(\"official_post\", \"personal_post\", \"anonymous_post\") ~ \"Public\",\n      TRUE ~ \"Other\"\n    ),\n    is_side_channel   = channel %in% c(\"side_huddle\", \"one_on_one_chat\"),\n    is_public         = channel %in% c(\"official_post\", \"personal_post\", \"anonymous_post\"),\n    is_anonymous      = channel == \"anonymous_post\",\n    is_broadcast      = recipients == \"ALL\",\n    recipient_count   = if_else(\n      is_broadcast,\n      NA_integer_,\n      str_count(recipients, \",\") + 1L\n    ),\n    has_internal_state = !is.na(st_reacting) | !is.na(st_rationalizing) |\n                         !is.na(st_deliberating)\n  )"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#keyword-flagging",
-    "href": "Methodology/dataprep.html#keyword-flagging",
-    "title": "Data Preparation",
-    "section": "5.3 Keyword flagging",
-    "text": "5.3 Keyword flagging\nWe create three Boolean flag columns on content and (where present) st_deliberating, covering deal-related, embargo-related, and crisis-related terms. A combined text field full_text is used for this scan.\n\n\nCode\ndeal_terms    &lt;- c(\"merger\", \"acquisition\", \"deal\", \"civicloom\", \"harborcrest\",\n                   \"counterparty\", \"nda\", \"term sheet\", \"due diligence\", \"signing\",\n                   \"strategic\", \"transaction\", \"partner\")\n\nembargo_terms &lt;- c(\"embargo\", \"hold\", \"silence\", \"6 pm\", \"6:00\", \"release\",\n                   \"clearance\", \"judge\", \"compliance\", \"unauthorized\", \"approved\",\n                   \"restricted\", \"monitor\")\n\ncrisis_terms  &lt;- c(\"breach\", \"leak\", \"premature\", \"crisis\", \"firestorm\",\n                   \"escalate\", \"saltwind\", \"oceancrunch\", \"ag inquiry\",\n                   \"investigation\", \"viral\", \"senate\", \"attorney general\")\n\nflag_text &lt;- function(text_col, terms) {\n  pattern &lt;- paste(terms, collapse = \"|\")\n  str_detect(str_to_lower(text_col), pattern)\n}\n\ncomms_tbl &lt;- comms_tbl %&gt;%\n  mutate(\n    full_text          = paste(coalesce(content, \"\"),\n                                coalesce(st_deliberating, \"\"), sep = \" \"),\n    flag_deal_terms    = flag_text(full_text, deal_terms),\n    flag_embargo_terms = flag_text(full_text, embargo_terms),\n    flag_crisis_terms  = flag_text(full_text, crisis_terms),\n    flag_any           = flag_deal_terms | flag_embargo_terms | flag_crisis_terms\n  )\n\nDT::datatable(comms_tbl, caption = \"Communications Table\", options = list(pageLength = 5),class = \"nowrap\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#checking-keyword-flag-distribution",
-    "href": "Methodology/dataprep.html#checking-keyword-flag-distribution",
-    "title": "Data Preparation",
-    "section": "5.4 Checking keyword flag distribution",
-    "text": "5.4 Checking keyword flag distribution\n\ncomms_tbl %&gt;%\n  count(crisis_stage, flag_deal_terms, flag_embargo_terms,\n        flag_crisis_terms, flag_any) %&gt;%\n  filter(flag_any) %&gt;%\n  arrange(crisis_stage) %&gt;%\n  kable()\n\n\n\n\n\n\n\n\n\n\n\n\ncrisis_stage\nflag_deal_terms\nflag_embargo_terms\nflag_crisis_terms\nflag_any\nn\n\n\n\n\nPre-crisis\nFALSE\nFALSE\nTRUE\nTRUE\n9\n\n\nPre-crisis\nFALSE\nTRUE\nFALSE\nTRUE\n15\n\n\nPre-crisis\nFALSE\nTRUE\nTRUE\nTRUE\n2\n\n\nPre-crisis\nTRUE\nFALSE\nFALSE\nTRUE\n33\n\n\nPre-crisis\nTRUE\nFALSE\nTRUE\nTRUE\n2\n\n\nPre-crisis\nTRUE\nTRUE\nFALSE\nTRUE\n2\n\n\nPre-crisis\nTRUE\nTRUE\nTRUE\nTRUE\n2\n\n\nCrisis (pre-breach)\nFALSE\nFALSE\nTRUE\nTRUE\n19\n\n\nCrisis (pre-breach)\nFALSE\nTRUE\nFALSE\nTRUE\n37\n\n\nCrisis (pre-breach)\nFALSE\nTRUE\nTRUE\nTRUE\n10\n\n\nCrisis (pre-breach)\nTRUE\nFALSE\nFALSE\nTRUE\n19\n\n\nCrisis (pre-breach)\nTRUE\nFALSE\nTRUE\nTRUE\n6\n\n\nCrisis (pre-breach)\nTRUE\nTRUE\nFALSE\nTRUE\n21\n\n\nCrisis (pre-breach)\nTRUE\nTRUE\nTRUE\nTRUE\n8\n\n\nBreach window\nFALSE\nFALSE\nTRUE\nTRUE\n21\n\n\nBreach window\nFALSE\nTRUE\nFALSE\nTRUE\n126\n\n\nBreach window\nFALSE\nTRUE\nTRUE\nTRUE\n41\n\n\nBreach window\nTRUE\nFALSE\nFALSE\nTRUE\n28\n\n\nBreach window\nTRUE\nFALSE\nTRUE\nTRUE\n24\n\n\nBreach window\nTRUE\nTRUE\nFALSE\nTRUE\n48\n\n\nBreach window\nTRUE\nTRUE\nTRUE\nTRUE\n115\n\n\nPost-embargo\nFALSE\nTRUE\nFALSE\nTRUE\n5\n\n\nPost-embargo\nTRUE\nFALSE\nFALSE\nTRUE\n7\n\n\nPost-embargo\nTRUE\nFALSE\nTRUE\nTRUE\n4\n\n\nPost-embargo\nTRUE\nTRUE\nFALSE\nTRUE\n27\n\n\nPost-embargo\nTRUE\nTRUE\nTRUE\nTRUE\n10\n\n\n\n\nDT::datatable(comms_tbl, options = list(pageLength = 5),class = \"nowrap\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#sec-data-cleaning",
-    "href": "Methodology/dataprep.html#sec-data-cleaning",
-    "title": "Data Preparation",
-    "section": "4.2 Cleaning corrupted stock prices",
-    "text": "4.2 Cleaning corrupted stock prices\n\n\n\n\n\n\nWarningKnown Data Quality Issues\n\n\n\n\nevent_headline for rounds 15 and 16 both read \"10:00 AM.\", corrected using the hour timestamp instead.\nstock_price for several crisis-day rounds contains corrupted values ($180, NULL), replaced with prices quoted in agent messages.\n\n\n\n\n\nCode\n# Prices recovered from agent message content for each corrupt round\nstock_price_fixes &lt;- tribble(\n  ~round_index, ~stock_price_clean,\n  14L,  28.70,    # 09:00 — NULL, opening price from agent content\n  15L,  31.50,    # 10:00 — NULL, interpolated from agent content\n  16L,  NA_real_, # 11:00 — $180 corrupt, no reliable quote found\n  19L,  26.90,    # 14:00 — $18.0 corrupt, use 13:00 price as reference\n  20L,  32.80,    # 15:00 — $18.0 corrupt, quoted in side-huddle\n  21L,  33.05,    # 16:00 — NULL, Sentinel 5:12 PM update\n  22L,  33.05,    # 17:00 — NULL, same post-market reference\n  23L,  33.05     # 18:00 — NULL, after-hours Sentinel final report\n)\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(c(\"stock_price_raw_num\", \"is_corrupt\",\n                   \"stock_price_clean\", \"pct_change_clean\"))) %&gt;%\n  mutate(\n    stock_price_raw_num = as.numeric(str_remove(stock_price_raw, \"\\\\$\")),\n    is_corrupt = round_index %in% stock_price_fixes$round_index |\n                 stock_price_raw_num %in% c(18, 18.0, 180) |\n                 is.na(stock_price_raw)\n  ) %&gt;%\n  left_join(stock_price_fixes, by = \"round_index\") %&gt;%\n  mutate(\n    stock_price_clean = if_else(\n      !is_corrupt,\n      stock_price_raw_num,\n      stock_price_clean\n    ),\n    pct_change_clean = as.numeric(str_remove(pct_change_raw, \"%\"))\n  )"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#back-filling-comm_count-into-rounds-table",
-    "href": "Methodology/dataprep.html#back-filling-comm_count-into-rounds-table",
-    "title": "Data Preparation",
-    "section": "5.4 Back-filling comm_count into rounds table",
-    "text": "5.4 Back-filling comm_count into rounds table\n\n\nCode\ncomm_counts &lt;- comms_tbl %&gt;%\n  count(round_index, name = \"comm_count\")\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(\"comm_count\")) %&gt;%\n  left_join(comm_counts, by = \"round_index\")\n\nDT::datatable(rounds_tbl, caption = \"Rounds Table\", options = list(pageLength = 5),class = \"nowrap\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#extracting-fields-2",
-    "href": "Methodology/dataprep.html#extracting-fields-2",
-    "title": "Data Preparation",
-    "section": "6.1 Extracting fields",
-    "text": "6.1 Extracting fields\nWe extract one row per agent per round from the participants list, then parse declared_action into a clean action type and a separate content field.\n\n\nCode\nparticipants_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd &lt;- rounds_raw[[i]]\n  map_dfr(rnd$participants %||% list(), function(p) {\n    meta &lt;- p$agent_round_metadata %||% list()\n    tibble(\n      round_index         = i,\n      round_hour          = ymd_hms(rnd$hour),\n      agent_id            = p$agent_id            %||% NA_character_,\n      agent_role          = p$agent_role           %||% NA_character_,\n      agent_label         = p$agent_label          %||% NA_character_,\n      declared_action_raw = p$declared_action      %||% NA_character_,\n      sentiment_at_turn   = meta$sentiment_at_turn %||% NA_character_,\n      action_classification = meta$action_classification %||% NA_character_\n    )\n  })\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#parsing-declared-action-type",
-    "href": "Methodology/dataprep.html#parsing-declared-action-type",
-    "title": "Data Preparation",
-    "section": "6.2 Parsing declared action type",
-    "text": "6.2 Parsing declared action type\ndeclared_action can be a short token (e.g. MONITORING) or a long string containing post content. We extract the action type prefix and store the remainder as action_content.\n\n\nCode\nparticipants_tbl &lt;- participants_tbl %&gt;%\n  mutate(\n    action_type = case_when(\n      is.na(declared_action_raw)                            ~ NA_character_,\n      str_starts(declared_action_raw, \"MONITORING\")         ~ \"MONITORING\",\n      str_starts(declared_action_raw, \"POSTED_ON_FLEX\")     ~ \"POSTED_ON_FLEX\",\n      str_starts(declared_action_raw, \"POSTED_ANONYMOUS\")   ~ \"POSTED_ANONYMOUS\",\n      str_starts(declared_action_raw, \"POSTED_PERSONAL\")    ~ \"POSTED_PERSONAL\",\n      str_starts(declared_action_raw, \"COMPLIANCE_WARNING\") ~ \"COMPLIANCE_WARNING\",\n      TRUE                                                  ~ \"OTHER\"\n    ),\n    action_content = str_remove(declared_action_raw,\n                                \"^(MONITORING|POSTED_ON_FLEX|POSTED_ANONYMOUS|POSTED_PERSONAL|COMPLIANCE_WARNING)[:\\\\s—]*\")\n  )\n\nDT::datatable(participants_tbl, options = list(pageLength = 5),class = \"nowrap\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#expanding-broadcast-messages",
-    "href": "Methodology/dataprep.html#expanding-broadcast-messages",
-    "title": "Data Preparation",
-    "section": "7.1 Expanding broadcast messages",
-    "text": "7.1 Expanding broadcast messages\nDirect messages between agents.\n\n\nCode\n# Active agents per round (from participants table)\nactive_agents_per_round &lt;- participants_tbl %&gt;%\n  select(round_index, agent_id) %&gt;%\n  distinct()\n\n# Separate broadcast vs direct messages\ndirect_msgs &lt;- comms_tbl %&gt;%\n  filter(!is_broadcast, !is.na(recipients), recipients != \"\") %&gt;%\n  separate_rows(recipients, sep = \",\\\\s*\") %&gt;%\n  select(message_id, round_index, crisis_stage, timestamp, channel,\n         sender = agent_id, recipient = recipients)\n\nDT::datatable(direct_msgs, options = list(pageLength = 5),class = \"nowrap\")\n\n\n\n\n\n\nMessages broadcasted among agents.\n\n\nCode\nbroadcast_msgs &lt;- comms_tbl %&gt;%\n  filter(is_broadcast) %&gt;%\n  select(message_id, round_index, crisis_stage, timestamp, channel,\n         sender = agent_id) %&gt;%\n  left_join(active_agents_per_round, by = \"round_index\") %&gt;%\n  rename(recipient = agent_id) %&gt;%\n  filter(recipient != sender)\n\nDT::datatable(broadcast_msgs, options = list(pageLength = 5),class = \"nowrap\")\n\n\n\n\n\n\nCode\nedges_tbl &lt;- bind_rows(direct_msgs, broadcast_msgs) %&gt;%\n  # Remove messages with no identified recipient\n  filter(!is.na(recipient), recipient != \"\") %&gt;%\n  # Exclude internal-state-only rows (no actual sender)\n  filter(!is.na(sender))\n\ncat(\"Total directed edges:\", nrow(edges_tbl), \"\\n\")\n\n\nTotal directed edges: 2003"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#adding-edge-weights-by-crisis-stage",
-    "href": "Methodology/dataprep.html#adding-edge-weights-by-crisis-stage",
-    "title": "Data Preparation",
-    "section": "7.2 Adding edge weights by crisis stage",
-    "text": "7.2 Adding edge weights by crisis stage\n\nedges_weighted &lt;- edges_tbl %&gt;%\n  group_by(sender, recipient, channel, crisis_stage) %&gt;%\n  summarise(\n    weight         = n(),\n    first_contact  = min(timestamp, na.rm = TRUE),\n    last_contact   = max(timestamp, na.rm = TRUE),\n    .groups        = \"drop\"\n  )\n\nDT::datatable(edges_weighted, options = list(pageLength = 5),class = \"nowrap\")"
   }
 ]
