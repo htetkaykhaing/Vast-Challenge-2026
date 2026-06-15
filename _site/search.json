@@ -264,5 +264,61 @@
     "title": "Project Proposal",
     "section": "Project Schedule",
     "text": "Project Schedule"
+  },
+  {
+    "objectID": "Methodology/analysis.html",
+    "href": "Methodology/analysis.html",
+    "title": "Analysis",
+    "section": "",
+    "text": "Code\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(ggrepel)\nlibrary(knitr)\nlibrary(DT)\n\n# load pre-built tables from dataprep.qmd\nrounds_tbl       &lt;- read_rds(\"data/rds/rounds.rds\")\ncomms_tbl        &lt;- read_rds(\"data/rds/communications.rds\")\nparticipants_tbl &lt;- read_rds(\"data/rds/participants.rds\")\nedges_weighted   &lt;- read_rds(\"data/rds/network_edges.rds\")\n\n# derive stock table from rounds_tbl\n# rounds_tbl already has stock_price_clean and is_corrupt from dataprep cleaning\nstock_tbl &lt;- rounds_tbl |&gt;\n  select(round_index, hour, stock_price_clean, is_corrupt, market_sentiment)"
+  },
+  {
+    "objectID": "Methodology/analysis.html#ceo-private-messages",
+    "href": "Methodology/analysis.html#ceo-private-messages",
+    "title": "Analysis",
+    "section": "1.1 CEO private messages",
+    "text": "1.1 CEO private messages\nThere is no direct conversation between Ajay and Elena in the dataset. Their agreement is documented only through CEO private messages embedded inside agents’ internal_state.deliberating fields.\n\n\nCode\n# Pull every CEO private message from internal_state fields across all rounds\nceo_privates &lt;- comms_tbl |&gt;\n  mutate(\n    full_state = paste(\n      coalesce(st_reacting, \"\"),\n      coalesce(st_rationalizing, \"\"),\n      coalesce(st_deliberating, \"\"),\n      sep = \" \"\n    ),\n    ceo_msgs = str_extract_all(\n      full_state,\n      'CEO Ajay messaged me privately: \"([^\"]+)\"'\n    )\n  ) |&gt;\n  filter(map_int(ceo_msgs, length) &gt; 0) |&gt;\n  unnest(ceo_msgs) |&gt;\n  mutate(\n    ceo_msg_text = str_remove(ceo_msgs, '^CEO Ajay messaged me privately: \"') |&gt;\n                   str_remove('\"$')\n  ) |&gt;\n  select(round_index, round_hour, timestamp, agent_label, ceo_msg_text)\n\nceo_privates |&gt;\n  select(round_index, round_hour, agent_label, ceo_msg_text) |&gt;\n  datatable(\n    caption  = \"All CEO Ajay private messages embedded in agent internal_state fields\",\n    options  = list(pageLength = 5),\n    colnames = c(\"Round\", \"Round hour\", \"Agent receiving message\", \"CEO private message text\")\n  )"
+  },
+  {
+    "objectID": "Methodology/analysis.html#pm-embargo-time-explicitly-stated",
+    "href": "Methodology/analysis.html#pm-embargo-time-explicitly-stated",
+    "title": "Analysis",
+    "section": "1.3 6 PM Embargo Time Explicitly Stated",
+    "text": "1.3 6 PM Embargo Time Explicitly Stated\n\n\nCode\n# Search content and internal state fields for explicit \"6 PM\" mentions\nsixpm_msgs &lt;- comms_tbl |&gt;\n  mutate(full_text = paste(coalesce(content,\"\"), coalesce(st_deliberating,\"\"), sep=\" \")) |&gt;\n  filter(str_detect(str_to_lower(full_text), \"6 pm|6:00 pm|embargo.*6|official at 6\")) |&gt;\n  select(round_index, timestamp, agent_label, channel, content) |&gt;\n  mutate(content = str_trunc(content, 200)) |&gt;\n  arrange(timestamp)\n\nsixpm_msgs |&gt;\n  datatable(\n    caption  = \"All messages explicitly mentioning the 6 PM embargo time\",\n    options  = list(pageLength = 8),\n    colnames = c(\"Round\", \"Timestamp\", \"Agent\", \"Channel\", \"Content (truncated)\")\n  )"
+  },
+  {
+    "objectID": "Methodology/analysis.html#agreement-mentioned",
+    "href": "Methodology/analysis.html#agreement-mentioned",
+    "title": "Analysis",
+    "section": "1.2 Agreement mentioned",
+    "text": "1.2 Agreement mentioned\n\n\nCode\n# Round 13 contains the key agreement\nceo_privates |&gt;\n  filter(round_index == 13) |&gt;\n  select(round_hour, agent_label, ceo_msg_text) |&gt;\n  datatable(\n    caption   = \"Round 13 (2046-06-04) - CEO private messages inside Legal-Agent's st_deliberating\",\n    colnames  = c(\"Round hour\", \"Agent\", \"CEO private message (from internal_state.deliberating)\"),\n    options   = list(\n      pageLength  = 10,\n      dom         = \"t\",\n      ordering    = FALSE,\n      columnDefs  = list(list(width = \"60%\", targets = 2))\n    ),\n    rownames  = FALSE\n  )\n\n\n\n\n\n\n\n\n\n\n\n\nNote\n\n\n\nThe third message is the agreement: “CivicLoom call complete. Elena and I have agreed: we are accelerating. Target announcement: Friday, May 29. Document review starts tonight. AG outreach tomorrow morning. I’ll brief the full team tomorrow at 9 AM War Room. Keep this between us and outside counsel until then. The next 24 hours are the most important ones. Hold the line.”"
+  },
+  {
+    "objectID": "Methodology/analysis.html#ceos-final-hold-instruction",
+    "href": "Methodology/analysis.html#ceos-final-hold-instruction",
+    "title": "Analysis",
+    "section": "1.4 CEO’s Final Hold Instruction",
+    "text": "1.4 CEO’s Final Hold Instruction\n\n\nCode\n# environment_context.event_narrative is stored in rounds_tbl$event_narrative\nrounds_tbl |&gt;\n  filter(str_detect(str_to_lower(event_narrative), \"hold the line|sixty minutes\")) |&gt;\n  select(round_index, hour, event_narrative) |&gt;\n  kable(\n    caption   = \"Round 22 environment_context.event_narrative — CEO's explicit hold instruction\",\n    col.names = c(\"Round\", \"Hour\", \"Narrative (verbatim from environment_context)\")\n  )\n\n\n\nRound 22 environment_context.event_narrative — CEO’s explicit hold instruction\n\n\n\n\n\n\n\nRound\nHour\nNarrative (verbatim from environment_context)\n\n\n\n\n13\n2046-06-04 09:00:00\nPre-crisis Day 13 (2046-06-04, Monday). SaltWind Journal publishes Piece #2: ‘Re-Identification Risk: How TenantThread’s Anonymous Analytics Can Expose Individual Tenants.’ Sentiment drops sharply. Compliance warnings tightened. Ajay sends late-night DM: ‘Hold the line. Tomorrow will be hard but we are close. Trust the process.’ Tomorrow is the crisis day.\n\n\n22\n2046-06-05 17:00:00\n5:00 PM. SaltWind publishes: ‘EXCLUSIVE: TenantThread and CivicLoom in Advanced Merger Talks.’ CEO Ajay: ‘Sixty minutes. Hold the line. The announcement goes official at 6.’"
+  },
+  {
+    "objectID": "Methodology/analysis.html#judges-non-objection-the-compliance-monitor-standing-down",
+    "href": "Methodology/analysis.html#judges-non-objection-the-compliance-monitor-standing-down",
+    "title": "Analysis",
+    "section": "1.5 Judge’s Non-Objection — The Compliance Monitor Standing Down",
+    "text": "1.5 Judge’s Non-Objection — The Compliance Monitor Standing Down\n\n\nCode\njudge_noobj &lt;- comms_tbl |&gt;\n  filter(agent_id == \"judge_eval_agent\") |&gt;\n  filter(str_detect(str_to_lower(content), \"not object|objecting|not objecting|bilateral|i am not\")) |&gt;\n  select(round_index, timestamp, channel, content)\n\njudge_noobj |&gt;\n  kable(\n    caption   = \"Judge-Agent messages containing 'not objecting' or 'bilateral' — compliance monitor stands down\",\n    col.names = c(\"Round\", \"Timestamp\", \"Channel\", \"Content (verbatim)\")\n  )\n\n\n\nJudge-Agent messages containing ‘not objecting’ or ‘bilateral’ — compliance monitor stands down\n\n\nRound\nTimestamp\nChannel\nContent (verbatim)"
+  },
+  {
+    "objectID": "Methodology/analysis.html#side-channel-use-vs-main-channel",
+    "href": "Methodology/analysis.html#side-channel-use-vs-main-channel",
+    "title": "Analysis",
+    "section": "3.1 Side-Channel Use vs Main Channel",
+    "text": "3.1 Side-Channel Use vs Main Channel\nside_huddle and one_on_one_chat are outside Judge-Agent’s comms_huddle view. Their rise on breach day is directly observable.\n\n\nCode\ncomms_tbl |&gt;\n  mutate(channel_group = case_when(\n    channel == \"comms_huddle\"                                  ~ \"comms_huddle (main)\",\n    channel %in% c(\"side_huddle\", \"one_on_one_chat\")           ~ \"side/1:1 (bypasses Judge)\",\n    channel %in% c(\"official_post\",\"personal_post\",\"anonymous_post\") ~ \"public post\",\n    TRUE ~ \"other\"\n  )) |&gt;\n  count(round_hour, channel_group) |&gt;\n  ggplot(aes(x = round_hour, y = n, colour = channel_group, group = channel_group)) +\n  geom_line() +\n  geom_point(size = 1.8) +\n  geom_vline(xintercept = as.numeric(ymd_hms(\"2046-06-05T00:00:00\")),\n             linetype = \"dashed\") +\n  scale_x_datetime(date_labels = \"%b %d\", date_breaks = \"4 days\") +\n  labs(\n    title    = \"Side-channel (side_huddle + one_on_one) messages vs main channel over time\",\n    subtitle = \"side_huddle and one_on_one_chat are excluded from comms_huddle — Judge cannot see them\",\n    x        = NULL,\n    y        = \"Messages per round\",\n    colour   = \"Channel group\"\n  )"
+  },
+  {
+    "objectID": "Methodology/analysis.html#judge-agent-activity-per-round",
+    "href": "Methodology/analysis.html#judge-agent-activity-per-round",
+    "title": "Analysis",
+    "section": "6.1 Judge-Agent Activity Per Round",
+    "text": "6.1 Judge-Agent Activity Per Round\nWas the compliance monitor present in each round?\n\n\nCode\njudge_per_round &lt;- comms_tbl |&gt;\n  filter(agent_id == \"judge_eval_agent\") |&gt;\n  count(round_index, round_hour, name = \"judge_msgs\")\n\n# Include all rounds (zero-fill where absent)\nall_rounds &lt;- comms_tbl |&gt;\n  distinct(round_index, round_hour, crisis_stage)\n\nall_rounds |&gt;\n  left_join(judge_per_round, by = c(\"round_index\",\"round_hour\")) |&gt;\n  mutate(judge_msgs = replace_na(judge_msgs, 0L)) |&gt;\n  ggplot(aes(x = round_hour, y = judge_msgs, fill = crisis_stage)) +\n  geom_col(width = 3600 * 3) +\n  geom_vline(xintercept = as.numeric(ymd_hms(\"2046-05-29T09:31:00\")),\n             linetype = \"dashed\") +\n  annotate(\"text\",\n    x = ymd_hms(\"2046-05-29T12:00:00\"), y = 9,\n    label = \"Judge\\nassigned →\", hjust = 0, size = 2.8) +\n  geom_vline(xintercept = as.numeric(ymd_hms(\"2046-06-05T17:00:00\")),\n             linetype = \"dashed\") +\n  annotate(\"text\",\n    x = ymd_hms(\"2046-06-05T14:00:00\"), y = 9,\n    label = \"← 'Not\\nobjecting'\", hjust = 1, size = 2.8) +\n  scale_x_datetime(date_labels = \"%b %d\", date_breaks = \"4 days\") +\n  labs(\n    title    = \"Judge-Agent message count per round (0 = silent that round)\",\n    subtitle = \"Breach-day side huddles where Legal orchestrated the release had zero Judge participation\",\n    x        = NULL,\n    y        = \"Messages\",\n    fill     = \"Phase\"\n  )"
   }
 ]

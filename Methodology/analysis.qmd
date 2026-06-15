@@ -1,4 +1,428 @@
 ---
-title: "analysis"
-format: html
+title: "Analysis"
+format:
+  html:
+    toc-depth: 3
+    number-sections: true
+    code-fold: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
 ---
+
+```{r setup}
+#| code-fold: true
+
+
+library(tidyverse)
+library(lubridate)
+library(ggrepel)
+library(knitr)
+library(DT)
+
+# load pre-built tables from dataprep.qmd
+rounds_tbl       <- read_rds("data/rds/rounds.rds")
+comms_tbl        <- read_rds("data/rds/communications.rds")
+participants_tbl <- read_rds("data/rds/participants.rds")
+edges_weighted   <- read_rds("data/rds/network_edges.rds")
+
+# derive stock table from rounds_tbl
+# rounds_tbl already has stock_price_clean and is_corrupt from dataprep cleaning
+stock_tbl <- rounds_tbl |>
+  select(round_index, hour, stock_price_clean, is_corrupt, market_sentiment)
+```
+
+# The Ajay–Elena Agreement
+
+## CEO private messages
+
+There is **no direct conversation** between Ajay and Elena in the dataset. Their
+agreement is documented only through CEO private messages embedded inside agents'
+`internal_state.deliberating` fields.
+
+
+```{r find-agreement}
+#| code-fold: true
+
+
+# Pull every CEO private message from internal_state fields across all rounds
+ceo_privates <- comms_tbl |>
+  mutate(
+    full_state = paste(
+      coalesce(st_reacting, ""),
+      coalesce(st_rationalizing, ""),
+      coalesce(st_deliberating, ""),
+      sep = " "
+    ),
+    ceo_msgs = str_extract_all(
+      full_state,
+      'CEO Ajay messaged me privately: "([^"]+)"'
+    )
+  ) |>
+  filter(map_int(ceo_msgs, length) > 0) |>
+  unnest(ceo_msgs) |>
+  mutate(
+    ceo_msg_text = str_remove(ceo_msgs, '^CEO Ajay messaged me privately: "') |>
+                   str_remove('"$')
+  ) |>
+  select(round_index, round_hour, timestamp, agent_label, ceo_msg_text)
+
+ceo_privates |>
+  select(round_index, round_hour, agent_label, ceo_msg_text) |>
+  datatable(
+    caption  = "All CEO Ajay private messages embedded in agent internal_state fields",
+    options  = list(pageLength = 5),
+    colnames = c("Round", "Round hour", "Agent receiving message", "CEO private message text")
+  )
+```
+
+
+## Agreement mentioned
+
+```{r elena-agreement}
+#| code-fold: true
+
+# Round 13 contains the key agreement
+ceo_privates |>
+  filter(round_index == 13) |>
+  select(round_hour, agent_label, ceo_msg_text) |>
+  datatable(
+    caption   = "Round 13 (2046-06-04) - CEO private messages inside Legal-Agent's st_deliberating",
+    colnames  = c("Round hour", "Agent", "CEO private message (from internal_state.deliberating)"),
+    options   = list(
+      pageLength  = 10,
+      dom         = "t",
+      ordering    = FALSE,
+      columnDefs  = list(list(width = "60%", targets = 2))
+    ),
+    rownames  = FALSE
+  )
+```
+
+
+::: {.callout-note}
+The third message is the agreement: *"CivicLoom call complete. Elena and I
+have agreed: we are accelerating. Target announcement: Friday, May 29. Document
+review starts tonight. AG outreach tomorrow morning. I'll brief the full team
+tomorrow at 9 AM War Room. Keep this between us and outside counsel until then.
+The next 24 hours are the most important ones. Hold the line."*
+:::
+
+
+## 6 PM Embargo Time Explicitly Stated
+
+```{r sixpm-evidence}
+#| code-fold: true
+
+
+# Search content and internal state fields for explicit "6 PM" mentions
+sixpm_msgs <- comms_tbl |>
+  mutate(full_text = paste(coalesce(content,""), coalesce(st_deliberating,""), sep=" ")) |>
+  filter(str_detect(str_to_lower(full_text), "6 pm|6:00 pm|embargo.*6|official at 6")) |>
+  select(round_index, timestamp, agent_label, channel, content) |>
+  mutate(content = str_trunc(content, 200)) |>
+  arrange(timestamp)
+
+sixpm_msgs |>
+  datatable(
+    caption  = "All messages explicitly mentioning the 6 PM embargo time",
+    options  = list(pageLength = 8),
+    colnames = c("Round", "Timestamp", "Agent", "Channel", "Content (truncated)")
+  )
+```
+
+## CEO's Final Hold Instruction
+
+```{r hold-instruction}
+#| code-fold: true
+
+# environment_context.event_narrative is stored in rounds_tbl$event_narrative
+rounds_tbl |>
+  filter(str_detect(str_to_lower(event_narrative), "hold the line|sixty minutes")) |>
+  select(round_index, hour, event_narrative) |>
+  kable(
+    caption   = "Round 22 environment_context.event_narrative — CEO's explicit hold instruction",
+    col.names = c("Round", "Hour", "Narrative (verbatim from environment_context)")
+  )
+```
+# Stock Price Trajectory and Pressure Context
+
+The stock decline is the external pressure that motivated increasingly aggressive
+attempts to break the embargo early.
+
+```{r stock-chart}
+#| fig-width: 18
+#| fig-height: 7
+stock_plot <- stock_tbl |> filter(!is.na(stock_price_clean))
+
+# Key annotated events — each sourced from environment_context or comms_tbl
+events <- tribble(
+  ~hour,                           ~label,
+  ymd_hms("2046-05-22T09:00:00"), "NHPI report (R4)",
+  ymd_hms("2046-05-29T09:00:00"), "@Elena faux pas (R9)",
+  ymd_hms("2046-06-04T09:00:00"), "SaltWind exposé (R13)",
+  ymd_hms("2046-06-05T17:17:00"), "Breach ~17:17 (R22)"
+)
+
+ggplot(stock_plot, aes(x = hour, y = stock_price_clean)) +
+  geom_line() +
+  geom_point(size = 2) +
+  geom_vline(data = events, aes(xintercept = hour), linetype = "dashed", colour = "grey40") +
+  geom_text(data = events, aes(x = hour, y = 39, label = label),
+            size = 2.8, hjust = 0, nudge_x = 3600 * 5) +
+  scale_x_datetime(date_labels = "%b %d", date_breaks = "3 days") +
+  scale_y_continuous(labels = scales::dollar_format()) +
+  labs(
+    title = "$TTHR stock price: May 17 – June 5, 2046",
+    x     = NULL,
+    y     = "Price (USD)"
+  )
+```
+
+# Message Volume Over Time
+
+How did communication volume and channel use shift across the crisis?
+
+```{r msg-volume}
+#| fig-width: 10
+#| fig-height: 5
+
+
+comms_tbl |>
+  count(round_hour, channel_type) |>
+  ggplot(aes(x = round_hour, y = n, fill = channel_type)) +
+  geom_col(width = 3600 * 4) +
+  scale_x_datetime(date_labels = "%b %d", date_breaks = "4 days") +
+  labs(
+    title = "Message volume over time",
+    x     = NULL,
+    y     = "Messages per round",
+    fill  = "Channel type"
+  )
+```
+
+
+## Side-Channel Use vs Main Channel
+
+`side_huddle` and `one_on_one_chat` are outside Judge-Agent's `comms_huddle`
+view. Their rise on breach day is directly observable.
+
+```{r side-channel}
+#| fig-width: 12
+#| fig-height: 7
+
+
+comms_tbl |>
+  mutate(channel_group = case_when(
+    channel == "comms_huddle"                                  ~ "comms_huddle (main)",
+    channel %in% c("side_huddle", "one_on_one_chat")           ~ "side/1:1 (bypasses Judge)",
+    channel %in% c("official_post","personal_post","anonymous_post") ~ "public post",
+    TRUE ~ "other"
+  )) |>
+  count(round_hour, channel_group) |>
+  ggplot(aes(x = round_hour, y = n, colour = channel_group, group = channel_group)) +
+  geom_line() +
+  geom_point(size = 1.8) +
+  geom_vline(xintercept = as.numeric(ymd_hms("2046-06-05T00:00:00")),
+             linetype = "dashed") +
+  scale_x_datetime(date_labels = "%b %d", date_breaks = "4 days") +
+  labs(
+    title    = "Side-channel (side_huddle + one_on_one) messages vs main channel over time",
+    subtitle = "side_huddle and one_on_one_chat are excluded from comms_huddle — Judge cannot see them",
+    x        = NULL,
+    y        = "Messages per round",
+    colour   = "Channel group"
+  )
+```
+
+---
+
+# All Public Posts Timeline
+
+```{r public-posts}
+#| fig-width: 10
+#| fig-height: 5
+
+
+public_posts <- comms_tbl |>
+  filter(is_public) |>
+  mutate(
+    is_breach_post = str_detect(
+      str_to_lower(coalesce(content, "")),
+      "definitive merger agreement|harborcrest residentedge|civicloom.*tenantthread.*merger|embargo formally lifted"
+    )
+  )
+
+ggplot(public_posts, aes(x = timestamp, y = fct_rev(agent_label),
+                          colour = channel, shape = is_breach_post)) +
+  geom_point(size = 3, alpha = 0.85) +
+  geom_vline(xintercept = as.numeric(ymd_hms("2046-05-29T09:11:00")),
+             linetype = "dotted") +
+  annotate("text",
+    x = ymd_hms("2046-05-29T09:11:00"), y = 7.2,
+    label = "@Elena\nfaux pas", hjust = 0, size = 2.8, nudge_x = 3600*8) +
+  geom_vline(xintercept = as.numeric(ymd_hms("2046-06-05T17:17:00")),
+             linetype = "dashed") +
+  annotate("text",
+    x = ymd_hms("2046-06-05T17:17:00"), y = 7.2,
+    label = "Embargo\nbreach", hjust = 1, size = 2.8, nudge_x = -3600*8) +
+  scale_shape_manual(
+    values = c("FALSE" = 16, "TRUE" = 8),
+    labels = c("Routine post", "Embargo-breach post"),
+    name   = NULL
+  ) +
+  scale_x_datetime(date_labels = "%b %d", date_breaks = "3 days") +
+  labs(
+    title    = "All public posts by agent and channel",
+    subtitle = "Stars = posts identified as the merger announcement (2046-06-05 ~17:17). Source: channel field.",
+    x        = NULL,
+    y        = NULL,
+    colour   = "Channel"
+  )
+```
+
+# Key Decision Points
+
+Eight decisions that are directly evidenced by a message or environment_context field.
+
+```{r decision-table}
+decisions <- tribble(
+  ~no, ~timestamp,           ~actor,               ~channel,          ~what_happened,
+  ~source_field,
+  1L,  "2046-05-23 09:00",  "CEO Ajay → Legal",   "one_on_one_chat", "Interns must NOT be briefed. 'The official story is routine protocol review.'",
+  "st_deliberating R5, CEO private msg",
+  2L,  "2046-05-29 09:11",  "Social-Manager",      "personal_post",   "@ElenaMarquez + 'Big things coming!' — live 14 min, liked by @CivicLoom_Ops",
+  "message_id 20460529_08_012, content",
+  3L,  "2046-05-29 09:31",  "CEO Ajay → PR",       "comms_huddle",    "Judge assigned as compliance monitor; social hold on all accounts",
+  "message_id 20460529_08_032, content",
+  4L,  "2046-06-04 09:01",  "CEO Ajay → Legal",    "one_on_one_chat", "'Elena and I have agreed: accelerating. Hold the line.'",
+  "st_deliberating R13, CEO private msg",
+  5L,  "2046-06-05 14:06",  "Legal → PlatTrust",   "side_huddle",     "Embargoed audit docs ordered to PR-Intern's hands within 10 minutes",
+  "message_id 20460605_19_*, content",
+  6L,  "2046-06-05 16:01",  "Legal-Agent",         "comms_huddle",    "Contacts CivicLoom counsel to negotiate early release — before asking Ajay",
+  "message_id 20460605_20_002, content",
+  7L,  "2046-06-05 17:00",  "Judge-Agent",         "comms_huddle",    "'Elena's post altered bilateral conditions. I am not objecting.'",
+  "st_deliberating R20, Judge internal state",
+  8L,  "2046-06-05 17:21",  "Legal-Agent",         "side_huddle",     "'CONSENT IS IN. Execute NOW.' Ajay told after execution begins.",
+  "message_id 20460605_21_022, content"
+)
+
+decisions |>
+  select(-no) |>
+  kable(
+    caption   = "Eight critical decision points — each traceable to a specific message_id or internal_state field",
+    col.names = c("Timestamp", "Actor", "Channel", "What happened (verbatim where quoted)", "Source in JSON")
+  )
+```
+
+
+# Agent Activity on Breach Day
+
+Who was speaking, on which channels, during the breach window (rounds 14–22)?
+
+```{r agent-breach-day, fig.width=10, fig.height=4.5}
+comms_tbl |>
+  filter(crisis_stage == "Breach window") |>
+  count(agent_label, channel_type) |>
+  mutate(agent_label = fct_reorder(agent_label, n, sum)) |>
+  ggplot(aes(x = n, y = agent_label, fill = channel_type)) +
+  geom_col() +
+  geom_text(aes(label = n), position = position_stack(vjust = 0.5),
+            size = 3, colour = "white") +
+  labs(
+    title    = "Message counts by agent on breach day (Jun 5, rounds 14–22)",
+    subtitle = "Internal = comms_huddle / side_huddle / one_on_one; Public = official / personal / anonymous",
+    x        = "Message count",
+    y        = NULL,
+    fill     = "Channel type"
+  )
+```
+
+## Judge-Agent Activity Per Round
+
+Was the compliance monitor present in each round?
+
+```{r judge-activity, fig.width=10, fig.height=3.5}
+judge_per_round <- comms_tbl |>
+  filter(agent_id == "judge_eval_agent") |>
+  count(round_index, round_hour, name = "judge_msgs")
+
+# Include all rounds (zero-fill where absent)
+all_rounds <- comms_tbl |>
+  distinct(round_index, round_hour, crisis_stage)
+
+all_rounds |>
+  left_join(judge_per_round, by = c("round_index","round_hour")) |>
+  mutate(judge_msgs = replace_na(judge_msgs, 0L)) |>
+  ggplot(aes(x = round_hour, y = judge_msgs, fill = crisis_stage)) +
+  geom_col(width = 3600 * 3) +
+  geom_vline(xintercept = as.numeric(ymd_hms("2046-05-29T09:31:00")),
+             linetype = "dashed") +
+  annotate("text",
+    x = ymd_hms("2046-05-29T12:00:00"), y = 9,
+    label = "Judge\nassigned →", hjust = 0, size = 2.8) +
+  geom_vline(xintercept = as.numeric(ymd_hms("2046-06-05T17:00:00")),
+             linetype = "dashed") +
+  annotate("text",
+    x = ymd_hms("2046-06-05T14:00:00"), y = 9,
+    label = "← 'Not\nobjecting'", hjust = 1, size = 2.8) +
+  scale_x_datetime(date_labels = "%b %d", date_breaks = "4 days") +
+  labs(
+    title    = "Judge-Agent message count per round (0 = silent that round)",
+    subtitle = "Breach-day side huddles where Legal orchestrated the release had zero Judge participation",
+    x        = NULL,
+    y        = "Messages",
+    fill     = "Phase"
+  )
+```
+
+
+# Embargo Erosion — Severity Escalation Chart
+
+Ten concrete events, each sourced from a message or environment_context,
+plotted to show how the embargo weakened over time.
+
+```{r embargo-erosion, fig.width=11, fig.height=5}
+erosion <- tribble(
+  ~timestamp,              ~label,                                        ~severity,
+  "2046-05-23 09:00",     "Interns start; no embargo briefing",          1,
+  "2046-05-29 09:11",     "@Elena faux pas post (14 min live)",           2,
+  "2046-05-29 09:31",     "Compliance monitor assigned (advisory only)",  2,
+  "2046-06-04 09:00",     "SaltWind scoring exposé published",            3,
+  "2046-06-05 10:20",     "Intern hears 'CivicLoom at 6 PM' in hallway", 3,
+  "2046-06-05 11:34",     "Legal argues embargo 'functionally compromised'", 4,
+  "2046-06-05 14:06",     "Embargoed audit docs passed to PR-Intern",     4,
+  "2046-06-05 16:01",     "Legal contacts CivicLoom w/o CEO approval",    5,
+  "2046-06-05 17:00",     "Judge: 'I am not objecting'",                  5,
+  "2046-06-05 17:17",     "PR-Intern publishes merger press release",     6
+) |>
+  mutate(timestamp = ymd_hm(timestamp))
+
+ggplot(erosion, aes(x = timestamp, y = severity)) +
+  geom_line(linetype = "dotted") +
+  geom_point(size = 4) +
+  geom_label_repel(
+    aes(label = paste0(format(timestamp, "%b %d %H:%M"), "\n", label)),
+    size          = 2.8,
+    lineheight    = 1.1,
+    box.padding   = 0.4,
+    max.overlaps  = 20
+  ) +
+  scale_y_continuous(
+    breaks = 1:6,
+    labels = c("Setup","Near-breach","External pressure","Control failure","CEO bypassed","BREACH")
+  ) +
+  scale_x_datetime(date_labels = "%b %d", date_breaks = "5 days") +
+  labs(
+    title    = "Progressive erosion of the embargo — 10 concrete events",
+    subtitle = "Each point is sourced from a specific message_id or environment_context field",
+    x        = NULL,
+    y        = "Severity level"
+  )
+```
+
+
+
+
