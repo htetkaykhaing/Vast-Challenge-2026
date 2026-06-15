@@ -12,7 +12,7 @@ execute:
   message: false
 ---
 
-This document walks through how we parse, clean, and reshape the raw VAST Challenge 2026 Mini-Challenge 1 dataset into the three relational tables, which are **Rounds**, **Communications**, and **Participants**.  
+This document walks through how we parse, clean, and reshape the raw VAST Challenge 2026 Mini-Challenge 1 dataset into the three relational tables, which are **Rounds**, **Communications**, and **Participants**.
 
 # Setup
 
@@ -20,11 +20,11 @@ This document walks through how we parse, clean, and reshape the raw VAST Challe
 
 We use the following packages:
 
-- [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html) - parse the JSON source file
-- [tidyverse](https://www.tidyverse.org/) - data wrangling and string operations
-- [lubridate](https://lubridate.tidyverse.org/) - timestamp parsing
-- [tidytext](https://cran.r-project.org/web/packages/tidytext/index.html) - tokenisation for keyword flagging and text analysis
-- [knitr](https://cran.r-project.org/web/packages/knitr/index.html) - formatted table output
+-   [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html) - parse the JSON source file
+-   [tidyverse](https://www.tidyverse.org/) - data wrangling and string operations
+-   [lubridate](https://lubridate.tidyverse.org/) - timestamp parsing
+-   [tidytext](https://cran.r-project.org/web/packages/tidytext/index.html) - tokenisation for keyword flagging and text analysis
+-   [knitr](https://cran.r-project.org/web/packages/knitr/index.html) - formatted table output
 
 ```{r}
 pacman::p_load(jsonlite, tidyverse, lubridate, tidytext, knitr)
@@ -48,25 +48,24 @@ The dataset contains **23 rounds**, spanning 17 May 2046 to 5 June 2046 (the day
 
 Each round has four keys:
 
-| Key | Description |
-|---|---|
-| `hour` | Timestamp for the round start |
+| Key                   | Description                                         |
+|------------------------------------|------------------------------------|
+| `hour`                | Timestamp for the round start                       |
 | `environment_context` | External conditions: market data, events, headlines |
-| `communications` | All messages sent in that round |
-| `participants` | Agent metadata and declared actions |
-
+| `communications`      | All messages sent in that round                     |
+| `participants`        | Agent metadata and declared actions                 |
 
 ## Agents
 
-| Agent ID               | Role           | Label          | Seniority          | Description                                                                                                                    |
-| ---------------------- | -------------- | -------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `legal_agent`          | legal          | Legal-Agent    | Senior             | General legal counsel.                                                                                                         |
-| `quality_agent`        | platform_trust | Platform-Trust | Senior             | VP of Platform Trust & Safety.                                                                                                 |
-| `social_manager_agent` | social_manager | Social-Manager | Senior             |Manages Social messaging         |
-| `pr_agent`             | pr             | PR-Agent       | Senior             | Head of Communications and Public Relationships |
-| `intern_agent`         | intern         | Intern         | Junior             | General intern.                                                                                 |
-| `pr_intern_agent`      | pr_intern      | PR-Intern      | Junior             | PR team intern with access to the official TenantThread Flex account.                                                          |
-| `judge_eval_agent`     | judge          | Judge          | Compliance officer | Evaluates risks, mediates conflicts, provides compliance guidance.                                                             |
+| Agent ID | Role | Label | Seniority | Description |
+|---------|---------|---------|---------|------------------------------------|
+| `legal_agent` | legal | Legal-Agent | Senior | General legal counsel. |
+| `quality_agent` | platform_trust | Platform-Trust | Senior | VP of Platform Trust & Safety. |
+| `social_manager_agent` | social_manager | Social-Manager | Senior | Manages Social messaging |
+| `pr_agent` | pr | PR-Agent | Senior | Head of Communications and Public Relationships |
+| `intern_agent` | intern | Intern | Junior | General intern. |
+| `pr_intern_agent` | pr_intern | PR-Intern | Junior | PR team intern with access to the official TenantThread Flex account. |
+| `judge_eval_agent` | judge | Judge | Compliance officer | Evaluates risks, mediates conflicts, provides compliance guidance. |
 
 ## Communication channels and message types
 
@@ -91,9 +90,8 @@ all_comms_raw %>%
 
 Channels fall into two broad groups:
 
-- **Internal**: `comms_huddle`, `side_huddle`, `one_on_one_chat`
-- **Public**: `official_post`, `personal_post`, `anonymous_post`
-
+-   **Internal**: `comms_huddle`, `side_huddle`, `one_on_one_chat`
+-   **Public**: `official_post`, `personal_post`, `anonymous_post`
 
 # Assigning Crisis Stages
 
@@ -127,7 +125,7 @@ kable(crisis_stage_map %>% count(crisis_stage))
 
 ## Extracting fields
 
-We extract one row per round from `environment_context`, including the (corrupted) raw stock price for cleaning in section @sec-data-cleaning. 
+We extract one row per round from `environment_context`, including the (corrupted) raw stock price for cleaning in section @sec-data-cleaning.
 
 ```{r}
 #| code-fold: true
@@ -162,8 +160,8 @@ glimpse(rounds_tbl)
 ## Cleaning corrupted stock prices {#sec-data-cleaning}
 
 ::: {.callout-warning title="Known Data Quality Issues"}
-- `event_headline` for rounds 15 and 16 both read `"10:00 AM."`, corrected using the `hour` timestamp instead.
-- `stock_price` for several crisis-day rounds contains corrupted values (`$180`, `NULL`), replaced with prices quoted in agent messages.
+-   `event_headline` for rounds 15 and 16 both read `"10:00 AM."`, corrected using the `hour` timestamp instead.
+-   `stock_price` for several crisis-day rounds contains corrupted values (`$180`, `NULL`), replaced with prices quoted in agent messages.
 :::
 
 ```{r}
@@ -201,8 +199,6 @@ rounds_tbl <- rounds_tbl %>%
     pct_change_clean = as.numeric(str_remove(pct_change_raw, "%"))
   )
 ```
-
-
 
 # Preparing the Communications Table
 
@@ -280,7 +276,6 @@ comms_tbl <- comms_tbl %>%
   )
 ```
 
-
 ## Keyword flagging
 
 We create three Boolean flag columns on `content` and (where present) `st_deliberating`, covering deal-related, embargo-related, and crisis-related terms. A combined text field `full_text` is used for this scan.
@@ -318,7 +313,6 @@ comms_tbl <- comms_tbl %>%
 DT::datatable(comms_tbl, caption = "Communications Table", options = list(pageLength = 5),class = "nowrap")
 ```
 
-
 ## Back-filling comm_count into rounds table
 
 ```{r}
@@ -333,7 +327,6 @@ rounds_tbl <- rounds_tbl %>%
 
 DT::datatable(rounds_tbl, caption = "Rounds Table", options = list(pageLength = 5),class = "nowrap")
 ```
-
 
 # Preparing the Participants Table
 
@@ -363,7 +356,6 @@ participants_tbl <- map_dfr(seq_along(rounds_raw), function(i) {
   left_join(crisis_stage_map, by = "round_index")
 ```
 
-
 ## Parsing declared action type
 
 `declared_action` can be a short token (e.g. `MONITORING`) or a long string containing post content. We extract the action type prefix and store the remainder as `action_content`.
@@ -389,14 +381,13 @@ participants_tbl <- participants_tbl %>%
 DT::datatable(participants_tbl, options = list(pageLength = 5),class = "nowrap")
 ```
 
-
 # Building the Network Edge List
 
 For network analysis we need a directed sender-to-recipient edge list. Where `recipients = "ALL"`, we expand to one edge per other agent active in that round.
 
 ## Expanding broadcast messages
 
-Direct messages between agents. 
+Direct messages between agents.
 
 ```{r}
 #| code-fold: true
@@ -416,7 +407,7 @@ direct_msgs <- comms_tbl %>%
 DT::datatable(direct_msgs, options = list(pageLength = 5),class = "nowrap")
 ```
 
-Messages broadcasted among agents. 
+Messages broadcasted among agents.
 
 ```{r}
 #| code-fold: true
@@ -440,7 +431,6 @@ edges_tbl <- bind_rows(direct_msgs, broadcast_msgs) %>%
 cat("Total directed edges:", nrow(edges_tbl), "\n")
 ```
 
-
 ## Adding edge weights by crisis stage
 
 ```{r}
@@ -457,16 +447,14 @@ DT::datatable(edges_weighted, options = list(pageLength = 5),class = "nowrap")
 ```
 
 
+# Saving the Prepared Data
 
+```{r}
+#| eval: false
+dir.create("data/rds", showWarnings = FALSE)
 
-
-
-
-
-
-
-
-
-
-
-
+write_rds(rounds_tbl,       "data/rds/rounds.rds")
+write_rds(comms_tbl,        "data/rds/communications.rds")
+write_rds(participants_tbl, "data/rds/participants.rds")
+write_rds(edges_weighted,   "data/rds/network_edges.rds")
+```
