@@ -10,11 +10,11 @@ website:
     - text: "Methodology"
       menu:
       - text: "Data Preparation"
-        href: "dataprep.qmd"
+        href: "Methodology/dataprep.qmd"
       - text: "Statistical Analysis"
-        href: "analysis.qmd"
+        href: "Methodology/analysis.qmd"
       - text: "Visualisation"
-        href: "visual.qmd"
+        href: "Methodology/visual.qmd"
     - text: "Meeting Minutes"
       href: "meeting_minutes.qmd"
     right:
