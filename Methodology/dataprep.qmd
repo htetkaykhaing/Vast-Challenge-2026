@@ -14,9 +14,9 @@ execute:
 
 This document walks through how we parse, clean, and reshape the raw VAST Challenge 2026 Mini-Challenge 1 dataset into the three relational tables, which are **Rounds**, **Communications**, and **Participants**.  
 
-# 1 Setup
+# Setup
 
-## 1.1 Loading Packages
+## Loading Packages
 
 We use the following packages:
 
@@ -30,7 +30,7 @@ We use the following packages:
 pacman::p_load(jsonlite, tidyverse, lubridate, tidytext, knitr)
 ```
 
-## 1.2 Loading Data
+## Loading Data
 
 We load the single JSON file provided for VAST Challenge 2026 Mini-Challenge 1.
 
@@ -42,9 +42,9 @@ cat("Total rounds:", length(rounds_raw), "\n")
 
 The dataset contains **23 rounds**, spanning 17 May 2046 to 5 June 2046 (the day of the embargo breach). Each round holds an `environment_context` object, a flat list of `communications`, and a `participants` list recording each agent's status for that round.
 
-# 2 Understanding the Data Structure
+# Understanding the Data Structure
 
-## 2.1 Top-level schema
+## Top-level schema
 
 Each round has four keys:
 
@@ -56,7 +56,7 @@ Each round has four keys:
 | `participants` | Agent metadata and declared actions |
 
 
-## 2.2 Agents
+## Agents
 
 | Agent ID               | Role           | Label          | Seniority          | Description                                                                                                                    |
 | ---------------------- | -------------- | -------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -68,9 +68,11 @@ Each round has four keys:
 | `pr_intern_agent`      | pr_intern      | PR-Intern      | Junior             | PR team intern with access to the official TenantThread Flex account.                                                          |
 | `judge_eval_agent`     | judge          | Judge          | Compliance officer | Evaluates risks, mediates conflicts, provides compliance guidance.                                                             |
 
-## 2.3 Communication channels and message types
+## Communication channels and message types
 
 ```{r}
+#| code-fold: true
+
 # Flatten all communications to inspect channels and message types
 all_comms_raw <- map_dfr(rounds_raw, function(rnd) {
   map_dfr(rnd$communications, function(msg) {
@@ -91,6 +93,372 @@ Channels fall into two broad groups:
 
 - **Internal**: `comms_huddle`, `side_huddle`, `one_on_one_chat`
 - **Public**: `official_post`, `personal_post`, `anonymous_post`
+
+
+# Assigning Crisis Stages
+
+Before extracting tables, we assign each round to one of four analytical windows. Rounds 1-13 cover the pre-crisis and crisis build-up, rounds 14-22 cover the breach day, round 23 is the post-embargo period.
+
+```{r}
+#| code-fold: true
+
+crisis_stage_map <- tibble(
+  round_index  = 1:23,
+  crisis_stage = c(
+    # Pre-crisis: 17 May - 24 May (rounds 1-6)
+    rep("Pre-crisis", 6),
+    # Crisis pre-breach: 25 May - 4 June (rounds 7-13)
+    rep("Crisis (pre-breach)", 7),
+    # Breach window: 5 June 09:00–17:00 (rounds 14-22)
+    rep("Breach window", 9),
+    # Post-embargo: 5 June 18:00 (round 23)
+    "Post-embargo"
+  )
+) %>%
+  mutate(crisis_stage = factor(
+    crisis_stage,
+    levels = c("Pre-crisis", "Crisis (pre-breach)", "Breach window", "Post-embargo")
+  ))
+
+kable(crisis_stage_map %>% count(crisis_stage))
+```
+
+# Preparing the Rounds Table
+
+## Extracting fields
+
+We extract one row per round from `environment_context`, including the (corrupted) raw stock price for cleaning in section @sec-data-cleaning. 
+
+```{r}
+#| code-fold: true
+
+rounds_tbl <- map_dfr(seq_along(rounds_raw), function(i) {
+  rnd <- rounds_raw[[i]]
+  ctx <- rnd$environment_context
+  ms  <- ctx$market_snapshot
+
+  tibble(
+    round_index        = i,
+    hour               = ymd_hms(rnd$hour),
+    event_headline     = ctx$event_headline   %||% NA_character_,
+    event_narrative    = ctx$event_narrative  %||% NA_character_,
+    social_state       = ctx$social_state     %||% NA_character_,
+    stock_price_raw    = ms$stock_price       %||% NA_character_,
+    pct_change_raw     = ms$percent_change    %||% NA_character_,
+    market_sentiment   = ms$sentiment         %||% NA_character_,
+    critical_deadlines = paste(unlist(ctx$critical_deadlines %||% list()),
+                               collapse = "; "),
+    news               = paste(unlist(ctx$news %||% list()),
+                               collapse = "; "),
+    agents_unavailable = paste(unlist(ctx$agents_unavailable %||% list()),
+                               collapse = ", ")
+  )
+}) %>%
+  left_join(crisis_stage_map, by = "round_index")
+
+glimpse(rounds_tbl)
+```
+
+## Cleaning corrupted stock prices {#sec-data-cleaning}
+
+::: {.callout-warning title="Known Data Quality Issues"}
+- `event_headline` for rounds 15 and 16 both read `"10:00 AM."`, corrected using the `hour` timestamp instead.
+- `stock_price` for several crisis-day rounds contains corrupted values (`$180`, `NULL`), replaced with prices quoted in agent messages.
+:::
+
+```{r}
+#| code-fold: true
+
+# Prices recovered from agent message content for each corrupt round
+stock_price_fixes <- tribble(
+  ~round_index, ~stock_price_clean,
+  14L,  28.70,    # 09:00 — NULL, opening price from agent content
+  15L,  31.50,    # 10:00 — NULL, interpolated from agent content
+  16L,  NA_real_, # 11:00 — $180 corrupt, no reliable quote found
+  19L,  26.90,    # 14:00 — $18.0 corrupt, use 13:00 price as reference
+  20L,  32.80,    # 15:00 — $18.0 corrupt, quoted in side-huddle
+  21L,  33.05,    # 16:00 — NULL, Sentinel 5:12 PM update
+  22L,  33.05,    # 17:00 — NULL, same post-market reference
+  23L,  33.05     # 18:00 — NULL, after-hours Sentinel final report
+)
+
+rounds_tbl <- rounds_tbl %>%
+  select(-any_of(c("stock_price_raw_num", "is_corrupt",
+                   "stock_price_clean", "pct_change_clean"))) %>%
+  mutate(
+    stock_price_raw_num = as.numeric(str_remove(stock_price_raw, "\\$")),
+    is_corrupt = round_index %in% stock_price_fixes$round_index |
+                 stock_price_raw_num %in% c(18, 18.0, 180) |
+                 is.na(stock_price_raw)
+  ) %>%
+  left_join(stock_price_fixes, by = "round_index") %>%
+  mutate(
+    stock_price_clean = if_else(
+      !is_corrupt,
+      stock_price_raw_num,
+      stock_price_clean
+    ),
+    pct_change_clean = as.numeric(str_remove(pct_change_raw, "%"))
+  )
+```
+
+
+
+# Preparing the Communications Table
+
+## Extracting fields
+
+We flatten all messages from all rounds into a single data frame. Internal state sub-fields (`reacting`, `rationalizing`, `deliberating`) are extracted as separate columns.
+
+```{r}
+#| code-fold: true
+
+comms_tbl <- map_dfr(seq_along(rounds_raw), function(i) {
+  rnd  <- rounds_raw[[i]]
+  hour <- ymd_hms(rnd$hour)
+
+  map_dfr(rnd$communications, function(msg) {
+    ist <- msg$internal_state %||% list()
+
+    tibble(
+      round_index    = i,
+      round_hour     = hour,
+      message_id     = msg$message_id     %||% NA_character_,
+      agent_id       = msg$agent_id       %||% NA_character_,
+      agent_role     = msg$agent_role     %||% NA_character_,
+      agent_label    = msg$agent_label    %||% NA_character_,
+      channel        = msg$channel        %||% NA_character_,
+      message_type   = msg$message_type   %||% NA_character_,
+      responding_to  = msg$responding_to  %||% NA_character_,
+      content        = msg$content        %||% NA_character_,
+      timestamp      = ymd_hms(msg$timestamp %||% NA_character_),
+      recipients     = paste(unlist(msg$recipients %||% list()), collapse = ", "),
+      # Internal state sub-fields
+      st_reacting      = ist$reacting      %||% NA_character_,
+      st_rationalizing = ist$rationalizing %||% NA_character_,
+      st_deliberating  = ist$deliberating  %||% NA_character_
+    )
+  })
+}) %>%
+  left_join(crisis_stage_map, by = "round_index")
+
+cat("Total messages:", nrow(comms_tbl), "\n")
+```
+
+## Deriving temporal and structural columns
+
+```{r}
+#| code-fold: true
+
+comms_tbl <- comms_tbl %>%
+  mutate(
+    date              = as_date(timestamp),
+    hour_of_day       = hour(timestamp),
+    day_of_week       = wday(timestamp, label = TRUE),
+    is_crisis_day     = date == as_date("2046-06-05"),
+    # Minutes elapsed since first message in dataset (for continuous timeline)
+    minutes_since_start = as.numeric(difftime(timestamp,
+                                               min(timestamp, na.rm = TRUE),
+                                               units = "mins")),
+    # Channel groupings
+    channel_type      = case_when(
+      channel %in% c("comms_huddle", "side_huddle", "one_on_one_chat") ~ "Internal",
+      channel %in% c("official_post", "personal_post", "anonymous_post") ~ "Public",
+      TRUE ~ "Other"
+    ),
+    is_side_channel   = channel %in% c("side_huddle", "one_on_one_chat"),
+    is_public         = channel %in% c("official_post", "personal_post", "anonymous_post"),
+    is_anonymous      = channel == "anonymous_post",
+    is_broadcast      = recipients == "ALL",
+    recipient_count   = if_else(
+      is_broadcast,
+      NA_integer_,
+      str_count(recipients, ",") + 1L
+    ),
+    has_internal_state = !is.na(st_reacting) | !is.na(st_rationalizing) |
+                         !is.na(st_deliberating)
+  )
+```
+
+
+## Keyword flagging
+
+We create three Boolean flag columns on `content` and (where present) `st_deliberating`, covering deal-related, embargo-related, and crisis-related terms. A combined text field `full_text` is used for this scan.
+
+```{r}
+#| code-fold: true
+
+deal_terms    <- c("merger", "acquisition", "deal", "civicloom", "harborcrest",
+                   "counterparty", "nda", "term sheet", "due diligence", "signing",
+                   "strategic", "transaction", "partner")
+
+embargo_terms <- c("embargo", "hold", "silence", "6 pm", "6:00", "release",
+                   "clearance", "judge", "compliance", "unauthorized", "approved",
+                   "restricted", "monitor")
+
+crisis_terms  <- c("breach", "leak", "premature", "crisis", "firestorm",
+                   "escalate", "saltwind", "oceancrunch", "ag inquiry",
+                   "investigation", "viral", "senate", "attorney general")
+
+flag_text <- function(text_col, terms) {
+  pattern <- paste(terms, collapse = "|")
+  str_detect(str_to_lower(text_col), pattern)
+}
+
+comms_tbl <- comms_tbl %>%
+  mutate(
+    full_text          = paste(coalesce(content, ""),
+                                coalesce(st_deliberating, ""), sep = " "),
+    flag_deal_terms    = flag_text(full_text, deal_terms),
+    flag_embargo_terms = flag_text(full_text, embargo_terms),
+    flag_crisis_terms  = flag_text(full_text, crisis_terms),
+    flag_any           = flag_deal_terms | flag_embargo_terms | flag_crisis_terms
+  )
+
+DT::datatable(comms_tbl, caption = "Communications Table", options = list(pageLength = 5),class = "nowrap")
+```
+
+
+## Back-filling comm_count into rounds table
+
+```{r}
+#| code-fold: true
+
+comm_counts <- comms_tbl %>%
+  count(round_index, name = "comm_count")
+
+rounds_tbl <- rounds_tbl %>%
+  select(-any_of("comm_count")) %>%
+  left_join(comm_counts, by = "round_index")
+
+DT::datatable(rounds_tbl, caption = "Rounds Table", options = list(pageLength = 5),class = "nowrap")
+```
+
+
+# Preparing the Participants Table
+
+## Extracting fields
+
+We extract one row per agent per round from the `participants` list, then parse `declared_action` into a clean action type and a separate content field.
+
+```{r}
+#| code-fold: true
+
+participants_tbl <- map_dfr(seq_along(rounds_raw), function(i) {
+  rnd <- rounds_raw[[i]]
+  map_dfr(rnd$participants %||% list(), function(p) {
+    meta <- p$agent_round_metadata %||% list()
+    tibble(
+      round_index         = i,
+      round_hour          = ymd_hms(rnd$hour),
+      agent_id            = p$agent_id            %||% NA_character_,
+      agent_role          = p$agent_role           %||% NA_character_,
+      agent_label         = p$agent_label          %||% NA_character_,
+      declared_action_raw = p$declared_action      %||% NA_character_,
+      sentiment_at_turn   = meta$sentiment_at_turn %||% NA_character_,
+      action_classification = meta$action_classification %||% NA_character_
+    )
+  })
+}) %>%
+  left_join(crisis_stage_map, by = "round_index")
+```
+
+
+## Parsing declared action type
+
+`declared_action` can be a short token (e.g. `MONITORING`) or a long string containing post content. We extract the action type prefix and store the remainder as `action_content`.
+
+```{r}
+#| code-fold: true
+
+participants_tbl <- participants_tbl %>%
+  mutate(
+    action_type = case_when(
+      is.na(declared_action_raw)                            ~ NA_character_,
+      str_starts(declared_action_raw, "MONITORING")         ~ "MONITORING",
+      str_starts(declared_action_raw, "POSTED_ON_FLEX")     ~ "POSTED_ON_FLEX",
+      str_starts(declared_action_raw, "POSTED_ANONYMOUS")   ~ "POSTED_ANONYMOUS",
+      str_starts(declared_action_raw, "POSTED_PERSONAL")    ~ "POSTED_PERSONAL",
+      str_starts(declared_action_raw, "COMPLIANCE_WARNING") ~ "COMPLIANCE_WARNING",
+      TRUE                                                  ~ "OTHER"
+    ),
+    action_content = str_remove(declared_action_raw,
+                                "^(MONITORING|POSTED_ON_FLEX|POSTED_ANONYMOUS|POSTED_PERSONAL|COMPLIANCE_WARNING)[:\\s—]*")
+  )
+
+DT::datatable(participants_tbl, options = list(pageLength = 5),class = "nowrap")
+```
+
+
+# Building the Network Edge List
+
+For network analysis we need a directed sender-to-recipient edge list. Where `recipients = "ALL"`, we expand to one edge per other agent active in that round.
+
+## Expanding broadcast messages
+
+Direct messages between agents. 
+
+```{r}
+#| code-fold: true
+
+# Active agents per round (from participants table)
+active_agents_per_round <- participants_tbl %>%
+  select(round_index, agent_id) %>%
+  distinct()
+
+# Separate broadcast vs direct messages
+direct_msgs <- comms_tbl %>%
+  filter(!is_broadcast, !is.na(recipients), recipients != "") %>%
+  separate_rows(recipients, sep = ",\\s*") %>%
+  select(message_id, round_index, crisis_stage, timestamp, channel,
+         sender = agent_id, recipient = recipients)
+
+DT::datatable(direct_msgs, options = list(pageLength = 5),class = "nowrap")
+```
+
+Messages broadcasted among agents. 
+
+```{r}
+#| code-fold: true
+
+broadcast_msgs <- comms_tbl %>%
+  filter(is_broadcast) %>%
+  select(message_id, round_index, crisis_stage, timestamp, channel,
+         sender = agent_id) %>%
+  left_join(active_agents_per_round, by = "round_index") %>%
+  rename(recipient = agent_id) %>%
+  filter(recipient != sender)
+
+DT::datatable(broadcast_msgs, options = list(pageLength = 5),class = "nowrap")
+
+edges_tbl <- bind_rows(direct_msgs, broadcast_msgs) %>%
+  # Remove messages with no identified recipient
+  filter(!is.na(recipient), recipient != "") %>%
+  # Exclude internal-state-only rows (no actual sender)
+  filter(!is.na(sender))
+
+cat("Total directed edges:", nrow(edges_tbl), "\n")
+```
+
+
+## Adding edge weights by crisis stage
+
+```{r}
+edges_weighted <- edges_tbl %>%
+  group_by(sender, recipient, channel, crisis_stage) %>%
+  summarise(
+    weight         = n(),
+    first_contact  = min(timestamp, na.rm = TRUE),
+    last_contact   = max(timestamp, na.rm = TRUE),
+    .groups        = "drop"
+  )
+
+DT::datatable(edges_weighted, options = list(pageLength = 5),class = "nowrap")
+```
+
+
+
+
 
 
 
