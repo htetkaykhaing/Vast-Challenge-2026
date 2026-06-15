@@ -1,0 +1,104 @@
+---
+title: "Data Preparation"
+format:
+  html:
+    toc-depth: 3
+    number-sections: true
+execute:
+  eval: true
+  echo: true
+  freeze: true
+  warning: false
+  message: false
+---
+
+This document walks through how we parse, clean, and reshape the raw VAST Challenge 2026 Mini-Challenge 1 dataset into the three relational tables, which are **Rounds**, **Communications**, and **Participants**.  
+
+# 1 Setup
+
+## 1.1 Loading Packages
+
+We use the following packages:
+
+- [jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html) - parse the JSON source file
+- [tidyverse](https://www.tidyverse.org/) - data wrangling and string operations
+- [lubridate](https://lubridate.tidyverse.org/) - timestamp parsing
+- [tidytext](https://cran.r-project.org/web/packages/tidytext/index.html) - tokenisation for keyword flagging and text analysis
+- [knitr](https://cran.r-project.org/web/packages/knitr/index.html) - formatted table output
+
+```{r}
+pacman::p_load(jsonlite, tidyverse, lubridate, tidytext, knitr)
+```
+
+## 1.2 Loading Data
+
+We load the single JSON file provided for VAST Challenge 2026 Mini-Challenge 1.
+
+```{r}
+mc1_raw <- fromJSON("data/MC1_final_00.json", simplifyVector = FALSE)
+rounds_raw <- mc1_raw$rounds
+cat("Total rounds:", length(rounds_raw), "\n")
+```
+
+The dataset contains **23 rounds**, spanning 17 May 2046 to 5 June 2046 (the day of the embargo breach). Each round holds an `environment_context` object, a flat list of `communications`, and a `participants` list recording each agent's status for that round.
+
+# 2 Understanding the Data Structure
+
+## 2.1 Top-level schema
+
+Each round has four keys:
+
+| Key | Description |
+|---|---|
+| `hour` | Timestamp for the round start |
+| `environment_context` | External conditions: market data, events, headlines |
+| `communications` | All messages sent in that round |
+| `participants` | Agent metadata and declared actions |
+
+
+## 2.2 Agents
+
+| Agent ID               | Role           | Label          | Seniority          | Description                                                                                                                    |
+| ---------------------- | -------------- | -------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `legal_agent`          | legal          | Legal-Agent    | Senior             | General legal counsel.                                                                                                         |
+| `quality_agent`        | platform_trust | Platform-Trust | Senior             | VP of Platform Trust & Safety.                                                                                                 |
+| `social_manager_agent` | social_manager | Social-Manager | Senior             |Manages Social messaging         |
+| `pr_agent`             | pr             | PR-Agent       | Senior             | Head of Communications and Public Relationships |
+| `intern_agent`         | intern         | Intern         | Junior             | General intern.                                                                                 |
+| `pr_intern_agent`      | pr_intern      | PR-Intern      | Junior             | PR team intern with access to the official TenantThread Flex account.                                                          |
+| `judge_eval_agent`     | judge          | Judge          | Compliance officer | Evaluates risks, mediates conflicts, provides compliance guidance.                                                             |
+
+## 2.3 Communication channels and message types
+
+```{r}
+# Flatten all communications to inspect channels and message types
+all_comms_raw <- map_dfr(rounds_raw, function(rnd) {
+  map_dfr(rnd$communications, function(msg) {
+    tibble(
+      channel      = msg$channel      %||% NA_character_,
+      message_type = msg$message_type %||% NA_character_
+    )
+  })
+})
+
+all_comms_raw %>%
+  count(channel, message_type, name = "count") %>%
+  arrange(desc(count)) %>%
+  kable()
+```
+
+Channels fall into two broad groups:
+
+- **Internal**: `comms_huddle`, `side_huddle`, `one_on_one_chat`
+- **Public**: `official_post`, `personal_post`, `anonymous_post`
+
+
+
+
+
+
+
+
+
+
+
