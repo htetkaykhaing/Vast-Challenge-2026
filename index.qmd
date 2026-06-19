@@ -96,7 +96,7 @@ The expected outcome is an interactive visual analytics system that allows users
 - detect warning signs before the breach, and
 - assess whether the breach was deliberate or caused by system failure under pressure.
 
-The final project will combine timeline analysis, behavioural comparison and evidence-based interpretation to support CivicLoom's legal investigation.
+This project will combine timeline analysis, behavioural comparison and evidence-based interpretation to support CivicLoom's legal investigation.
 
 ## Project Sections
 
@@ -105,7 +105,7 @@ The final project will combine timeline analysis, behavioural comparison and evi
 ::: {.column width="33%"}
 
 ### Proposal
-The proposal explains the motivation, objectives, data, methodology, prototype sketches, R packages and project schedule.
+The proposal outlines the project motivation, objectives, data, methodology, prototype sketches, R packages and project schedule.
 
 [View Proposal](proposal.html)
 
@@ -113,19 +113,19 @@ The proposal explains the motivation, objectives, data, methodology, prototype s
 
 ::: {.column width="33%"}
 
-### Methodology
-The methodology section documents the data preparation, wrangling logic, derived variables and visual analytics design.
+### Analysis
+The analysis section examines the embargo breach, including communication patterns, Judge-Agent warnings, public posts and leading indicators.
 
-[View Methodology](methodology.html)
+[View Analysis](Methodology/analysis.html)
 
 :::
 
 ::: {.column width="33%"}
 
-### Findings
-The findings section presents the final visual analysis and interpretation of the embargo breach.
+### Visuals
+The visuals section presents the main charts and visual explanations used to understand the breach timeline, channel shifts and early warning signs.
 
-[View Findings](findings.html)
+[View Visuals](Methodology/visual.html)
 
 :::
 

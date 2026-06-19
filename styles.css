@@ -7,7 +7,7 @@ body {
 
 h1, h2, h3, h4 {
   font-family: "Asap", sans-serif;
-  color: #1d3440;
+  color: #08415e;
   font-weight: 700;
 }
 
@@ -47,7 +47,7 @@ a:hover {
 
 .navbar {
   font-family: "Asap", sans-serif;
-  background-color: #1d3440;
+  background-color: #08415e;
   border-bottom: 3px solid #a7661c;
 }
 
@@ -63,7 +63,7 @@ a:hover {
 }
 
 .navbar .dropdown-menu .dropdown-item {
-  color: #1d3440 !important;
+  color: #08415e !important;
   background-color: #ffffff !important;
   font-weight: 600;
 }
@@ -112,7 +112,7 @@ a:hover {
 }
 
 thead {
-  background-color: #1d3440;
+  background-color: #08415e;
   color: #ffffff;
 }
 

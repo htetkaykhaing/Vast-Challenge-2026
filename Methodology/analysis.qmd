@@ -357,7 +357,7 @@ all_rounds |>
   )
 ```
 
-## Embargo Erosion — Severity Escalation Chart
+## Embargo Erosion: Severity Escalation Chart
 
 Ten concrete events, each sourced from a message or environment_context, plotted to show how the embargo weakened over time.
 

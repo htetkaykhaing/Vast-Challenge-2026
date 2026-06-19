@@ -1,5 +1,176 @@
 ---
-title: "visual"
-format: html
+title: "Data Exploration and Visualisation"
+format:
+  html:
+    toc-depth: 3
+    number-sections: true
+execute:
+  eval: true
+  echo: true
+  warning: false
+  message: false
 ---
+
+This page presents the main visual patterns found in the MC1 communication data. The purpose is to show how the embargo breach developed over time, how communication behaviour changed, and what warning signs appeared before the early release.
+
+The visual exploration focuses on five areas:
+
+1. stock and external pressure;
+2. communication volume;
+3. side-channel activity;
+4. public signalling; and
+5. leading indicators before the release.
+
+# Setup and Loading Prepared Data
+Firstly, we will load the R packages and data prepared.
+```{r}
+pacman::p_load(
+  tidyverse, lubridate, ggrepel, knitr, DT, scales
+)
+
+rounds_tbl        <- readr::read_rds("../data/rds/rounds.rds")
+comms_tbl         <- readr::read_rds("../data/rds/communications.rds")
+participants_tbl  <- readr::read_rds("../data/rds/participants.rds")
+edges_weighted    <- readr::read_rds("../data/rds/network_edges.rds")
+
+stock_tbl <- rounds_tbl |>
+  select(round_index, hour, stock_price_clean, is_corrupt, market_sentiment)
+```
+
+# Crisis Timeline and Stock Pressure
+The first view shows the external pressure on TenantThread. The stock price decline helps explain why the agents became more urgent and aggressive in managing the release.
+
+```{r, echo=FALSE}
+events <- tibble(
+  hour = ymd_hms(c(
+    "2046-05-22 09:00:00",
+    "2046-05-29 09:00:00",
+    "2046-06-04 09:00:00",
+    "2046-06-05 17:19:00"
+  )),
+  label = c(
+    "NHPI report",
+    "Elena faux pas",
+    "SaltWind exposé",
+    "Early release"
+  )
+)
+```
+
+```{r}
+#| code-fold: true
+stock_tbl %>%
+  filter(!is.na(stock_price_clean)) %>%
+  ggplot(aes(x = hour, y = stock_price_clean)) +
+  geom_line(linewidth = 0.8, colour = "#1a587a") +
+  geom_point(size = 2) +
+  geom_vline(data = events, aes(xintercept = hour), linetype = "dashed") +
+  ggrepel::geom_label_repel(
+    data = events,
+    aes(x = hour, y = max(stock_tbl$stock_price_clean, na.rm = TRUE), label = label),
+    size = 3.2,
+    direction = "x",
+    min.segment.length = 0
+  ) +
+  scale_x_datetime(date_labels = "%b %d", date_breaks = "3 days") +
+  scale_y_continuous(labels = scales::dollar_format()) +
+  labs(
+    title = "$TTHR stock price and key crisis events",
+    x = NULL,
+    y = "Stock price"
+  ) +
+  theme_minimal()
+```
+
+The chart shows that $TTHR's stock price was already declining before the embargo breach. This does not prove the release decision by itself, but it provides important context: the agents were operating under growing market and reputational pressure before the early release occurred.
+
+# Communication Volume Over Time
+This chart shows how communication intensity changed across the timeline.
+
+```{r}
+#| code-fold: true
+msg_daily <- comms_tbl %>%
+  mutate(day = as_date(round_hour)) %>%
+  count(day, channel_type)
+
+ggplot(msg_daily, aes(x = day, y = n, fill = channel_type)) +
+  geom_col(width = 0.8) +
+  geom_text(aes(label = n), vjust = -0.3, size = 3.2) +
+  geom_vline(
+    xintercept = as.numeric(ymd("2046-06-05")),
+    linetype = "dashed",
+    colour = "#a7661c"
+  ) +
+  facet_wrap(~ channel_type, ncol = 1, scales = "free_y") +
+  scale_fill_manual(
+    values = c(
+      "Internal" = "#1a587a",
+      "Public" = "#458ab0"
+    )
+  ) +
+  scale_x_date(date_labels = "%b %d", date_breaks = "2 days") +
+  labs(
+    title = "Daily message volume by channel type",
+    x = NULL,
+    y = "Number of messages"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    panel.grid.minor = element_blank(),
+    strip.text = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+The chart shows a sharp increase in message volume on Jun 5, the day of the embargo breach. Internal messages increased the most, showing intense crisis coordination. Public posts also increased, suggesting the issue had already moved beyond private channels before the final release.
+
+# Side-channel Use vs Main Channel
+This chart compares the main communication huddle against side channels and public posts. It is important because side channels reduce visibility and make the system harder to control.
+
+```{r}
+#| code-fold: true
+comms_tbl %>%
+  mutate(
+    day = as_date(round_hour),
+    channel_group = case_when(
+      channel == "comms_huddle" ~ "Main huddle",
+      channel %in% c("side_huddle", "one_on_one_chat") ~ "Side / 1-to-1",
+      is_public ~ "Public posts",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  filter(!is.na(channel_group)) %>%
+  count(day, channel_group) %>%
+  ggplot(aes(day, n, colour = channel_group)) +
+  geom_line(linewidth = 0.9) +
+  geom_point(size = 2.5) +
+  geom_vline(xintercept = as.numeric(ymd("2046-06-05")),
+             linetype = "dashed", colour = "#a7661c") +
+  scale_x_date(date_labels = "%b %d", date_breaks = "2 days") +
+  labs(
+    title = "Side-channel use before the breach",
+    x = NULL,
+    y = "Messages per day",
+    colour = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+```
+The chart shows that side-channels were already active before the Jun 5 breach. This is meaningful because they are less visible than the main huddle, making it harder to monitor release-related coordination. Public posts also appeared around the breach, showing that the crisis had already spread beyond internal channels.
+
+# Public Posts Timeline
+
+
+# Judge-Agent Control Gap
+
+
+# Leading Indicators Before the Release
+
+
+
+
 
