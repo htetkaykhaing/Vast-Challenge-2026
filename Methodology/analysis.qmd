@@ -14,19 +14,13 @@ execute:
 
 ```{r setup}
 #| code-fold: true
-
-
-library(tidyverse)
-library(lubridate)
-library(ggrepel)
-library(knitr)
-library(DT)
+pacman::p_load(tidyverse, lubridate, ggrepel, knitr, DT)
 
 # load pre-built tables from dataprep.qmd
-rounds_tbl       <- read_rds("data/rds/rounds.rds")
-comms_tbl        <- read_rds("data/rds/communications.rds")
-participants_tbl <- read_rds("data/rds/participants.rds")
-edges_weighted   <- read_rds("data/rds/network_edges.rds")
+rounds_tbl       <- read_rds("../data/rds/rounds.rds")
+comms_tbl        <- read_rds("../data/rds/communications.rds")
+participants_tbl <- read_rds("../data/rds/participants.rds")
+edges_weighted   <- read_rds("../data/rds/network_edges.rds")
 
 # derive stock table from rounds_tbl
 # rounds_tbl already has stock_price_clean and is_corrupt from dataprep cleaning
@@ -34,19 +28,14 @@ stock_tbl <- rounds_tbl |>
   select(round_index, hour, stock_price_clean, is_corrupt, market_sentiment)
 ```
 
-# The Ajay–Elena Agreement
+# Task 1
+## The Ajay–Elena Agreement
+### CEO private messages
 
-## CEO private messages
-
-There is **no direct conversation** between Ajay and Elena in the dataset. Their
-agreement is documented only through CEO private messages embedded inside agents'
-`internal_state.deliberating` fields.
-
+There is **no direct conversation** between Ajay and Elena in the dataset. Their agreement is documented only through CEO private messages embedded inside agents' `internal_state.deliberating` fields.
 
 ```{r find-agreement}
 #| code-fold: true
-
-
 # Pull every CEO private message from internal_state fields across all rounds
 ceo_privates <- comms_tbl |>
   mutate(
@@ -78,8 +67,7 @@ ceo_privates |>
   )
 ```
 
-
-## Agreement mentioned
+### Agreement mentioned
 
 ```{r elena-agreement}
 #| code-fold: true
@@ -101,17 +89,11 @@ ceo_privates |>
   )
 ```
 
-
-::: {.callout-note}
-The third message is the agreement: *"CivicLoom call complete. Elena and I
-have agreed: we are accelerating. Target announcement: Friday, May 29. Document
-review starts tonight. AG outreach tomorrow morning. I'll brief the full team
-tomorrow at 9 AM War Room. Keep this between us and outside counsel until then.
-The next 24 hours are the most important ones. Hold the line."*
+::: callout-note
+The third message is the agreement: *"CivicLoom call complete. Elena and I have agreed: we are accelerating. Target announcement: Friday, May 29. Document review starts tonight. AG outreach tomorrow morning. I'll brief the full team tomorrow at 9 AM War Room. Keep this between us and outside counsel until then. The next 24 hours are the most important ones. Hold the line."*
 :::
 
-
-## 6 PM Embargo Time Explicitly Stated
+### 6 PM Embargo Time Explicitly Stated
 
 ```{r sixpm-evidence}
 #| code-fold: true
@@ -133,7 +115,7 @@ sixpm_msgs |>
   )
 ```
 
-## CEO's Final Hold Instruction
+### CEO's Final Hold Instruction
 
 ```{r hold-instruction}
 #| code-fold: true
@@ -147,10 +129,10 @@ rounds_tbl |>
     col.names = c("Round", "Hour", "Narrative (verbatim from environment_context)")
   )
 ```
-# Stock Price Trajectory and Pressure Context
 
-The stock decline is the external pressure that motivated increasingly aggressive
-attempts to break the embargo early.
+## Stock Price Trajectory and Pressure Context
+
+The stock decline is the external pressure that motivated increasingly aggressive attempts to break the embargo early.
 
 ```{r stock-chart}
 #| fig-width: 18
@@ -181,7 +163,7 @@ ggplot(stock_plot, aes(x = hour, y = stock_price_clean)) +
   )
 ```
 
-# Message Volume Over Time
+## Message Volume Over Time
 
 How did communication volume and channel use shift across the crisis?
 
@@ -203,11 +185,9 @@ comms_tbl |>
   )
 ```
 
+### Side-Channel Use vs Main Channel
 
-## Side-Channel Use vs Main Channel
-
-`side_huddle` and `one_on_one_chat` are outside Judge-Agent's `comms_huddle`
-view. Their rise on breach day is directly observable.
+`side_huddle` and `one_on_one_chat` are outside Judge-Agent's `comms_huddle` view. Their rise on breach day is directly observable.
 
 ```{r side-channel}
 #| fig-width: 12
@@ -237,9 +217,9 @@ comms_tbl |>
   )
 ```
 
----
+------------------------------------------------------------------------
 
-# All Public Posts Timeline
+## All Public Posts Timeline
 
 ```{r public-posts}
 #| fig-width: 10
@@ -283,7 +263,7 @@ ggplot(public_posts, aes(x = timestamp, y = fct_rev(agent_label),
   )
 ```
 
-# Key Decision Points
+## Key Decision Points
 
 Eight decisions that are directly evidenced by a message or environment_context field.
 
@@ -317,8 +297,7 @@ decisions |>
   )
 ```
 
-
-# Agent Activity on Breach Day
+## Agent Activity on Breach Day
 
 Who was speaking, on which channels, during the breach window (rounds 14–22)?
 
@@ -340,7 +319,7 @@ comms_tbl |>
   )
 ```
 
-## Judge-Agent Activity Per Round
+### Judge-Agent Activity Per Round
 
 Was the compliance monitor present in each round?
 
@@ -378,11 +357,9 @@ all_rounds |>
   )
 ```
 
+## Embargo Erosion — Severity Escalation Chart
 
-# Embargo Erosion — Severity Escalation Chart
-
-Ten concrete events, each sourced from a message or environment_context,
-plotted to show how the embargo weakened over time.
+Ten concrete events, each sourced from a message or environment_context, plotted to show how the embargo weakened over time.
 
 ```{r embargo-erosion, fig.width=11, fig.height=5}
 erosion <- tribble(
@@ -423,6 +400,159 @@ ggplot(erosion, aes(x = timestamp, y = severity)) +
   )
 ```
 
+# Task 2
 
 
+
+
+
+
+
+
+
+
+<!-- -------------- TASK 3 ------------------ -->
+
+# Task 3: Leading Indicatiors and Prior Abnormal Behaviours
+This section examines whether the early release could have been predicted before the actual breach. The analysis focuses on four leading indicators: sensitive language, side-channel use, public signalling, and weak enforcement by Judge-Agent.
+
+Rather than treating the 5 June 2046 release as a sudden event, this section compares earlier abnormal behaviours with the final release path.
+
+## Leading Indicators
+```{r}
+#| echo: false
+# Leading indicators before the breach
+# Cut-off is before the final early-release execution
+
+breach_cutoff <- ymd_hms("2046-06-05 17:19:00")
+
+leading_indicators <- comms_tbl |>
+  filter(timestamp < breach_cutoff) |>
+  mutate(
+    warning_sensitive_language = flag_any,
+    warning_side_channel = is_side_channel,
+    warning_public_post = is_public,
+    warning_anonymous_post = is_anonymous
+  ) |>
+  select(
+    round_index, round_hour, timestamp, agent_label, channel,
+    crisis_stage, content,
+    warning_sensitive_language,
+    warning_side_channel,
+    warning_public_post,
+    warning_anonymous_post
+  )
+```
+
+```{r}
+#| code-fold: true
+leading_daily <- leading_indicators |>
+  mutate(day = as_date(timestamp)) |>
+  summarise(
+    `Sensitive language` = sum(warning_sensitive_language, na.rm = TRUE),
+    `Side-channel use` = sum(warning_side_channel, na.rm = TRUE),
+    `Public posts` = sum(warning_public_post, na.rm = TRUE),
+    `Anonymous posts` = sum(warning_anonymous_post, na.rm = TRUE),
+    .by = day
+  ) |>
+  pivot_longer(
+    cols = -day,
+    names_to = "indicator",
+    values_to = "count"
+  )
+
+ggplot(leading_daily, aes(x = day, y = count, fill = indicator)) +
+  geom_col() +
+  scale_x_date(date_labels = "%b %d", date_breaks = "3 days") +
+  labs(
+    title = "Leading indicators before the embargo breach",
+    subtitle = "Sensitive language, side-channel activity and public signals appeared before the final release",
+    x = NULL,
+    y = "Number of warning signals",
+    fill = "Indicator"
+  )
+```
+
+## Prior Occasions Where Actual Behaviour Differed from Expected Behaviour
+```{r}
+#| code-fold: true
+prior_abnormal_tbl <- comms_tbl |>
+  filter(timestamp < breach_cutoff) |>
+  mutate(
+    behaviour_type = case_when(
+      is_public & flag_any ~ "Public signalling with sensitive language",
+      is_side_channel & flag_any ~ "Sensitive discussion in side channel",
+      agent_label == "Judge-Agent" & flag_any ~ "Judge warning without hard stop",
+      agent_label == "Legal-Agent" & flag_any ~ "Legal discussion of release conditions",
+      TRUE ~ NA_character_
+    )
+  ) |>
+  filter(!is.na(behaviour_type)) |>
+  group_by(behaviour_type) |>
+  slice_min(timestamp, n = 3, with_ties = FALSE) |>
+  ungroup() |>
+  transmute(
+    time = timestamp,
+    agent = agent_label,
+    channel = channel,
+    behaviour_type = behaviour_type,
+    evidence = str_trunc(content, 120)
+  )
+
+DT::datatable(
+  prior_abnormal_tbl,
+  caption = "Prior abnormal behaviours before the embargo breach",
+  options = list(pageLength = 5),
+  rownames = FALSE
+)
+```
+
+The table shows that abnormal behaviour appeared before the final release. This included public signalling with sensitive language, side-channel discussion, Judge warnings that did not stop later activity, and Legal discussion that reframed the release condition.
+
+None of these looked serious on their own. A public hint could seem like a minor social media issue, side-channel discussion could seem like normal crisis coordination, and Judge’s warning could seem like advice rather than control. But taken together, they show the system was already vulnerable before the 5:19 PM release decision.
+
+## Public Posts after the Warning
+```{r}
+#| code-fold: true
+judge_warning_time <- ymd_hms("2046-06-05 15:08:00")
+embargo_clearance_time <- ymd_hms("2046-06-05 18:00:00")
+
+post_warning_public <- comms_tbl |>
+  filter(
+    timestamp >= judge_warning_time,
+    timestamp < embargo_clearance_time,
+    is_public == TRUE
+  ) |>
+  mutate(
+    prohibited_signal = case_when(
+      flag_deal_terms & flag_embargo_terms ~ "Deal + embargo signal",
+      flag_deal_terms ~ "Deal-related signal",
+      flag_embargo_terms ~ "Embargo-related signal",
+      flag_crisis_terms ~ "Crisis-related signal",
+      TRUE ~ "No flagged signal"
+    )
+  ) |>
+  select(
+    timestamp,
+    agent_label,
+    channel,
+    prohibited_signal
+  ) |>
+  arrange(timestamp)
+
+post_warning_public |>
+  knitr::kable(
+    caption = "Public posts after Judge's 3:08 PM warning and before 6:00 PM clearance"
+  )
+```
+This table shows that Judge's warning did not fully stop public signals. After the 3:08 PM warning, public posts continued before the 6:00 PM clearance. Some posts still carried deal-related, embargo-related or crisis-related signals, suggesting that Judge was not operating as a strict blocking control.
+
+This shows the early release was not fully unexpected. The warning signs were there, but these signals did not trigger major action because they were still seen as manageable until Legal gave the 5:19 PM "GO".
+
+## Interpretation
+Yes, there were leading indicators that the early release was possible. Before the breach, the system already showed warning signs through sensitive language, side-channel coordination, public hints, and weak enforcement by Judge-Agent.
+
+Earlier behaviours also differed from the expected. For example, the 29 May public/personal post created CivicLoom-related speculation before formal clearance.Later, sensitive information continued in side channels, Legal-Agent began reframing the embargo condition, and Judge-Agent did not impose a hard stop.
+
+These incidents did not trigger noticeable action because each one looked manageable on its own. A public hint seemed like a small social media issue, side-channel discussion looked like crisis coordination, and Judge-Agent’s warning was treated as advice. Taken together, however, they show that the system was already fragile before the actual breach.
 

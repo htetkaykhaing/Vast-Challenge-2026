@@ -11,7 +11,7 @@ website:
       menu:
       - text: "Data Preparation"
         href: "Methodology/dataprep.qmd"
-      - text: "Statistical Analysis"
+      - text: "Analysis"
         href: "Methodology/analysis.qmd"
       - text: "Visualisation"
         href: "Methodology/visual.qmd"

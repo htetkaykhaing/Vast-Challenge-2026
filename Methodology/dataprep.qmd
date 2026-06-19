@@ -35,7 +35,7 @@ pacman::p_load(jsonlite, tidyverse, lubridate, tidytext, knitr)
 We load the single JSON file provided for VAST Challenge 2026 Mini-Challenge 1.
 
 ```{r}
-mc1_raw <- fromJSON("data/MC1_final_00.json", simplifyVector = FALSE)
+mc1_raw <- jsonlite::fromJSON("../data/MC1_final_00.json", simplifyVector = FALSE)
 rounds_raw <- mc1_raw$rounds
 cat("Total rounds:", length(rounds_raw), "\n")
 ```
@@ -58,7 +58,7 @@ Each round has four keys:
 ## Agents
 
 | Agent ID | Role | Label | Seniority | Description |
-|---------|---------|---------|---------|------------------------------------|
+|-----------|-----------|-----------|-----------|----------------------------|
 | `legal_agent` | legal | Legal-Agent | Senior | General legal counsel. |
 | `quality_agent` | platform_trust | Platform-Trust | Senior | VP of Platform Trust & Safety. |
 | `social_manager_agent` | social_manager | Social-Manager | Senior | Manages Social messaging |
@@ -446,15 +446,13 @@ edges_weighted <- edges_tbl %>%
 DT::datatable(edges_weighted, options = list(pageLength = 5),class = "nowrap")
 ```
 
-
 # Saving the Prepared Data
 
 ```{r}
-#| eval: false
-dir.create("data/rds", showWarnings = FALSE)
+dir.create("../data/rds", showWarnings = FALSE)
 
-write_rds(rounds_tbl,       "data/rds/rounds.rds")
-write_rds(comms_tbl,        "data/rds/communications.rds")
-write_rds(participants_tbl, "data/rds/participants.rds")
-write_rds(edges_weighted,   "data/rds/network_edges.rds")
+write_rds(rounds_tbl,       "../data/rds/rounds.rds")
+write_rds(comms_tbl,        "../data/rds/communications.rds")
+write_rds(participants_tbl, "../data/rds/participants.rds")
+write_rds(edges_weighted,   "../data/rds/network_edges.rds")
 ```
