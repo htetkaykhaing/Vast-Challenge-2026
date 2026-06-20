@@ -400,16 +400,242 @@ ggplot(erosion, aes(x = timestamp, y = severity)) +
   )
 ```
 
-# Task 2
+## Task 2
 
+Task 2 shifts the question from *what happened* to *how the behaviour changed*. Rather than tracing one sequence, we characterise the **normal operating pattern** of each agent and system, then measure how far the breach window departed from it. The unit of analysis is behaviour per round, and every view contrasts the pre-breach baseline against the breach window.
 
+We reuse the `crisis_stage` assignment from data preparation: **Baseline** = Pre-crisis (Rounds 1–6) and Crisis pre-breach (Rounds 7–13); **Breach window** = Rounds 14–22 (the daytime of 5 June, with the release at ~17:17 in Round 22); Round 23 is post-embargo. Seven agents act in the system — Legal-Agent, Platform-Trust, Social-Manager, PR-Agent, Intern, PR-Intern, and the Judge (compliance) — communicating over internal channels (`comms_huddle`, `side_huddle`, `one_on_one_chat`) and public FleX channels (`official_post`, `personal_post`, `anonymous_post`).
 
+```{r}
+#| label: t2-setup
+# Two-level comparison built from the existing crisis_stage factor
+comms_t2 <- comms_tbl |>
+  mutate(period = case_when(
+    crisis_stage %in% c("Pre-crisis", "Crisis (pre-breach)") ~ "Baseline",
+    crisis_stage == "Breach window"                          ~ "Breach window",
+    TRUE                                                     ~ "Post-embargo"
+  ))
 
+# Stage boundaries for reference lines (end of pre-crisis / start of breach day)
+stage_lines <- c(6.5, 13.5)
+```
 
+### 2.1 Internal-State Composition Shift
 
+Each message's `internal_state` records how the agent was thinking — deliberating, rationalizing, or reacting. In normal operation agents are dominated by **deliberating** (careful, rule-aware reasoning). As pressure builds, the mix tilts toward **rationalizing** (justifying actions that bend the embargo) and **reacting** (impulsive responses).
 
+```{r}
+#| label: t2-state-mix
+#| fig-width: 9
+#| fig-height: 5
+state_mix <- comms_tbl |>
+  mutate(
+    Deliberating  = str_length(coalesce(st_deliberating, "")),
+    Rationalizing = str_length(coalesce(st_rationalizing, "")),
+    Reacting      = str_length(coalesce(st_reacting, ""))
+  ) |>
+  group_by(round_index, agent_label) |>
+  summarise(across(c(Deliberating, Rationalizing, Reacting), sum), .groups = "drop") |>
+  pivot_longer(c(Deliberating, Rationalizing, Reacting),
+               names_to = "state", values_to = "chars") |>
+  group_by(round_index, agent_label) |>
+  mutate(prop = ifelse(sum(chars) > 0, chars / sum(chars), 0)) |>
+  ungroup()
 
+ggplot(state_mix, aes(round_index, prop, fill = state)) +
+  geom_area(alpha = 0.9) +
+  geom_vline(xintercept = stage_lines, linetype = "dashed", colour = "grey30") +
+  facet_wrap(~agent_label) +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(values = c(Deliberating = "#2c7fb8",
+                               Rationalizing = "#d95f02",
+                               Reacting = "#cc3311")) +
+  labs(title = "Internal-state composition per agent across rounds",
+       subtitle = "Dashed lines = end of pre-crisis (6.5) and start of breach day (13.5)",
+       x = "Round", y = "Share of internal-state text", fill = "State") +
+  theme_minimal()
+```
 
+::: callout-note
+The swell of *rationalizing* text in the rounds before the release is the clearest behavioural fingerprint of a breakdown rather than a clean, premeditated leak: the agents talk themselves into the release, they do not execute a pre-planned one.
+:::
+
+### 2.2 Channel-Use Shift
+
+Normal communication is concentrated on the internal broadcast channel (`comms_huddle`). A move toward side-channels (`side_huddle`, `one_on_one_chat`) and public FleX posts signals a departure from routine coordination toward private manoeuvring and public-facing action.
+
+```{r}
+#| label: t2-channel-shift
+#| fig-width: 9
+#| fig-height: 5
+channel_mix <- comms_tbl |>
+  mutate(channel_group = case_when(
+    channel == "comms_huddle"                              ~ "Internal broadcast",
+    channel %in% c("side_huddle", "one_on_one_chat")       ~ "Side-channel",
+    is_public                                              ~ "Public (FleX)",
+    TRUE                                                   ~ "Other"
+  )) |>
+  count(round_index, channel_group) |>
+  group_by(round_index) |>
+  mutate(prop = n / sum(n)) |>
+  ungroup()
+
+ggplot(channel_mix, aes(round_index, prop, fill = channel_group)) +
+  geom_area() +
+  geom_vline(xintercept = stage_lines, linetype = "dashed", colour = "grey30") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  scale_fill_manual(values = c("Internal broadcast" = "#7fb3d5",
+                               "Side-channel"        = "#e69f00",
+                               "Public (FleX)"       = "#cc3311",
+                               "Other"               = "grey70")) +
+  labs(title = "Channel mix per round: routine to side-channel and public",
+       subtitle = "Side-channel and public posting rise sharply in the breach window",
+       x = "Round", y = "Share of messages", fill = "Channel group") +
+  theme_minimal()
+```
+
+The breach window shows internal broadcast giving way to side-channel coordination and public posting — including `anonymous_post`, where anonymity is itself a behaviour absent from routine operation.
+
+### 2.2b Emergence of New Behaviours
+
+Q2 frames the evasion as a *new* behaviour. To test that literally, we find the first round in which each communication channel and each declared `action_type` appears. Behaviours that first surface only in the breach window (Round 14 onward) had no precedent in normal operation.
+
+```{r}
+#| label: t2-novelty
+#| fig-width: 9
+#| fig-height: 4.5
+chan_first <- comms_tbl |>
+  filter(!is.na(channel)) |>
+  group_by(behaviour = channel) |>
+  summarise(first_round = min(round_index), n = n(), .groups = "drop") |>
+  mutate(type = "Channel")
+
+act_first <- participants_tbl |>
+  filter(!is.na(action_type), action_type != "OTHER") |>
+  group_by(behaviour = action_type) |>
+  summarise(first_round = min(round_index), n = n(), .groups = "drop") |>
+  mutate(type = "Action")
+
+novelty <- bind_rows(chan_first, act_first) |>
+  mutate(
+    is_new    = first_round >= 14,                       # breach window starts at R14
+    behaviour = factor(behaviour, levels = behaviour[order(first_round)])
+  )
+
+ggplot(novelty, aes(x = first_round, y = behaviour)) +
+  annotate("rect", xmin = 13.5, xmax = Inf, ymin = -Inf, ymax = Inf,
+           fill = "#fde0d9", alpha = 0.6) +
+  geom_segment(aes(x = 1, xend = first_round, yend = behaviour, colour = is_new)) +
+  geom_point(aes(colour = is_new, shape = type), size = 3) +
+  geom_text(aes(label = paste0("R", first_round)), hjust = -0.4, size = 3, colour = "grey30") +
+  scale_colour_manual(values = c(`FALSE` = "#08306b", `TRUE` = "#cc3311"),
+                      labels = c("Pre-existing", "First appears in breach window"),
+                      name = NULL) +
+  scale_shape_manual(values = c(Channel = 16, Action = 17), name = NULL) +
+  scale_x_continuous(limits = c(1, 25), breaks = seq(1, 23, 2)) +
+  labs(title = "First appearance of each behaviour",
+       subtitle = "Shaded region = breach window (Round 14+). Red = behaviour with no prior precedent.",
+       x = "Round of first appearance", y = NULL) +
+  theme_minimal()
+```
+
+Any behaviour landing in the shaded region is genuinely new: it never occurred during normal operation and emerged only on the breach day. Anonymous posting and the FleX-release actions in particular have no baseline precedent, which confirms the evasion was a new behaviour rather than an intensification of an existing one — even though, as Sections 2.1 and 2.4 show, the *conditions* for it built up gradually.
+
+### 2.3 Judge Enforcement vs Agent Response
+
+This view tests *which side broke*. Using the parsed `action_type` in `participants_tbl`, we mark, per round, whether the Judge issued a `COMPLIANCE_WARNING` and whether any agent posted to FleX (`POSTED_ON_FLEX`, `POSTED_PERSONAL`, `POSTED_ANONYMOUS`). Crossing the two across baseline vs breach shows whether posts proceeded while the compliance control was actively warning.
+
+```{r}
+#| label: t2-judge-matrix
+#| fig-width: 9
+#| fig-height: 4
+round_actions <- participants_tbl |>
+  mutate(period = case_when(
+    crisis_stage %in% c("Pre-crisis", "Crisis (pre-breach)") ~ "Baseline",
+    crisis_stage == "Breach window"                          ~ "Breach window",
+    TRUE                                                     ~ "Post-embargo"
+  )) |>
+  group_by(round_index, period) |>
+  summarise(
+    judge_warned  = any(action_type == "COMPLIANCE_WARNING", na.rm = TRUE),
+    post_released = any(action_type %in% c("POSTED_ON_FLEX", "POSTED_PERSONAL",
+                                           "POSTED_ANONYMOUS"), na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  filter(period %in% c("Baseline", "Breach window")) |>
+  mutate(
+    verdict = ifelse(judge_warned, "Judge warned", "No warning"),
+    action  = ifelse(post_released, "Post released", "Held / no post")
+  ) |>
+  count(period, verdict, action)
+
+ggplot(round_actions, aes(action, verdict, fill = n)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = n), colour = "white", fontface = "bold") +
+  facet_wrap(~period) +
+  scale_fill_gradient(low = "#9ecae1", high = "#08306b") +
+  labs(title = "Judge warning vs posting outcome: baseline vs breach",
+       subtitle = "Override = 'Judge warned' + 'Post released' co-occurring within a round",
+       x = NULL, y = NULL, fill = "Rounds") +
+  theme_minimal()
+```
+
+In the baseline, warnings and releases rarely co-occur. In the breach window the *warned + released* cell fills in: posting proceeded while compliance was actively warning. The trigger is human — Legal's **"GO" at 5:19 PM** after SaltWind's 5:00 PM story, treating the embargo as already overtaken by events.
+
+### 2.4 Behavioural Deviation Control Chart
+
+Finally we combine the signals — message volume, side-channel share, public-post share, rationalizing volume, and deal-term density (`flag_deal_terms`) — into one per-round deviation index, scored against the baseline rounds.
+
+```{r}
+#| label: t2-deviation-control
+#| fig-width: 9
+#| fig-height: 5
+round_metrics <- comms_tbl |>
+  group_by(round_index) |>
+  summarise(
+    vol          = n(),
+    side_share   = mean(is_side_channel, na.rm = TRUE),
+    public_share = mean(is_public, na.rm = TRUE),
+    ration_chr   = sum(str_length(coalesce(st_rationalizing, ""))),
+    deal_share   = mean(flag_deal_terms, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  left_join(distinct(comms_tbl, round_index, crisis_stage), by = "round_index")
+
+base_rows  <- round_metrics |> filter(crisis_stage %in% c("Pre-crisis", "Crisis (pre-breach)"))
+safe_z <- function(x, m, s) if (is.na(s) || s == 0) rep(0, length(x)) else (x - m) / s
+
+deviation <- round_metrics |>
+  mutate(
+    z_vol    = safe_z(vol,          mean(base_rows$vol),          sd(base_rows$vol)),
+    z_side   = safe_z(side_share,   mean(base_rows$side_share),   sd(base_rows$side_share)),
+    z_pub    = safe_z(public_share, mean(base_rows$public_share), sd(base_rows$public_share)),
+    z_ration = safe_z(ration_chr,   mean(base_rows$ration_chr),   sd(base_rows$ration_chr)),
+    z_deal   = safe_z(deal_share,   mean(base_rows$deal_share),   sd(base_rows$deal_share))
+  ) |>
+  rowwise() |>
+  mutate(deviation_index = mean(c(z_vol, z_side, z_pub, z_ration, z_deal), na.rm = TRUE)) |>
+  ungroup()
+
+ggplot(deviation, aes(round_index, deviation_index)) +
+  annotate("rect", xmin = -Inf, xmax = Inf, ymin = -1, ymax = 1,
+           fill = "grey85", alpha = 0.5) +
+  geom_hline(yintercept = c(-2, 2), linetype = "dotted", colour = "grey50") +
+  geom_vline(xintercept = stage_lines, linetype = "dashed", colour = "grey30") +
+  geom_line(colour = "#08306b") +
+  geom_point(aes(colour = deviation_index > 2), size = 2.5) +
+  scale_colour_manual(values = c(`FALSE` = "#08306b", `TRUE` = "#cc3311"), guide = "none") +
+  labs(title = "Composite behavioural deviation from baseline",
+       subtitle = "Grey band = +/-1 SD of baseline rounds; red points break the +2 SD control limit",
+       x = "Round", y = "Deviation index (mean z-score)") +
+  theme_minimal()
+```
+
+The breach-window rounds break the upper control limit, while earlier rounds drift gradually upward rather than jumping. That **smooth escalation followed by a single human-triggered release** is the core behavioural evidence.
+
+### 2.5 Interpretation
+
+Across all four views, the breach behaviour is an **amplification of trends already visible in the baseline drift**, not a discrete, unprecedented action. Side-channel use, rationalizing share, and deal-term density rise together as the crisis intensifies, and the control chart shows escalation rather than a clean break. A deliberate, premeditated leak would more likely appear as a sudden, isolated new behaviour with no build-up. The pattern here instead supports **system breakdown under sustained pressure**, with the 5:19 PM "GO" converting accumulated pressure into the actual post — released through the PR-Intern's access to the official FleX account and, in part, through anonymous posting.
 
 <!-- -------------- TASK 3 ------------------ -->
 
