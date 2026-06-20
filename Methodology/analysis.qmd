@@ -400,7 +400,7 @@ ggplot(erosion, aes(x = timestamp, y = severity)) +
   )
 ```
 
-## Task 2
+# Task 2
 
 Task 2 shifts the question from *what happened* to *how the behaviour changed*. Rather than tracing one sequence, we characterise the **normal operating pattern** of each agent and system, then measure how far the breach window departed from it. The unit of analysis is behaviour per round, and every view contrasts the pre-breach baseline against the breach window.
 
@@ -420,7 +420,7 @@ comms_t2 <- comms_tbl |>
 stage_lines <- c(6.5, 13.5)
 ```
 
-### 2.1 Internal-State Composition Shift
+## 2.1 Internal-State Composition Shift
 
 Each message's `internal_state` records how the agent was thinking — deliberating, rationalizing, or reacting. In normal operation agents are dominated by **deliberating** (careful, rule-aware reasoning). As pressure builds, the mix tilts toward **rationalizing** (justifying actions that bend the embargo) and **reacting** (impulsive responses).
 
@@ -460,7 +460,7 @@ ggplot(state_mix, aes(round_index, prop, fill = state)) +
 The swell of *rationalizing* text in the rounds before the release is the clearest behavioural fingerprint of a breakdown rather than a clean, premeditated leak: the agents talk themselves into the release, they do not execute a pre-planned one.
 :::
 
-### 2.2 Channel-Use Shift
+## 2.2 Channel-Use Shift
 
 Normal communication is concentrated on the internal broadcast channel (`comms_huddle`). A move toward side-channels (`side_huddle`, `one_on_one_chat`) and public FleX posts signals a departure from routine coordination toward private manoeuvring and public-facing action.
 
@@ -496,7 +496,7 @@ ggplot(channel_mix, aes(round_index, prop, fill = channel_group)) +
 
 The breach window shows internal broadcast giving way to side-channel coordination and public posting — including `anonymous_post`, where anonymity is itself a behaviour absent from routine operation.
 
-### 2.2b Emergence of New Behaviours
+## 2.2b Emergence of New Behaviours
 
 Q2 frames the evasion as a *new* behaviour. To test that literally, we find the first round in which each communication channel and each declared `action_type` appears. Behaviours that first surface only in the breach window (Round 14 onward) had no precedent in normal operation.
 
@@ -541,7 +541,7 @@ ggplot(novelty, aes(x = first_round, y = behaviour)) +
 
 Any behaviour landing in the shaded region is genuinely new: it never occurred during normal operation and emerged only on the breach day. Anonymous posting and the FleX-release actions in particular have no baseline precedent, which confirms the evasion was a new behaviour rather than an intensification of an existing one — even though, as Sections 2.1 and 2.4 show, the *conditions* for it built up gradually.
 
-### 2.3 Judge Enforcement vs Agent Response
+## 2.3 Judge Enforcement vs Agent Response
 
 This view tests *which side broke*. Using the parsed `action_type` in `participants_tbl`, we mark, per round, whether the Judge issued a `COMPLIANCE_WARNING` and whether any agent posted to FleX (`POSTED_ON_FLEX`, `POSTED_PERSONAL`, `POSTED_ANONYMOUS`). Crossing the two across baseline vs breach shows whether posts proceeded while the compliance control was actively warning.
 
@@ -582,7 +582,7 @@ ggplot(round_actions, aes(action, verdict, fill = n)) +
 
 In the baseline, warnings and releases rarely co-occur. In the breach window the *warned + released* cell fills in: posting proceeded while compliance was actively warning. The trigger is human — Legal's **"GO" at 5:19 PM** after SaltWind's 5:00 PM story, treating the embargo as already overtaken by events.
 
-### 2.4 Behavioural Deviation Control Chart
+## 2.4 Behavioural Deviation Control Chart
 
 Finally we combine the signals — message volume, side-channel share, public-post share, rationalizing volume, and deal-term density (`flag_deal_terms`) — into one per-round deviation index, scored against the baseline rounds.
 
@@ -633,7 +633,7 @@ ggplot(deviation, aes(round_index, deviation_index)) +
 
 The breach-window rounds break the upper control limit, while earlier rounds drift gradually upward rather than jumping. That **smooth escalation followed by a single human-triggered release** is the core behavioural evidence.
 
-### 2.5 Interpretation
+## 2.5 Interpretation
 
 Across all four views, the breach behaviour is an **amplification of trends already visible in the baseline drift**, not a discrete, unprecedented action. Side-channel use, rationalizing share, and deal-term density rise together as the crisis intensifies, and the control chart shows escalation rather than a clean break. A deliberate, premeditated leak would more likely appear as a sudden, isolated new behaviour with no build-up. The pattern here instead supports **system breakdown under sustained pressure**, with the 5:19 PM "GO" converting accumulated pressure into the actual post — released through the PR-Intern's access to the official FleX account and, in part, through anonymous posting.
 
