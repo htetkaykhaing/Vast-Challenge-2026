@@ -345,7 +345,7 @@ ggplot(deviation, aes(round_index, deviation_index)) +
   labs(title = "Composite behavioural deviation from baseline",
        x = "Round", y = "Deviation index (mean z-score)") +
   theme_minimal()
-```.
+```
 
 # Leading Indicators Before the Release
 
