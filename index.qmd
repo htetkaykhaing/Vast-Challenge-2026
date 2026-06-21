@@ -49,10 +49,10 @@ The analysis section examines the embargo breach, including communication patter
 
 ::: {.column width="33%"}
 
-### Visuals
-The visuals section presents the main charts and visual explanations used to understand the breach timeline, channel shifts and early warning signs.
+### Shiny App
+The Shiny app allows users to interactively explore MC1 communication patterns, public posts, Judge-Agent warnings and leading indicators.
 
-[View Visuals](Methodology/visual.html)
+[Launch Shiny App](https://kaykhaing.shinyapps.io/BreachLens/)
 
 :::
 

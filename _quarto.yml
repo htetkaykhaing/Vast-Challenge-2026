@@ -18,6 +18,12 @@ website:
     - text: "Meeting Minutes"
       href: "meeting_minutes.qmd"
     right:
+    - text: "Shiny App"
+      menu:
+      - text: "User Guide"
+        href: "ShinyApp/guide.qmd"
+      - text: "Shiny App"
+        href: "https://kaykhaing.shinyapps.io/BreachLens/"
     - text: "The Team"
       href: "team.qmd"
 
