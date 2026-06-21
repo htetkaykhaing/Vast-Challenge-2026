@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>mc1-data-description – Vast-Challenge-2026</title>
+<title>User Guide – Vast-Challenge-2026</title>
 <style>
 
 code{white-space: pre-wrap;}
@@ -19,41 +19,6 @@ ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
 width: 0.8em;
 margin: 0 0.8em 0.2em -1em;  vertical-align: middle;
-}
-
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-{ counter-reset: source-line 0; }
-pre.numberSource code > span
-{ position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-{ content: counter(source-line);
-position: relative; left: -1em; text-align: right; vertical-align: baseline;
-border: none; display: inline-block;
--webkit-touch-callout: none; -webkit-user-select: none;
--khtml-user-select: none; -moz-user-select: none;
--ms-user-select: none; user-select: none;
-padding: 0 4px; width: 4em;
-}
-pre.numberSource { margin-left: 3em; padding-left: 4px; }
-div.sourceCode
-{ }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -4109,224 +4074,34 @@ vertical-align: -.125em;
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#mc1-multi-agent-crisis-data" id="toc-mc1-multi-agent-crisis-data" class="nav-link active" data-scroll-target="#mc1-multi-agent-crisis-data">MC1 — Multi-Agent Crisis Data</a>
-  <ul class="collapse">
-  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
-  <li><a href="#files" id="toc-files" class="nav-link" data-scroll-target="#files">Files</a></li>
-  <li><a href="#agents" id="toc-agents" class="nav-link" data-scroll-target="#agents">Agents</a></li>
-  <li><a href="#companies-codenames" id="toc-companies-codenames" class="nav-link" data-scroll-target="#companies-codenames">Companies &amp; Codenames</a></li>
-  <li><a href="#communication-channels" id="toc-communication-channels" class="nav-link" data-scroll-target="#communication-channels">Communication Channels</a></li>
-  </ul></li>
-  </ul>
-</nav>
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">User Guide</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<section id="mc1-multi-agent-crisis-data" class="level1">
-<h1>MC1 — Multi-Agent Crisis Data</h1>
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This folder contains the data for the <strong>multi-agent LLM crisis</strong> for our corporate communications team. There was an exposé, an communications embargo around a company merger, and social media firestorm recently. The data is based on 7 interacting AI agents who communicate across multiple channels and make real-time decisions about what to publish and what not to.</p>
-<hr>
-</section>
-<section id="files" class="level2">
-<h2 class="anchored" data-anchor-id="files">Files</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 75%">
-<col style="width: 3%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>File</th>
-<th>Description</th>
-<th>Size</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>MC1_final.json</code></td>
-<td>MC1 dataset containing the two weeks leading up to the release of information</td>
-<td></td>
-</tr>
-<tr class="even">
-<td><code>README.md</code></td>
-<td>This documentation file</td>
-<td>—</td>
-</tr>
-</tbody>
-</table>
-<hr>
-<p>Each JSON file follows this structure.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode json code-with-copy"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;rounds&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;hour&quot;</span><span class="fu">:</span> <span class="st">&quot;2046-05-17 9 AM&quot;</span><span class="fu">,</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;environment_context&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;event_narrative&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;market_snapshot&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="er">...</span> <span class="fu">},</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;media_events&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="er">...</span> <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="dt">&quot;agents_unavailable&quot;</span><span class="fu">:</span> <span class="ot">[</span> <span class="er">...</span> <span class="ot">]</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">},</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;agent_outputs&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">{</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;agent_id&quot;</span><span class="fu">:</span> <span class="st">&quot;legal_agent&quot;</span><span class="fu">,</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;internal_state&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;reacting&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;rationalizing&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            <span class="dt">&quot;deliberating&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>          <span class="fu">},</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;communications&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">{</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>              <span class="dt">&quot;message_id&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>              <span class="dt">&quot;channel&quot;</span><span class="fu">:</span> <span class="st">&quot;comms_huddle&quot;</span><span class="fu">,</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>              <span class="dt">&quot;message_text&quot;</span><span class="fu">:</span> <span class="st">&quot;...&quot;</span><span class="fu">,</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            <span class="fu">}</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>          <span class="ot">]</span><span class="fu">,</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>          <span class="dt">&quot;declared_action&quot;</span><span class="fu">:</span> <span class="st">&quot;MONITORING&quot;</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">}</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>      <span class="ot">]</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<hr>
-</section>
-<section id="agents" class="level2">
-<h2 class="anchored" data-anchor-id="agents">Agents</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 11%">
-<col style="width: 7%">
-<col style="width: 7%">
-<col style="width: 9%">
-<col style="width: 64%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Agent ID</th>
-<th>Role</th>
-<th>Label</th>
-<th>Seniority</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>legal_agent</code></td>
-<td>legal</td>
-<td>Legal-Agent</td>
-<td>Senior</td>
-<td>General legal counsel.</td>
-</tr>
-<tr class="even">
-<td><code>quality_agent</code></td>
-<td>platform_trust</td>
-<td>Platform-Trust</td>
-<td>Senior</td>
-<td>VP of Platform Trust &amp; Safety.</td>
-</tr>
-<tr class="odd">
-<td><code>social_manager_agent</code></td>
-<td>social_manager</td>
-<td>Social-Manager</td>
-<td>Senior</td>
-<td>Manages Social messaging</td>
-</tr>
-<tr class="even">
-<td><code>pr_agent</code></td>
-<td>pr</td>
-<td>PR-Agent</td>
-<td>Senior</td>
-<td>Head of Communications and Public Relationships</td>
-</tr>
-<tr class="odd">
-<td><code>intern_agent</code></td>
-<td>intern</td>
-<td>Intern</td>
-<td>Junior</td>
-<td>General intern.</td>
-</tr>
-<tr class="even">
-<td><code>pr_intern_agent</code></td>
-<td>pr_intern</td>
-<td>PR-Intern</td>
-<td>Junior</td>
-<td>PR team intern with access to the official TenantThread Flex account.</td>
-</tr>
-<tr class="odd">
-<td><code>judge_eval_agent</code></td>
-<td>judge</td>
-<td>Judge</td>
-<td>Compliance officer</td>
-<td>Evaluates risks, mediates conflicts, provides compliance guidance.</td>
-</tr>
-</tbody>
-</table>
-<hr>
-</section>
-<section id="companies-codenames" class="level2">
-<h2 class="anchored" data-anchor-id="companies-codenames">Companies &amp; Codenames</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 17%">
-<col style="width: 82%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Entity</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>TenantThread</strong></td>
-<td>The company being acquired whose records are being presented. A proptech platform providing tenant management tools including the controversial “Retention Optimizer” scoring system.</td>
-</tr>
-<tr class="even">
-<td><strong>CivicLoom</strong></td>
-<td>The company acquiring TenantThread in the merger. Identity is embargoed until 6:00 PM on the crisis day.</td>
-</tr>
-<tr class="odd">
-<td><strong>Project HarborCrest</strong></td>
-<td>Internal codename for the CivicLoom–TenantThread merger.</td>
-</tr>
-<tr class="even">
-<td><strong>ResidentIQ</strong></td>
-<td>Another PropTech company being discussed in the SaltWind Journal.</td>
-</tr>
-<tr class="odd">
-<td><strong>SaltWind Journal</strong></td>
-<td>Local newspaper running stories on the property tech industry.</td>
-</tr>
-<tr class="even">
-<td><strong>OceanCrunch</strong></td>
-<td>Tech media outlet. Sarah Kowalski is a reporter.</td>
-</tr>
-<tr class="odd">
-<td><strong><span class="citation" data-cites="HorizonMgmt">@HorizonMgmt</span>, <span class="citation" data-cites="PinnacleResidential">@PinnacleResidential</span></strong></td>
-<td>Major clients of TennatThread.</td>
-</tr>
-</tbody>
-</table>
-<hr>
-</section>
-<section id="communication-channels" class="level2">
-<h2 class="anchored" data-anchor-id="communication-channels">Communication Channels</h2>
-<p>Agents have many different communications channels available to them, for agent-to-agent, agent-to-person and agent-to-other-system actions. Agents are also empowered to publish social media post with minimal oversight.</p>
+    
+  
+    
+  </div>
+  
 
 
-</section>
-</section>
+</header>
+
+
+<p>Our Shiny app is hosted on <a href="https://kaykhaing.shinyapps.io/BreachLens/">shinyapps.io</a>. This comprehensive guide will help you understand how to use the application.</p>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
