@@ -36,6 +36,21 @@ edges_weighted    <- readr::read_rds("../data/rds/network_edges.rds")
 
 stock_tbl <- rounds_tbl |>
   select(round_index, hour, stock_price_clean, is_corrupt, market_sentiment)
+
+# Shared forensic palette + theme so every figure matches the BreachLens system.
+bl_ink <- "#15191e"; bl_signal <- "#e5482b"; bl_teal <- "#2f6e7b"
+bl_ochre <- "#b97f2e"; bl_mute <- "#586470"; bl_line <- "#d4d9dc"
+theme_set(
+  theme_minimal(base_size = 12) +
+    theme(
+      plot.title    = element_text(face = "bold", colour = bl_ink),
+      plot.subtitle = element_text(colour = bl_mute),
+      axis.title    = element_text(colour = bl_mute, size = rel(0.9)),
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_line(colour = bl_line, linewidth = 0.3),
+      legend.position  = "bottom"
+    )
+)
 ```
 
 # Crisis Timeline and Stock Pressure

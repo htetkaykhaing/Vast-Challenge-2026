@@ -110,4 +110,96 @@ The updated division of work is as follows:
 
 Each member will update their respective sections and share them with the team for final review before submission.
 
+---
+
+## Project Meeting 4
+
+- **Date:** 13/06/2026
+- **Time:** 9:05 PM - 9:11 PM
+- **In Attendance:** JD, Kay, Phoebe
+
+### Agenda Items
+
+1. Division of MC1 questions
+2. Workflow and data preparation approach
+3. Action items before the poster submission
+
+### Agenda Item 1: Division of MC1 Questions
+
+With MC1 confirmed as the project topic, the team agreed to split the work by taking one question each, as MC1 has three questions.
+
+JD took Question 2, while Phoebe and Kay took the remaining questions (Question 1 and Question 3).
+
+### Agenda Item 2: Workflow and Data Preparation Approach
+
+The team discussed how to manage their work in RStudio and GitHub. The use of Git branches was considered, but the team ultimately decided not to branch and to work concurrently instead.
+
+The team also discussed data preparation. Since each question still requires data preparation (creating the three tables), the team agreed that the member working on Question 1 would set up the data preparation first. The others would then align their work to that shared data preparation to avoid merge conflicts.
+
+### Agenda Item 3: Action Items
+
+The team noted that the poster submission is due on 1 July 2026, leaving about one week to complete the work.
+
+The team agreed that a mid-week meeting was not necessary, as each member is working on a separate question. Each member will work on their assigned question and share progress with the team. Members were also reminded to attend class the following week.
+
+---
+
+## Project Meeting 5
+
+- **Date:** 20/06/2026
+- **In Attendance:** JD, Kay, Phoebe
+
+### Agenda Items
+
+1. Progress check-in
+2. Exploring the team's focus for the Shiny app
+
+### Agenda Item 1: Progress Check-In
+
+The team held a short check-in to review individual progress on their assigned MC1 questions and confirm that everyone was on track ahead of the poster submission.
+
+### Agenda Item 2: Exploring the Team's Focus for the Shiny App
+
+The team discussed and explored the direction for the Shiny app, considering what the app should focus on and how the analysis from each question could be presented. The discussion was exploratory, with the aim of aligning on a shared focus before developing the prototype further.
+
+---
+
+## Project Meeting 6
+
+- **Date:** 23/06/2026
+- **Time:** 7:01 PM - 7:14 PM
+- **In Attendance:** JD, Kay, Phoebe
+
+### Agenda Items
+
+1. Review of the Shiny app prototype
+2. Division of remaining deliverables
+3. Deadlines and next working session
+
+### Agenda Item 1: Review of the Shiny App Prototype
+
+The team reviewed the current Shiny app prototype together. The team felt that the visuals and findings were still too similar to the sample project and agreed that the app needed to be more distinct.
+
+The team agreed to replace the tables in the Shiny app with more visuals, as visuals are easier for users to interpret and better suited to the purpose of a Shiny app. One log-style view could be presented as a status summary, allowing users to click through to more detailed content.
+
+The team also noted that one component was not interactive. They agreed it should be made interactive where possible, or otherwise enlarged or given additional filters. A keyword search over the message content was suggested as a way to flag sensitive messages.
+
+Finally, the team agreed to hide or remove unused sample elements, clean up the dropdown, replace the visualization tab with the findings, and tidy up the logo and title.
+
+### Agenda Item 2: Division of Remaining Deliverables
+
+The team divided the remaining work as follows:
+
+- **JD:** Improve the Shiny app visuals and update the meeting minutes
+- **Phoebe:** Create the poster, with the others assisting
+- **Kay:** Write up the findings and the user guide once the Shiny app visuals are ready
+
+The team agreed to continue working in their usual rotating order, completing tasks in sequence.
+
+### Agenda Item 3: Deadlines and Next Working Session
+
+The team confirmed that the poster submission is due on 1 July 2026. To allow time to prepare the poster visuals, the team aimed to complete the main work by the weekend.
+
+The team agreed to hold a working session on Sunday after 9 PM. One member noted they had a quiz the following day and would contribute on Thursday instead. The team also acknowledged the poster's formatting restrictions (resolution and print requirements) and agreed to start drafting it early.
+
 

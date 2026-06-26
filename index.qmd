@@ -8,13 +8,25 @@ format:
 
 ::: {.hero-card}
 
+::: {.case-strip}
+Case file · MC1 — TenantThread embargo breach · Project HarborCrest
+:::
+
 # Tracing the Embargo Breach
 
-## Visual Analytics for VAST Challenge 2026 Mini-Challenge 1
+## Visual analytics for VAST Challenge 2026 · Mini-Challenge 1
 
-TenantThread's merger announcement was supposed to remain under embargo until **6:00 PM on 5 June 2046**. However, merger-related information appeared publicly on FleX before the official release time.
+::: {.hero-lede}
+The embargo held until [18:00]{.stamp}. The information didn't.
+:::
 
-This project uses visual analytics to investigate how the breach happened, who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure.
+TenantThread's merger announcement was supposed to remain under embargo until **6:00 PM on 5 June 2046**. Merger-related information appeared publicly on FleX before that release time.
+
+This is a reconstruction of how the breach happened: who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure.
+
+::: {.dossier-facts}
+[Embargo · 18:00]{.fact} [Rounds · 22]{.fact} [Messages · 912]{.fact} [Public posts · 77]{.fact}
+:::
 
 :::
 
@@ -24,6 +36,40 @@ TenantThread is a property technology company involved in a sensitive merger wit
 An automated compliance tool known as **The Judge** was introduced to prevent embargo breaches. However, during the crisis, embargoed merger information still appeared publicly before the official release time.
 
 This project investigates the communication records from the two weeks leading up to the breach to understand what happened.
+
+## Key Findings
+
+::: {.findings}
+
+::: {.finding}
+[Public posts]{.label}
+[77]{.value}
+
+<p>Merger information appeared publicly on FleX before the 6:00 PM release.</p>
+:::
+
+::: {.finding}
+[Anonymous posts]{.label}
+[12]{.value}
+
+<p>Anonymous posting appears only inside the breach window, never before.</p>
+:::
+
+::: {.finding}
+[Control gap]{.label}
+[Round 14]{.value}
+
+<p>FleX posts begin to outrun the Judge-Agent's compliance warnings.</p>
+:::
+
+::: {.finding}
+[Side-channel messages]{.label}
+[359]{.value}
+
+<p>Sensitive coordination moved into low-visibility side channels.</p>
+:::
+
+:::
 
 ## Project Sections
 
