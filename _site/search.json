@@ -439,5 +439,187 @@
     "title": "Project Proposal",
     "section": "Project Schedule",
     "text": "Project Schedule"
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-users-can-see",
+    "href": "ShinyApp/guide.html#what-users-can-see",
+    "title": "User Guide",
+    "section": "3.1 2.1 What users can see",
+    "text": "3.1 2.1 What users can see\nThe tab includes:\n\nshort case description;\ntotal messages in scope;\nnumber of public posts;\nnumber of sensitive messages;\ndaily message volume chart;\nCSV download option."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#how-to-use-this-tab",
+    "href": "ShinyApp/guide.html#how-to-use-this-tab",
+    "title": "User Guide",
+    "section": "3.2 2.2 How to use this tab",
+    "text": "3.2 2.2 How to use this tab\nUsers should use this tab to understand the overall scale of the communication archive.\nThe main chart shows daily message volume. Users can compare normal communication days against the breach period.\nIf the chart is interactive in the deployed app, users can:\n\nhover over bars to inspect message counts;\nclick a bar to open the selected day in the Evidence tab;\ndownload the chart data using the CSV button."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-to-look-for",
+    "href": "ShinyApp/guide.html#what-to-look-for",
+    "title": "User Guide",
+    "section": "3.3 2.3 What to look for",
+    "text": "3.3 2.3 What to look for\nThe key pattern to look for is the sharp increase in communication activity on 5 June 2046.\nA sudden increase in message volume suggests that the agents moved from routine monitoring into crisis response. This provides early context for why the embargo control system became stressed."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-users-can-see-1",
+    "href": "ShinyApp/guide.html#what-users-can-see-1",
+    "title": "User Guide",
+    "section": "4.1 3.1 What users can see",
+    "text": "4.1 3.1 What users can see\nThe tab includes:\n\nmessage volume over time;\nkey event markers;\ncompany stock price chart;\nCSV download option.\n\nThe dashed vertical lines represent important moments such as:\n\nJudge-Agent’s warning;\nLegal-Agent’s go-decision;\nthe 6:00 PM embargo deadline."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#how-to-use-this-tab-1",
+    "href": "ShinyApp/guide.html#how-to-use-this-tab-1",
+    "title": "User Guide",
+    "section": "4.2 3.2 How to use this tab",
+    "text": "4.2 3.2 How to use this tab\nUsers can use the timeline chart to identify when communication activity increased.\nUseful interactions include:\n\nhover over points or lines to inspect values;\ndrag across the chart to zoom into the final hours of 5 June;\ndouble-click to reset the zoom;\ncompare message spikes with the dashed event markers;\ndownload the underlying chart data using the CSV button."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-to-look-for-1",
+    "href": "ShinyApp/guide.html#what-to-look-for-1",
+    "title": "User Guide",
+    "section": "4.3 3.3 What to look for",
+    "text": "4.3 3.3 What to look for\nUsers should focus on whether communication increased before or only after the breach.\nIf message volume rose before the official 6:00 PM embargo lift, this supports the interpretation that the early release was part of a build-up rather than a sudden isolated event.\nThe stock price chart should be used as supporting context. A falling stock price does not prove the release decision, but it helps explain why agents were operating under pressure."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-users-can-see-2",
+    "href": "ShinyApp/guide.html#what-users-can-see-2",
+    "title": "User Guide",
+    "section": "5.1 4.1 What users can see",
+    "text": "5.1 4.1 What users can see\nThe tab includes:\n\ninteractive communication network;\nagent nodes;\nweighted communication links;\nchannel filter;\ncrisis-stage filter;\nview selector."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#how-to-use-this-tab-2",
+    "href": "ShinyApp/guide.html#how-to-use-this-tab-2",
+    "title": "User Guide",
+    "section": "5.2 4.2 How to use this tab",
+    "text": "5.2 4.2 How to use this tab\nUsers can interact with the network by:\n\ndragging nodes to rearrange the layout;\nhovering over nodes to inspect agent information;\ncomparing node sizes to see which agents were more central;\nswitching channel filters to focus on specific communication types;\nselecting crisis stages to compare pre-crisis, crisis, breach-window, and post-embargo communication.\n\nUseful channel filters include:\n\ncomms_huddle;\nside_huddle;\none_on_one_chat;\nofficial_post;\npersonal_post;\nanonymous_post."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-to-look-for-2",
+    "href": "ShinyApp/guide.html#what-to-look-for-2",
+    "title": "User Guide",
+    "section": "5.3 4.3 What to look for",
+    "text": "5.3 4.3 What to look for\nUsers should examine whether sensitive coordination happened mainly in open team channels or in less visible side channels.\nA useful investigation step is to switch the channel filter to side_huddle or one_on_one_chat. If important agents remain strongly connected in those channels, this suggests that key coordination happened outside the most visible communication space.\nThis is important because side-channel coordination can make compliance monitoring weaker."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-users-can-see-3",
+    "href": "ShinyApp/guide.html#what-users-can-see-3",
+    "title": "User Guide",
+    "section": "6.1 5.1 What users can see",
+    "text": "6.1 5.1 What users can see\nThe tab includes:\n\nabnormality score by round;\nnormal-behaviour band;\nalarm threshold;\nred points for clearly abnormal rounds;\nagent activity heatmap."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#how-to-use-this-tab-3",
+    "href": "ShinyApp/guide.html#how-to-use-this-tab-3",
+    "title": "User Guide",
+    "section": "6.2 5.2 How to use this tab",
+    "text": "6.2 5.2 How to use this tab\nUsers should read the abnormality chart from left to right.\nThe chart helps users compare:\n\nnormal rounds;\ngradually abnormal rounds;\nclearly abnormal rounds;\nbreach-window rounds.\n\nUseful interactions include:\n\nhover over points to inspect each round;\ncompare points against the normal grey band;\nidentify when the score crosses the alarm line;\nuse the heatmap to see which agents were most active in each round."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-to-look-for-3",
+    "href": "ShinyApp/guide.html#what-to-look-for-3",
+    "title": "User Guide",
+    "section": "6.3 5.3 What to look for",
+    "text": "6.3 5.3 What to look for\nUsers should check whether the abnormality score only spikes at the breach, or whether it rises before the breach.\nA gradual increase suggests that the breach was not a one-off event. Instead, it indicates a slow build-up where agent behaviour drifted away from normal expectations.\nThe heatmap should be used to identify which agents contributed most to the escalation."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-users-can-see-4",
+    "href": "ShinyApp/guide.html#what-users-can-see-4",
+    "title": "User Guide",
+    "section": "7.1 6.1 What users can see",
+    "text": "7.1 6.1 What users can see\nThe tab includes:\n\ncumulative public posts after the warning;\nwarnings versus posts by round;\nmessages in the warning-to-deadline window;\nsignal-type filter;\nCSV download option."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#how-to-use-this-tab-4",
+    "href": "ShinyApp/guide.html#how-to-use-this-tab-4",
+    "title": "User Guide",
+    "section": "7.2 6.2 How to use this tab",
+    "text": "7.2 6.2 How to use this tab\nUsers should begin by looking at the public-post line.\nIf the line keeps increasing after the 3:08 PM warning, this means public posting continued despite the warning.\nUsers can then compare:\n\npublic posts that went out;\nJudge-Agent warnings;\nthe gap between warnings and posts.\n\nThe signal-type filter allows users to focus on specific message types, such as:\n\nall signals;\ndeal-related signals;\nembargo-related signals.\n\nUsers can also inspect the message table and download the filtered records using the CSV button."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-to-look-for-4",
+    "href": "ShinyApp/guide.html#what-to-look-for-4",
+    "title": "User Guide",
+    "section": "7.3 6.3 What to look for",
+    "text": "7.3 6.3 What to look for\nThe key question is whether Judge-Agent acted as a strong blocking control.\nIf posts continued after the warning, then Judge-Agent was not functioning as a strict preventive mechanism. It may have warned or assessed risk, but it did not fully stop public communication.\nThis supports the interpretation that enforcement lagged behind posting behaviour."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#what-users-can-see-5",
+    "href": "ShinyApp/guide.html#what-users-can-see-5",
+    "title": "User Guide",
+    "section": "8.1 7.1 What users can see",
+    "text": "8.1 7.1 What users can see\nThe tab includes:\n\nsearchable communication records;\nCSV download option;\nquick filters;\ndate range filter;\nround filter;\nagent filter;\nchannel filter;\nvisibility filter;\ncrisis-stage filter;\nsignal filters;\nreset filters button;\ncopy-link button."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#quick-filters",
+    "href": "ShinyApp/guide.html#quick-filters",
+    "title": "User Guide",
+    "section": "8.2 7.2 Quick filters",
+    "text": "8.2 7.2 Quick filters\nThe quick filters allow users to narrow the evidence table quickly.\nDepending on the app version, useful quick filters may include:\n\nBreach: shows records linked to the breach window.\nSide-ch: shows side-channel communications.\nAnon: shows anonymous posts.\nPost-warning: shows records after Judge-Agent’s warning.\n\nThese filters are useful when users want to focus on the most investigation-relevant messages without manually selecting multiple controls."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#scope-filters",
+    "href": "ShinyApp/guide.html#scope-filters",
+    "title": "User Guide",
+    "section": "8.3 7.3 Scope filters",
+    "text": "8.3 7.3 Scope filters\nThe scope filters help users control the investigation period.\nUsers can adjust:\n\nDate range to focus on specific days;\nRound to inspect a specific scenario turn.\n\nThis is useful when moving from a broad timeline view to a specific event window."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#who-and-where-filters",
+    "href": "ShinyApp/guide.html#who-and-where-filters",
+    "title": "User Guide",
+    "section": "8.4 7.4 Who and where filters",
+    "text": "8.4 7.4 Who and where filters\nThe agent and channel filters allow users to inspect specific actors and communication spaces.\nUseful workflows include:\n\nselect Legal-Agent to inspect release-related decision messages;\nselect Judge-Agent to review warnings and compliance checks;\nselect Social-Manager-Agent to review public-post behaviour;\nselect side_huddle or one_on_one_chat to inspect less visible coordination;\nselect anonymous_post or personal_post to inspect public signalling."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#visibility-and-crisis-stage-filters",
+    "href": "ShinyApp/guide.html#visibility-and-crisis-stage-filters",
+    "title": "User Guide",
+    "section": "8.5 7.5 Visibility and crisis-stage filters",
+    "text": "8.5 7.5 Visibility and crisis-stage filters\nUsers can filter records by:\n\ninternal communication;\npublic communication;\npre-crisis stage;\ncrisis pre-breach stage;\nbreach window;\npost-embargo stage.\n\nThis helps compare normal communication against breach-window behaviour."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#signal-filters",
+    "href": "ShinyApp/guide.html#signal-filters",
+    "title": "User Guide",
+    "section": "8.6 7.6 Signal filters",
+    "text": "8.6 7.6 Signal filters\nThe signal filters allow users to search for messages containing important categories of language.\nUseful signal filters include:\n\ndeal terms;\nembargo terms;\ncrisis terms;\npublic posts;\nanonymous posts;\nside-channel messages.\n\nUsers can also choose whether to match any selected condition or all selected conditions.\n\nMatch any is broader and returns records that meet at least one selected signal.\nMatch all is stricter and returns only records that meet every selected signal."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#search-and-export",
+    "href": "ShinyApp/guide.html#search-and-export",
+    "title": "User Guide",
+    "section": "8.7 7.7 Search and export",
+    "text": "8.7 7.7 Search and export\nUsers can search the evidence table directly.\nUseful search terms include:\n\nembargo;\ndeal;\nCivicLoom;\nHarborCrest;\n6 PM;\nJudge;\nGO.\n\nUsers can also export filtered records using the CSV option. This is useful for documenting evidence used in the final analysis."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#message-volume",
+    "href": "ShinyApp/guide.html#message-volume",
+    "title": "User Guide",
+    "section": "10.1 9.1 Message volume",
+    "text": "10.1 9.1 Message volume\nA sharp increase in message volume suggests that the organisation entered crisis-response mode."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#channel-shift",
+    "href": "ShinyApp/guide.html#channel-shift",
+    "title": "User Guide",
+    "section": "10.2 9.2 Channel shift",
+    "text": "10.2 9.2 Channel shift\nGrowth in side-channel or one-to-one communication suggests that important coordination may have moved away from the most visible channels."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#public-posts-after-warning",
+    "href": "ShinyApp/guide.html#public-posts-after-warning",
+    "title": "User Guide",
+    "section": "10.3 9.3 Public posts after warning",
+    "text": "10.3 9.3 Public posts after warning\nIf public posts continued after Judge-Agent’s warning, then the warning did not act as a hard control."
+  },
+  {
+    "objectID": "ShinyApp/guide.html#abnormality-score",
+    "href": "ShinyApp/guide.html#abnormality-score",
+    "title": "User Guide",
+    "section": "10.4 9.4 Abnormality score",
+    "text": "10.4 9.4 Abnormality score\nIf abnormality increased gradually before the breach, then the release was more likely to be part of a progressive system breakdown rather than a sudden isolated event."
   }
 ]

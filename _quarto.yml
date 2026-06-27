@@ -13,8 +13,8 @@ website:
         href: "Methodology/dataprep.qmd"
       - text: "Analysis"
         href: "Methodology/analysis.qmd"
-      - text: "Visualisation"
-        href: "Methodology/visual.qmd"
+    - text: "Findings"
+      href: "finding.qmd"
     - text: "Meeting Minutes"
       href: "meeting_minutes.qmd"
     right:

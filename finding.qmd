@@ -1,5 +1,5 @@
 ---
-title: "Data Exploration and Visualisation"
+title: "Findings"
 format:
   html:
     toc-depth: 3
@@ -15,15 +15,17 @@ This page presents the main visual patterns found in the MC1 communication data.
 
 The visual exploration focuses on five areas:
 
-1. stock and external pressure;
-2. communication volume;
-3. side-channel activity;
-4. public signalling; and
-5. Behavioural Comparison: Normal vs Breach
-6. leading indicators before the release.
+1.  stock and external pressure;
+2.  communication volume;
+3.  side-channel activity;
+4.  public signalling; and
+5.  Behavioural Comparison: Normal vs Breach
+6.  leading indicators before the release.
 
 # Setup and Loading Prepared Data
+
 Firstly, we will load the R packages and data prepared.
+
 ```{r}
 pacman::p_load(
   tidyverse, lubridate, ggrepel, knitr, DT, scales
@@ -54,6 +56,7 @@ theme_set(
 ```
 
 # Crisis Timeline and Stock Pressure
+
 The first view shows the external pressure on TenantThread. The stock price decline helps explain why the agents became more urgent and aggressive in managing the release.
 
 ```{r, echo=FALSE}
@@ -98,9 +101,10 @@ stock_tbl %>%
   theme_minimal()
 ```
 
-The chart shows that $TTHR's stock price was already declining before the embargo breach. This does not prove the release decision by itself, but it provides important context: the agents were operating under growing market and reputational pressure before the early release occurred.
+The chart shows that \$TTHR's stock price was already declining before the embargo breach. This does not prove the release decision by itself, but it provides important context: the agents were operating under growing market and reputational pressure before the early release occurred.
 
 # Communication Volume Over Time
+
 This chart shows how communication intensity changed across the timeline.
 
 ```{r}
@@ -142,6 +146,7 @@ ggplot(msg_daily, aes(x = day, y = n, fill = channel_type)) +
 The chart shows a sharp increase in message volume on Jun 5, the day of the embargo breach. Internal messages increased the most, showing intense crisis coordination. Public posts also increased, suggesting the issue had already moved beyond private channels before the final release.
 
 # Side-channel Use vs Main Channel
+
 This chart compares the main communication huddle against side channels and public posts. It is important because side channels reduce visibility and make the system harder to control.
 
 ```{r}
@@ -176,6 +181,7 @@ comms_tbl %>%
     panel.grid.minor = element_blank()
   )
 ```
+
 The chart shows that side-channels were already active before the Jun 5 breach. This is meaningful because they are less visible than the main huddle, making it harder to monitor release-related coordination. Public posts also appeared around the breach, showing that the crisis had already spread beyond internal channels.
 
 # Public Posts Timeline
@@ -385,6 +391,3 @@ comms_tbl %>%
 ```
 
 Sensitive discussion in side-channels builds in the days before the breach rather than appearing only on 5 June. Because these channels are less visible than the main huddle, this rising private discussion was an early signal that release-related coordination was underway before any public post.
-
-
-
