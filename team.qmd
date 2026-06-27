@@ -11,5 +11,5 @@ We developed this project for ISSS608 (Visual Analytics and Applications) during
 Members
 
 -   [Htet Kay Khaing](https://www.linkedin.com/in/htetkay-khaing/)
--   Jedidiah Asaf Tallulembang
+-   [Jedidiah Asaf Tallulembang](https://www.linkedin.com/in/jedidiahasaf/)
 -   Lei Yuhe
