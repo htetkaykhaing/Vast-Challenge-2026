@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>BreachLens</title>
+<title>Findings – BreachLens</title>
 <style>
 
 code{white-space: pre-wrap;}
@@ -4115,7 +4115,7 @@ src: url(data:font/ttf;base64,AAEAAAAQAQAABAAAR0RFRiYjH7YAAAIkAAAA4kdQT1PtSV8mAA
     </ul>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="./finding.html"> 
+    <a class="nav-link active" href="./finding.html" aria-current="page"> 
 <span class="menu-text">Findings</span></a>
   </li>  
   <li class="nav-item">
@@ -4151,96 +4151,37 @@ src: url(data:font/ttf;base64,AAEAAAAQAQAABAAAR0RFRiYjH7YAAAIkAAAA4kdQT1PtSV8mAA
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
 <!-- main -->
-<main class="content column-page" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Findings</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
-<div class="hero-card">
-<div class="case-strip">
-<p>Case file · MC1 — TenantThread embargo breach · Project HarborCrest</p>
-</div>
-<section id="tracing-the-embargo-breach" class="level1">
-<h1>Tracing the Embargo Breach</h1>
-<section id="visual-analytics-for-vast-challenge-2026-mini-challenge-1" class="level2">
-<h2 class="anchored" data-anchor-id="visual-analytics-for-vast-challenge-2026-mini-challenge-1">Visual analytics for VAST Challenge 2026 · Mini-Challenge 1</h2>
-<div class="hero-lede">
-<p>The embargo held until <span class="stamp">18:00</span>. The information didn’t.</p>
-</div>
-<p>TenantThread’s merger announcement was supposed to remain under embargo until <strong>6:00 PM on 5 June 2046</strong>. Merger-related information appeared publicly on FleX before that release time.</p>
-<p>This is a reconstruction of how the breach happened: who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure.</p>
-<div class="dossier-facts">
-<p><span class="fact">Embargo · 18:00</span> <span class="fact">Rounds · 22</span> <span class="fact">Messages · 912</span> <span class="fact">Public posts · 77</span></p>
-</div>
-</section>
-</section>
-</div>
-<section id="project-background" class="level2">
-<h2 class="anchored" data-anchor-id="project-background">Project Background</h2>
-<p>TenantThread is a property technology company involved in a sensitive merger with CivicLoom Realty Partners. The deal, codenamed <strong>Project HarborCrest</strong>, was under strict information embargo. At the same time, TenantThread was facing rising public pressure over its <strong>Retention Optimizer</strong> product and growing criticism from SaltWind Journal and social media users.</p>
-<p>An automated compliance tool known as <strong>The Judge</strong> was introduced to prevent embargo breaches. However, during the crisis, embargoed merger information still appeared publicly before the official release time.</p>
-<p>This project investigates the communication records from the two weeks leading up to the breach to understand what happened.</p>
-</section>
-<section id="key-findings" class="level2">
-<h2 class="anchored" data-anchor-id="key-findings">Key Findings</h2>
-<div class="findings">
-<div class="finding">
-<p><span class="label">Public posts</span> <span class="value">77</span></p>
-<p>
-Merger information appeared publicly on FleX before the 6:00 PM release.
-</p>
-</div>
-<div class="finding">
-<p><span class="label">Anonymous posts</span> <span class="value">12</span></p>
-<p>
-Anonymous posting appears only inside the breach window, never before.
-</p>
-</div>
-<div class="finding">
-<p><span class="label">Control gap</span> <span class="value">Round 14</span></p>
-<p>
-FleX posts begin to outrun the Judge-Agent’s compliance warnings.
-</p>
-</div>
-<div class="finding">
-<p><span class="label">Side-channel messages</span> <span class="value">359</span></p>
-<p>
-Sensitive coordination moved into low-visibility side channels.
-</p>
-</div>
-</div>
-</section>
-<section id="project-sections" class="level2">
-<h2 class="anchored" data-anchor-id="project-sections">Project Sections</h2>
-<div class="columns">
-<div class="column" style="width:33%;">
-<section id="proposal" class="level3">
-<h3 class="anchored" data-anchor-id="proposal">Proposal</h3>
-<p>The proposal outlines the project motivation, objectives, data, methodology, prototype sketches, R packages and project schedule.</p>
-<p><a href="proposal.html">View Proposal</a></p>
-</section>
-</div><div class="column" style="width:33%;">
-<section id="analysis" class="level3">
-<h3 class="anchored" data-anchor-id="analysis">Analysis</h3>
-<p>The analysis section examines the embargo breach, including communication patterns, Judge-Agent warnings, public posts and leading indicators.</p>
-<p><a href="Methodology/analysis.html">View Analysis</a></p>
-</section>
-</div><div class="column" style="width:33%;">
-<section id="visuals" class="level3">
-<h3 class="anchored" data-anchor-id="visuals">Visuals</h3>
-<p>The visuals section presents the main charts and visual explanations used to understand the breach timeline, channel shifts and early warning signs.</p>
-<p><a href="Methodology/visual.html">View Visuals</a></p>
-</section>
-</div>
-</div>
+    
+  
+    
+  </div>
+  
 
 
-</section>
+</header>
+
+
+<p>This page presents the main visual patterns found in the MC1 communication data. The purpose is to show how the embargo breach developed over time, how communication behaviour changed, and what warning signs appeared before the early release.</p>
+
+
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
