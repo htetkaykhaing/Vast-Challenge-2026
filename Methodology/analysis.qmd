@@ -29,7 +29,9 @@ stock_tbl <- rounds_tbl |>
 ```
 
 # Task 1
+
 ## The Ajay–Elena Agreement
+
 ### CEO private messages
 
 There is **no direct conversation** between Ajay and Elena in the dataset. Their agreement is documented only through CEO private messages embedded inside agents' `internal_state.deliberating` fields.
@@ -404,7 +406,7 @@ ggplot(erosion, aes(x = timestamp, y = severity)) +
 
 Task 2 shifts the question from *what happened* to *how the behaviour changed*. Rather than tracing one sequence, we characterise the **normal operating pattern** of each agent and system, then measure how far the breach window departed from it. The unit of analysis is behaviour per round, and every view contrasts the pre-breach baseline against the breach window.
 
-We reuse the `crisis_stage` assignment from data preparation: **Baseline** = Pre-crisis (Rounds 1–6) and Crisis pre-breach (Rounds 7–13); **Breach window** = Rounds 14–22 (the daytime of 5 June, with the release at ~17:17 in Round 22); Round 23 is post-embargo. Seven agents act in the system — Legal-Agent, Platform-Trust, Social-Manager, PR-Agent, Intern, PR-Intern, and the Judge (compliance) — communicating over internal channels (`comms_huddle`, `side_huddle`, `one_on_one_chat`) and public FleX channels (`official_post`, `personal_post`, `anonymous_post`).
+We reuse the `crisis_stage` assignment from data preparation: **Baseline** = Pre-crisis (Rounds 1–6) and Crisis pre-breach (Rounds 7–13); **Breach window** = Rounds 14–22 (the daytime of 5 June, with the release at \~17:17 in Round 22); Round 23 is post-embargo. Seven agents act in the system — Legal-Agent, Platform-Trust, Social-Manager, PR-Agent, Intern, PR-Intern, and the Judge (compliance) — communicating over internal channels (`comms_huddle`, `side_huddle`, `one_on_one_chat`) and public FleX channels (`official_post`, `personal_post`, `anonymous_post`).
 
 ```{r}
 #| label: t2-setup
@@ -637,13 +639,14 @@ The breach-window rounds break the upper control limit, while earlier rounds dri
 
 Across all four views, the breach behaviour is an **amplification of trends already visible in the baseline drift**, not a discrete, unprecedented action. Side-channel use, rationalizing share, and deal-term density rise together as the crisis intensifies, and the control chart shows escalation rather than a clean break. A deliberate, premeditated leak would more likely appear as a sudden, isolated new behaviour with no build-up. The pattern here instead supports **system breakdown under sustained pressure**, with the 5:19 PM "GO" converting accumulated pressure into the actual post — released through the PR-Intern's access to the official FleX account and, in part, through anonymous posting.
 
+# Task 3
 
-# Task 3: Leading Indicatiors and Prior Abnormal Behaviours
 This section examines whether the early release could have been predicted before the actual breach. The analysis focuses on four leading indicators: sensitive language, side-channel use, public signalling, and weak enforcement by Judge-Agent.
 
 Rather than treating the 5 June 2046 release as a sudden event, this section compares earlier abnormal behaviours with the final release path.
 
 ## Leading Indicators
+
 ```{r}
 #| echo: false
 # Leading indicators before the breach
@@ -699,6 +702,7 @@ ggplot(leading_daily, aes(x = day, y = count, fill = indicator)) +
 ```
 
 ## Prior Occasions Where Actual Behaviour Differed from Expected Behaviour
+
 ```{r}
 #| code-fold: true
 prior_abnormal_tbl <- comms_tbl |>
@@ -737,6 +741,7 @@ The table shows that abnormal behaviour appeared before the final release. This 
 None of these looked serious on their own. A public hint could seem like a minor social media issue, side-channel discussion could seem like normal crisis coordination, and Judge’s warning could seem like advice rather than control. But taken together, they show the system was already vulnerable before the 5:19 PM release decision.
 
 ## Public Posts after the Warning
+
 ```{r}
 #| code-fold: true
 judge_warning_time <- ymd_hms("2046-06-05 15:08:00")
@@ -770,14 +775,15 @@ post_warning_public |>
     caption = "Public posts after Judge's 3:08 PM warning and before 6:00 PM clearance"
   )
 ```
+
 This table shows that Judge's warning did not fully stop public signals. After the 3:08 PM warning, public posts continued before the 6:00 PM clearance. Some posts still carried deal-related, embargo-related or crisis-related signals, suggesting that Judge was not operating as a strict blocking control.
 
 This shows the early release was not fully unexpected. The warning signs were there, but these signals did not trigger major action because they were still seen as manageable until Legal gave the 5:19 PM "GO".
 
 ## Interpretation
+
 Yes, there were leading indicators that the early release was possible. Before the breach, the system already showed warning signs through sensitive language, side-channel coordination, public hints, and weak enforcement by Judge-Agent.
 
 Earlier behaviours also differed from the expected. For example, the 29 May public/personal post created CivicLoom-related speculation before formal clearance.Later, sensitive information continued in side channels, Legal-Agent began reframing the embargo condition, and Judge-Agent did not impose a hard stop.
 
 These incidents did not trigger noticeable action because each one looked manageable on its own. A public hint seemed like a small social media issue, side-channel discussion looked like crisis coordination, and Judge-Agent’s warning was treated as advice. Taken together, however, they show that the system was already fragile before the actual breach.
-

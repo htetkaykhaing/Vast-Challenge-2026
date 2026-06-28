@@ -24,6 +24,9 @@ website:
         href: "ShinyApp/guide.qmd"
       - text: "Shiny App"
         href: "https://kaykhaing.shinyapps.io/BreachLens/"
+    - text: "GitHub"
+      icon: github
+      href: "https://github.com/htetkaykhaing/Vast-Challenge-2026"
     - text: "The Team"
       href: "team.qmd"
 
