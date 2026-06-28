@@ -6,10 +6,10 @@ format:
     page-layout: full
 ---
 
-We developed this project for ISSS608 (Visual Analytics and Applications) during Term 3 of the Academic Year 2025-26 in Singapore Management University under the guidance of Dr. Kam Tin Seong, Associate Professor of Information Systems.
+We developed this project for ISSS608 (Visual Analytics and Applications) during Term 3 of the Academic Year 2025-26 in Singapore Management University under the guidance of [Dr. Kam Tin Seong](https://faculty.smu.edu.sg/profile/kam-tin-seong-486), Associate Professor of Information Systems.
 
 Members
 
--   [Htet Kay Khaing](https://www.linkedin.com/in/htetkay-khaing/)
--   [Jedidiah Asaf Tallulembang](https://www.linkedin.com/in/jedidiahasaf/)
--   Lei Yuhe
+- [Htet Kay Khaing](https://www.linkedin.com/in/htetkay-khaing/)
+- [Jedidiah Asaf Tallulembang](https://www.linkedin.com/in/jedidiahasaf/)
+- [Lei Yuhe](https://www.linkedin.com/in/phoebeleiyuhe/)
