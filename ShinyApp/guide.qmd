@@ -4,20 +4,17 @@ format:
   html:
     toc-depth: 3
     number-sections: true
-execute:
-  eval: true
-  echo: true
-  warning: false
-  message: false
+    fig-align: center
 ---
 
-Our Shiny app is hosted on is designed to help users investigate the TenantThread embargo breach. The app allows users to explore communication patterns, public posts, agent interactions, abnormal behaviour scores, and the evidence behind the early release.
+Our Shiny app, BreachLens, is designed to help users investigate the TenantThread embargo breach. The app allows users to explore communication patterns, public posts, agent interactions, abnormal behaviour scores, and the evidence behind the early release.
 
 The application is hosted [here](https://kaykhaing.shinyapps.io/BreachLens/)  
 
 # Getting Started
-
 When the app is launched, users will see the **Overview** tab by default.
+
+![](img/Navi.png)
 
 The navigation bar contains six main tabs:
 
@@ -30,410 +27,216 @@ The navigation bar contains six main tabs:
 
 Each tab supports a different part of the investigation.
 
-![](img/Overview.png)
-
-<!-- Screenshot placeholder:
-![](images/userguide/01-getting-started.png){width="95%"}
--->
-
-
 # Overview Tab
-
 The **Overview** tab provides a high-level summary of the MC1 communication data.
 
 It introduces the overall case and shows the number of messages, public posts, and sensitive messages in scope.
 
-<!-- Screenshot placeholder:
-![](images/userguide/02-overview.png){width="95%"}
--->
+![](img/Overview.png)
 
 ## What users can see
-
 The tab includes:
 
-- short case description;
-- total messages in scope;
-- number of public posts;
-- number of sensitive messages;
-- daily message volume chart;
-- CSV download option.
+- short case description
+- total messages in scope
+- number of public posts
+- number of sensitive messages
+- daily message volume chart
+- CSV download option
 
-## 2.2 How to use this tab
-
+## How to use this tab
 Users should use this tab to understand the overall scale of the communication archive.
 
 The main chart shows **daily message volume**. Users can compare normal communication days against the breach period.
 
-If the chart is interactive in the deployed app, users can:
+As the chart is interactive, users can
 
-- hover over bars to inspect message counts;
-- click a bar to open the selected day in the Evidence tab;
-- download the chart data using the CSV button.
+- hover over bars to see message counts
+- click a bar to open the selected day in the Evidence tab
 
-## 2.3 What to look for
-
-The key pattern to look for is the sharp increase in communication activity on **5 June 2046**.
-
-A sudden increase in message volume suggests that the agents moved from routine monitoring into crisis response. This provides early context for why the embargo control system became stressed.
-
-
-# 3. Timeline Tab
-
+# Timeline Tab
 The **Timeline** tab shows when messages occurred and how communication activity changed during the crisis.
 
 It also includes the stock price chart, which provides external market-pressure context.
 
-<!-- Screenshot placeholder:
-![](images/userguide/03-timeline.png){width="95%"}
--->
+![](img/Timeline.png)
 
-## 3.1 What users can see
+## What users can see
+The Timeline tab combines communication activity, stock-price movement, and key event markers. The dashed lines highlight Judge-Agent's warning, Legal-Agent’s "GO" decision, and the 6:00 PM embargo deadline.
 
-The tab includes:
-
-- message volume over time;
-- key event markers;
-- company stock price chart;
-- CSV download option.
-
-The dashed vertical lines represent important moments such as:
-
-- Judge-Agent's warning;
-- Legal-Agent's go-decision;
-- the 6:00 PM embargo deadline.
-
-## 3.2 How to use this tab
-
+## How to use this tab
 Users can use the timeline chart to identify when communication activity increased.
 
 Useful interactions include:
 
-- hover over points or lines to inspect values;
-- drag across the chart to zoom into the final hours of 5 June;
-- double-click to reset the zoom;
-- compare message spikes with the dashed event markers;
-- download the underlying chart data using the CSV button.
+- hover over points to see values
+- drag across the chart to zoom into the final hours of 5 June
 
-## 3.3 What to look for
-
-Users should focus on whether communication increased before or only after the breach.
-
-If message volume rose before the official 6:00 PM embargo lift, this supports the interpretation that the early release was part of a build-up rather than a sudden isolated event.
-
-The stock price chart should be used as supporting context. A falling stock price does not prove the release decision, but it helps explain why agents were operating under pressure.
-
-
-# 4. Network Tab
-
+# Network Tab
 The **Network** tab shows who talked to whom.
 
 Each node represents an agent. Each line represents communication between agents. Thicker lines indicate more frequent communication, while larger nodes indicate more overall contact.
 
-<!-- Screenshot placeholder:
-![](images/userguide/04-network.png){width="95%"}
--->
+![](img/Network.png)
 
-## 4.1 What users can see
-
+## What users can see
 The tab includes:
 
-- interactive communication network;
-- agent nodes;
-- weighted communication links;
-- channel filter;
-- crisis-stage filter;
-- view selector.
+- interactive communication network
+- agent nodes
+- weighted communication links
+- channel filter
+- crisis-stage filter
+- view selector
 
-## 4.2 How to use this tab
-
+## How to use this tab
 Users can interact with the network by:
 
-- dragging nodes to rearrange the layout;
-- hovering over nodes to inspect agent information;
-- comparing node sizes to see which agents were more central;
-- switching channel filters to focus on specific communication types;
-- selecting crisis stages to compare pre-crisis, crisis, breach-window, and post-embargo communication.
+- dragging nodes to rearrange the layout
+- hovering over nodes to inspect agent information
+- switching channel filters to focus on specific communication types
+- selecting crisis stages to compare pre-crisis, crisis, breach-window, and post-embargo communication
 
-Useful channel filters include:
-
-- `comms_huddle`;
-- `side_huddle`;
-- `one_on_one_chat`;
-- `official_post`;
-- `personal_post`;
-- `anonymous_post`.
-
-## 4.3 What to look for
-
-Users should examine whether sensitive coordination happened mainly in open team channels or in less visible side channels.
-
-A useful investigation step is to switch the channel filter to **side_huddle** or **one_on_one_chat**. If important agents remain strongly connected in those channels, this suggests that key coordination happened outside the most visible communication space.
-
-This is important because side-channel coordination can make compliance monitoring weaker.
-
-
-# 5. Escalation Tab
-
+# Escalation Tab
 The **Escalation** tab examines how abnormal each round was compared with expected behaviour.
 
 The MC1 scenario is divided into numbered rounds. This tab helps users identify whether abnormal behaviour appeared suddenly or built up gradually.
 
-<!-- Screenshot placeholder:
-![](images/userguide/05-escalation.png){width="95%"}
--->
+![](img/Escalation.png)
 
-## 5.1 What users can see
-
+## What users can see
 The tab includes:
 
-- abnormality score by round;
-- normal-behaviour band;
-- alarm threshold;
-- red points for clearly abnormal rounds;
-- agent activity heatmap.
+- abnormality score by round
+- normal-behaviour and alarm thresholds
+- agent activity heatmap
 
-## 5.2 How to use this tab
-
+## How to use this tab
 Users should read the abnormality chart from left to right.
 
 The chart helps users compare:
 
-- normal rounds;
-- gradually abnormal rounds;
-- clearly abnormal rounds;
-- breach-window rounds.
+- normal and abnormal rounds
+- breach-window rounds
 
 Useful interactions include:
 
-- hover over points to inspect each round;
-- compare points against the normal grey band;
-- identify when the score crosses the alarm line;
-- use the heatmap to see which agents were most active in each round.
+- hover over points to see each round
+- identify when the score crosses the alarm line
+- use the heatmap to see which agents were most active in each round
 
-## 5.3 What to look for
-
-Users should check whether the abnormality score only spikes at the breach, or whether it rises before the breach.
-
-A gradual increase suggests that the breach was not a one-off event. Instead, it indicates a slow build-up where agent behaviour drifted away from normal expectations.
-
-The heatmap should be used to identify which agents contributed most to the escalation.
-
-
-# 6. The Breach Tab
-
+# The Breach Tab
 The **The Breach** tab focuses on the period after Judge-Agent's 3:08 PM warning and before the 6:00 PM embargo clearance.
 
 This tab checks whether the warning stopped risky public communication.
 
-<!-- Screenshot placeholder:
-![](images/userguide/06-the-breach.png){width="95%"}
--->
+![](img/Breach.png)
 
-## 6.1 What users can see
-
+## What users can see
 The tab includes:
 
-- cumulative public posts after the warning;
-- warnings versus posts by round;
-- messages in the warning-to-deadline window;
-- signal-type filter;
-- CSV download option.
+- public posts after the warning
+- warnings vs. posts by round
+- messages in the warning window;
+- signal-type filter
+- CSV download option
 
-## 6.2 How to use this tab
-
+## How to use this tab
 Users should begin by looking at the public-post line.
 
 If the line keeps increasing after the 3:08 PM warning, this means public posting continued despite the warning.
 
 Users can then compare:
 
-- public posts that went out;
-- Judge-Agent warnings;
-- the gap between warnings and posts.
+- public posts that went out
+- Judge-Agent warnings
+- the gap between warnings and posts
 
 The signal-type filter allows users to focus on specific message types, such as:
 
-- all signals;
-- deal-related signals;
-- embargo-related signals.
+- all signals
+- deal-related signals
+- embargo-related signals
 
 Users can also inspect the message table and download the filtered records using the CSV button.
 
-## 6.3 What to look for
-
-The key question is whether Judge-Agent acted as a strong blocking control.
-
-If posts continued after the warning, then Judge-Agent was not functioning as a strict preventive mechanism. It may have warned or assessed risk, but it did not fully stop public communication.
-
-This supports the interpretation that enforcement lagged behind posting behaviour.
-
-
-# 7. Evidence Tab
-
+# Evidence Tab
 The **Evidence** tab contains the raw communication records behind the charts.
 
 Users should use this tab to verify the messages that support each visual finding.
 
-<!-- Screenshot placeholder:
-![](images/userguide/07-evidence.png){width="95%"}
--->
+![](img/Evidence.png)
 
-## 7.1 What users can see
-
+## What users can see
 The tab includes:
 
-- searchable communication records;
-- CSV download option;
-- quick filters;
-- date range filter;
-- round filter;
-- agent filter;
-- channel filter;
-- visibility filter;
-- crisis-stage filter;
-- signal filters;
-- reset filters button;
-- copy-link button.
+- communication records
+- CSV download option
+- filter panel
 
-## 7.2 Quick filters
+## Quick filters
+The quick filters allow users to narrow the evidence table quickly. This includes:
 
-The quick filters allow users to narrow the evidence table quickly.
-
-Depending on the app version, useful quick filters may include:
-
-- **Breach**: shows records linked to the breach window.
-- **Side-ch**: shows side-channel communications.
-- **Anon**: shows anonymous posts.
-- **Post-warning**: shows records after Judge-Agent's warning.
+- **Breach**: shows records linked to the breach window
+- **Side-ch**: shows side-channel communications
+- **Anon**: shows anonymous posts
+- **Post-warning**: shows records after Judge-Agent's warning
 
 These filters are useful when users want to focus on the most investigation-relevant messages without manually selecting multiple controls.
 
-## 7.3 Scope filters
+![](img/quick_filter.png)
 
+## Scope filters
 The scope filters help users control the investigation period.
 
 Users can adjust:
 
-- **Date range** to focus on specific days;
-- **Round** to inspect a specific scenario turn.
+- **Date range** to focus on specific days
+- **Round** to inspect a specific scenario turn
 
 This is useful when moving from a broad timeline view to a specific event window.
 
-## 7.4 Who and where filters
+![](img/scope.png)
 
-The agent and channel filters allow users to inspect specific actors and communication spaces.
+## Who and where filters
 
-Useful workflows include:
+Use the agent and channel filters to narrow the evidence table to specific actors or communication spaces.
 
-- select **Legal-Agent** to inspect release-related decision messages;
-- select **Judge-Agent** to review warnings and compliance checks;
-- select **Social-Manager-Agent** to review public-post behaviour;
-- select **side_huddle** or **one_on_one_chat** to inspect less visible coordination;
-- select **anonymous_post** or **personal_post** to inspect public signalling.
+For example, users can inspect **Legal-Agent** for release decisions, **Judge-Agent** for warnings, and **Social-Manager-Agent** for public-post behaviour. They can also filter channels such as **side_huddle**, **one_on_one_chat**, **anonymous_post**, or **personal_post** to review less visible coordination and public signalling.
 
-## 7.5 Visibility and crisis-stage filters
+![](img/who_where.png)
 
+## Visibility and crisis-stage filters
 Users can filter records by:
 
-- internal communication;
-- public communication;
-- pre-crisis stage;
-- crisis pre-breach stage;
-- breach window;
-- post-embargo stage.
+- internal and public communication
+- different crisis stages
 
 This helps compare normal communication against breach-window behaviour.
 
-## 7.6 Signal filters
+![](img/visibility.png)
 
-The signal filters allow users to search for messages containing important categories of language.
+## Signal filters
+The signal filters allow users to search for messages containing important categories of language. Users can also choose whether to match **any** selected condition or **all** selected conditions.
 
-Useful signal filters include:
+- **Match any** is broader and returns records that meet at least one selected signal
+- **Match all** is stricter and returns only records that meet every selected signal
 
-- deal terms;
-- embargo terms;
-- crisis terms;
-- public posts;
-- anonymous posts;
-- side-channel messages.
+![](img/signal.png)
 
-Users can also choose whether to match **any** selected condition or **all** selected conditions.
-
-- **Match any** is broader and returns records that meet at least one selected signal.
-- **Match all** is stricter and returns only records that meet every selected signal.
-
-## 7.7 Search and export
-
-Users can search the evidence table directly.
-
-Useful search terms include:
-
-- `embargo`;
-- `deal`;
-- `CivicLoom`;
-- `HarborCrest`;
-- `6 PM`;
-- `Judge`;
-- `GO`.
-
-Users can also export filtered records using the CSV option. This is useful for documenting evidence used in the final analysis.
-
-
-# 8. Suggested Investigation Workflow
-
-Users may follow this workflow when using the app:
-
-1. Start at **Overview** to understand the overall message volume.
-2. Move to **Timeline** to inspect when communication activity spiked.
-3. Use **Network** to identify who communicated with whom.
-4. Use **Escalation** to check whether abnormal behaviour built up over time.
-5. Use **The Breach** to test whether Judge-Agent's warning stopped public posting.
-6. Use **Evidence** to verify the exact messages behind the visual findings.
-
-::: {.callout-tip}
-## Recommended approach
-
-Do not rely on one chart alone. Use the visuals to identify suspicious patterns, then use the Evidence tab to confirm the underlying messages.
-:::
-
-
-# 9. Interpretation Guide
-
+# Interpretation Guide
 The app is designed to support four main interpretations.
 
-## 9.1 Message volume
-
+- **Message volume**
 A sharp increase in message volume suggests that the organisation entered crisis-response mode.
-
-## 9.2 Channel shift
-
+- **Channel shift**
 Growth in side-channel or one-to-one communication suggests that important coordination may have moved away from the most visible channels.
-
-## 9.3 Public posts after warning
-
+- **Public posts after warning**
 If public posts continued after Judge-Agent's warning, then the warning did not act as a hard control.
-
-## 9.4 Abnormality score
-
+- **Abnormality score**
 If abnormality increased gradually before the breach, then the release was more likely to be part of a progressive system breakdown rather than a sudden isolated event.
 
-
-# 10. Summary
-
-BreachLens provides a structured way to investigate the TenantThread embargo breach. The app combines high-level dashboards, timeline views, network exploration, abnormality scoring, breach-window analysis, and searchable evidence records.
-
-The most important way to use the app is to move from **pattern** to **evidence**:
-
-1. identify a pattern in the visuals;
-2. filter the relevant records;
-3. inspect the original messages;
-4. decide whether the evidence supports the breach interpretation.
-
-
-
-
-
-
-
-
+::: {.callout-tip}
+Do not rely on one chart alone. Use the visuals to identify suspicious patterns, then use the Evidence tab to confirm the underlying messages.
+:::
 

@@ -49,6 +49,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+p, li, ul, ol {
+  font-family: var(--body);
+}
+
+li::marker {
+  font-family: var(--body);
+}
+
 ::selection { background: var(--signal); color: #fff; }
 
 main#quarto-document-content, .page-columns .content { max-width: var(--maxw); }
@@ -507,4 +515,17 @@ a:focus-visible, .nav-link:focus-visible, .btn:focus-visible {
   .hero-lede { font-size: 1.15rem; }
   h1 { font-size: 2rem; }
   h2 { font-size: 1.35rem; }
+}
+
+main h1:not(.hero-card h1),
+main h2,
+main h3,
+main h4,
+main h5 {
+  font-family: var(--display);
+  font-size: 1.55rem;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
 }
