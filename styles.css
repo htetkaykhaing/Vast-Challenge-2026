@@ -517,7 +517,7 @@ a:focus-visible, .nav-link:focus-visible, .btn:focus-visible {
   h2 { font-size: 1.35rem; }
 }
 
-main h1,
+main h1:not(.hero-card h1),
 main h2,
 main h3,
 main h4,
@@ -526,4 +526,11 @@ main h5 {
   color: var(--ink);
   letter-spacing: -0.02em;
   line-height: 1.15;
+}
+
+/* Centre normal Markdown screenshots */
+p > img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }

@@ -221,7 +221,7 @@
     "href": "index.html#project-sections",
     "title": "Tracing the Embargo Breach",
     "section": "Project Sections",
-    "text": "Project Sections\n\n\n\nProposal\nThe proposal outlines the project motivation, objectives, data, methodology, prototype sketches, R packages and project schedule.\nView Proposal\n\n\n\nAnalysis\nThe analysis section examines the embargo breach, including communication patterns, Judge-Agent warnings, public posts and leading indicators.\nView Analysis\n\n\n\nVisuals\nThe visuals section presents the main charts and visual explanations used to understand the breach timeline, channel shifts and early warning signs.\nView Visuals"
+    "text": "Project Sections\n\n\n\nProposal\nThe proposal outlines the project motivation, objectives, data, methodology, prototype sketches, R packages and project schedule.\nView Proposal\n\n\n\nAnalysis\nThe analysis section examines the embargo breach, including communication patterns, Judge-Agent warnings, public posts and leading indicators.\nView Analysis\n\n\n\nFindings\nThe findings section summarises the key insights from the Shiny app, including the breach timeline, channel shifts, abnormal behaviour and control gaps.\nView Findings"
   },
   {
     "objectID": "data/mc1 data description.html",
@@ -270,7 +270,49 @@
     "href": "finding.html",
     "title": "Findings",
     "section": "",
-    "text": "This page presents the main visual patterns found in the MC1 communication data. The purpose is to show how the embargo breach developed over time, how communication behaviour changed, and what warning signs appeared before the early release."
+    "text": "This page presents the main visual patterns found in the MC1 communication data from BreachLens, Shiny app. The purpose is to show how the embargo breach developed over time, how communication behaviour changed, and what warning signs appeared before the early release."
+  },
+  {
+    "objectID": "finding.html#interpretation",
+    "href": "finding.html#interpretation",
+    "title": "Findings",
+    "section": "2.1 Interpretation",
+    "text": "2.1 Interpretation\nThe message spike shows that the system was under stress before the final release. A higher communication load also increases the chance of role confusion, inconsistent decisions, and control failure."
+  },
+  {
+    "objectID": "finding.html#interpretation-1",
+    "href": "finding.html#interpretation-1",
+    "title": "Findings",
+    "section": "3.1 Interpretation",
+    "text": "3.1 Interpretation\nThe early release happened under high pressure. The falling stock price and public criticism likely pushed the team to focus more on quick crisis control than on strict embargo rules."
+  },
+  {
+    "objectID": "finding.html#interpretation-2",
+    "href": "finding.html#interpretation-2",
+    "title": "Findings",
+    "section": "4.1 Interpretation",
+    "text": "4.1 Interpretation\nSide-channel coordination was a leading indicator of weaker control. It did not cause the breach by itself, but it reduced transparency and made it harder for Judge-Agent to manage an effective control."
+  },
+  {
+    "objectID": "finding.html#interpretation-3",
+    "href": "finding.html#interpretation-3",
+    "title": "Findings",
+    "section": "5.1 Interpretation",
+    "text": "5.1 Interpretation\nThis supports the idea that the breach developed gradually rather than a sudden event. The system showed earlier abnormal behaviour, but those signals were not treated as serious enough to trigger stronger action."
+  },
+  {
+    "objectID": "finding.html#interpretation-4",
+    "href": "finding.html#interpretation-4",
+    "title": "Findings",
+    "section": "6.1 Interpretation",
+    "text": "6.1 Interpretation\nJudge-Agent was not acting as a strict blocker. It could warn, assess, and flag risk, but it did not stop public communication.\nThis is one of the strongest findings because it shows that the control system existed, but enforcement was slower than the actual posting."
+  },
+  {
+    "objectID": "finding.html#interpretation-5",
+    "href": "finding.html#interpretation-5",
+    "title": "Findings",
+    "section": "7.1 Interpretation",
+    "text": "7.1 Interpretation\nThe Evidence tab supports traceability. It allows users to move from a visual pattern to the actual messages behind it. This makes the findings more reliable, since each chart can be confirmed against the source."
   },
   {
     "objectID": "meeting_minutes.html",

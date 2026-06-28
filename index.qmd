@@ -95,10 +95,10 @@ The analysis section examines the embargo breach, including communication patter
 
 ::: {.column width="33%"}
 
-### Visuals
-The visuals section presents the main charts and visual explanations used to understand the breach timeline, channel shifts and early warning signs.
+### Findings
+The findings section summarises the key insights from the Shiny app, including the breach timeline, channel shifts, abnormal behaviour and control gaps.
 
-[View Visuals](Methodology/visual.html)
+[View Findings](findings.html)
 
 :::
 

@@ -4,7 +4,6 @@ format:
   html:
     toc-depth: 3
     number-sections: true
-    fig-align: center
 ---
 
 Our Shiny app, BreachLens, is designed to help users investigate the TenantThread embargo breach. The app allows users to explore communication patterns, public posts, agent interactions, abnormal behaviour scores, and the evidence behind the early release.
