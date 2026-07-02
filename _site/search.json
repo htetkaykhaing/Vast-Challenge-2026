@@ -63,6 +63,293 @@
     "text": "Project Schedule"
   },
   {
+    "objectID": "Methodology/dataprep.html",
+    "href": "Methodology/dataprep.html",
+    "title": "Data Preparation",
+    "section": "",
+    "text": "This document walks through how we parse, clean, and reshape the raw VAST Challenge 2026 Mini-Challenge 1 dataset into the three relational tables, which are Rounds, Communications, and Participants."
+  },
+  {
+    "objectID": "Methodology/dataprep.html#loading-packages",
+    "href": "Methodology/dataprep.html#loading-packages",
+    "title": "Data Preparation",
+    "section": "1.1 Loading Packages",
+    "text": "1.1 Loading Packages\nWe use the following packages:\n\njsonlite - parse the JSON source file\ntidyverse - data wrangling and string operations\nlubridate - timestamp parsing\ntidytext - tokenisation for keyword flagging and text analysis\nknitr - formatted table output\n\n\npacman::p_load(jsonlite, tidyverse, lubridate, tidytext, knitr)"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#loading-data",
+    "href": "Methodology/dataprep.html#loading-data",
+    "title": "Data Preparation",
+    "section": "1.2 Loading Data",
+    "text": "1.2 Loading Data\nWe load the single JSON file provided for VAST Challenge 2026 Mini-Challenge 1.\n\nmc1_raw &lt;- jsonlite::fromJSON(\"../data/MC1_final_00.json\", simplifyVector = FALSE)\nrounds_raw &lt;- mc1_raw$rounds\ncat(\"Total rounds:\", length(rounds_raw), \"\\n\")\n\nTotal rounds: 23 \n\n\nThe dataset contains 23 rounds, spanning 17 May 2046 to 5 June 2046 (the day of the embargo breach). Each round holds an environment_context object, a flat list of communications, and a participants list recording each agent’s status for that round."
+  },
+  {
+    "objectID": "Methodology/dataprep.html#top-level-schema",
+    "href": "Methodology/dataprep.html#top-level-schema",
+    "title": "Data Preparation",
+    "section": "2.1 Top-level schema",
+    "text": "2.1 Top-level schema\nEach round has four keys:\n\n\n\n\n\n\n\nKey\nDescription\n\n\n\n\nhour\nTimestamp for the round start\n\n\nenvironment_context\nExternal conditions: market data, events, headlines\n\n\ncommunications\nAll messages sent in that round\n\n\nparticipants\nAgent metadata and declared actions"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#agents",
+    "href": "Methodology/dataprep.html#agents",
+    "title": "Data Preparation",
+    "section": "2.2 Agents",
+    "text": "2.2 Agents\n\n\n\n\n\n\n\n\n\n\nAgent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance."
+  },
+  {
+    "objectID": "Methodology/dataprep.html#communication-channels-and-message-types",
+    "href": "Methodology/dataprep.html#communication-channels-and-message-types",
+    "title": "Data Preparation",
+    "section": "2.3 Communication channels and message types",
+    "text": "2.3 Communication channels and message types\n\n\nCode\n# Flatten all communications to inspect channels and message types\nall_comms_raw &lt;- map_dfr(rounds_raw, function(rnd) {\n  map_dfr(rnd$communications, function(msg) {\n    tibble(\n      channel      = msg$channel      %||% NA_character_,\n      message_type = msg$message_type %||% NA_character_\n    )\n  })\n})\n\nall_comms_raw %&gt;%\n  count(channel, message_type, name = \"count\") %&gt;%\n  arrange(desc(count)) %&gt;%\n  kable()\n\n\n\n\n\nchannel\nmessage_type\ncount\n\n\n\n\ncomms_huddle\nbroadcast\n388\n\n\none_on_one_chat\none_on_one_chat\n248\n\n\nside_huddle\nside_huddle\n111\n\n\ncomms_huddle\naction\n88\n\n\npersonal_post\npublic_post\n37\n\n\nofficial_post\npublic_post\n28\n\n\nanonymous_post\npublic_post\n12\n\n\n\n\n\nChannels fall into two broad groups:\n\nInternal: comms_huddle, side_huddle, one_on_one_chat\nPublic: official_post, personal_post, anonymous_post"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#extracting-fields",
+    "href": "Methodology/dataprep.html#extracting-fields",
+    "title": "Data Preparation",
+    "section": "4.1 Extracting fields",
+    "text": "4.1 Extracting fields\nWe extract one row per round from environment_context, including the (corrupted) raw stock price for cleaning in section Section 4.2.\n\n\nCode\nrounds_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd &lt;- rounds_raw[[i]]\n  ctx &lt;- rnd$environment_context\n  ms  &lt;- ctx$market_snapshot\n\n  tibble(\n    round_index        = i,\n    hour               = ymd_hms(rnd$hour),\n    event_headline     = ctx$event_headline   %||% NA_character_,\n    event_narrative    = ctx$event_narrative  %||% NA_character_,\n    social_state       = ctx$social_state     %||% NA_character_,\n    stock_price_raw    = ms$stock_price       %||% NA_character_,\n    pct_change_raw     = ms$percent_change    %||% NA_character_,\n    market_sentiment   = ms$sentiment         %||% NA_character_,\n    critical_deadlines = paste(unlist(ctx$critical_deadlines %||% list()),\n                               collapse = \"; \"),\n    news               = paste(unlist(ctx$news %||% list()),\n                               collapse = \"; \"),\n    agents_unavailable = paste(unlist(ctx$agents_unavailable %||% list()),\n                               collapse = \", \")\n  )\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")\n\nglimpse(rounds_tbl)\n\n\nRows: 23\nColumns: 12\n$ round_index        &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, …\n$ hour               &lt;dttm&gt; 2046-05-17 09:00:00, 2046-05-18 09:00:00, 2046-05-…\n$ event_headline     &lt;chr&gt; \"Q2 planning kickoff — AG inquiries flagged\", \"Cres…\n$ event_narrative    &lt;chr&gt; \"Pre-crisis Day 1 (2046-05-17, Thursday). Q2 planni…\n$ social_state       &lt;chr&gt; \"Quiet. ResidentIQ gaining positive 'privacy-first'…\n$ stock_price_raw    &lt;chr&gt; \"$38.70\", \"$38.40\", \"$37.90\", \"$37.50\", \"$37.20\", \"…\n$ pct_change_raw     &lt;chr&gt; \"-0.5%\", \"-0.8%\", \"-1.3%\", \"-1.1%\", \"-0.8%\", \"-1.1%…\n$ market_sentiment   &lt;chr&gt; \"neutral\", \"neutral\", \"cautious\", \"cautious\", \"caut…\n$ critical_deadlines &lt;chr&gt; \"Board risk summary framework due end of week\", \"\",…\n$ news               &lt;chr&gt; \"\", \"\", \"\", \"\", \"Ajay hints at 'career-defining' de…\n$ agents_unavailable &lt;chr&gt; \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\",…\n$ crisis_stage       &lt;fct&gt; Pre-crisis, Pre-crisis, Pre-crisis, Pre-crisis, Pre…"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#sec-data-cleaning",
+    "href": "Methodology/dataprep.html#sec-data-cleaning",
+    "title": "Data Preparation",
+    "section": "4.2 Cleaning corrupted stock prices",
+    "text": "4.2 Cleaning corrupted stock prices\n\n\n\n\n\n\nWarningKnown Data Quality Issues\n\n\n\n\nevent_headline for rounds 15 and 16 both read \"10:00 AM.\", corrected using the hour timestamp instead.\nstock_price for several crisis-day rounds contains corrupted values ($180, NULL), replaced with prices quoted in agent messages.\n\n\n\n\n\nCode\n# Prices recovered from agent message content for each corrupt round\nstock_price_fixes &lt;- tribble(\n  ~round_index, ~stock_price_clean,\n  14L,  28.70,    # 09:00 — NULL, opening price from agent content\n  15L,  31.50,    # 10:00 — NULL, interpolated from agent content\n  16L,  NA_real_, # 11:00 — $180 corrupt, no reliable quote found\n  19L,  26.90,    # 14:00 — $18.0 corrupt, use 13:00 price as reference\n  20L,  32.80,    # 15:00 — $18.0 corrupt, quoted in side-huddle\n  21L,  33.05,    # 16:00 — NULL, Sentinel 5:12 PM update\n  22L,  33.05,    # 17:00 — NULL, same post-market reference\n  23L,  33.05     # 18:00 — NULL, after-hours Sentinel final report\n)\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(c(\"stock_price_raw_num\", \"is_corrupt\",\n                   \"stock_price_clean\", \"pct_change_clean\"))) %&gt;%\n  mutate(\n    stock_price_raw_num = as.numeric(str_remove(stock_price_raw, \"\\\\$\")),\n    is_corrupt = round_index %in% stock_price_fixes$round_index |\n                 stock_price_raw_num %in% c(18, 18.0, 180) |\n                 is.na(stock_price_raw)\n  ) %&gt;%\n  left_join(stock_price_fixes, by = \"round_index\") %&gt;%\n  mutate(\n    stock_price_clean = if_else(\n      !is_corrupt,\n      stock_price_raw_num,\n      stock_price_clean\n    ),\n    pct_change_clean = as.numeric(str_remove(pct_change_raw, \"%\"))\n  )"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#extracting-fields-1",
+    "href": "Methodology/dataprep.html#extracting-fields-1",
+    "title": "Data Preparation",
+    "section": "5.1 Extracting fields",
+    "text": "5.1 Extracting fields\nWe flatten all messages from all rounds into a single data frame. Internal state sub-fields (reacting, rationalizing, deliberating) are extracted as separate columns.\n\n\nCode\ncomms_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd  &lt;- rounds_raw[[i]]\n  hour &lt;- ymd_hms(rnd$hour)\n\n  map_dfr(rnd$communications, function(msg) {\n    ist &lt;- msg$internal_state %||% list()\n\n    tibble(\n      round_index    = i,\n      round_hour     = hour,\n      message_id     = msg$message_id     %||% NA_character_,\n      agent_id       = msg$agent_id       %||% NA_character_,\n      agent_role     = msg$agent_role     %||% NA_character_,\n      agent_label    = msg$agent_label    %||% NA_character_,\n      channel        = msg$channel        %||% NA_character_,\n      message_type   = msg$message_type   %||% NA_character_,\n      responding_to  = msg$responding_to  %||% NA_character_,\n      content        = msg$content        %||% NA_character_,\n      timestamp      = ymd_hms(msg$timestamp %||% NA_character_),\n      recipients     = paste(unlist(msg$recipients %||% list()), collapse = \", \"),\n      # Internal state sub-fields\n      st_reacting      = ist$reacting      %||% NA_character_,\n      st_rationalizing = ist$rationalizing %||% NA_character_,\n      st_deliberating  = ist$deliberating  %||% NA_character_\n    )\n  })\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")\n\ncat(\"Total messages:\", nrow(comms_tbl), \"\\n\")\n\n\nTotal messages: 912"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#deriving-temporal-and-structural-columns",
+    "href": "Methodology/dataprep.html#deriving-temporal-and-structural-columns",
+    "title": "Data Preparation",
+    "section": "5.2 Deriving temporal and structural columns",
+    "text": "5.2 Deriving temporal and structural columns\n\n\nCode\ncomms_tbl &lt;- comms_tbl %&gt;%\n  mutate(\n    date              = as_date(timestamp),\n    hour_of_day       = hour(timestamp),\n    day_of_week       = wday(timestamp, label = TRUE),\n    is_crisis_day     = date == as_date(\"2046-06-05\"),\n    # Minutes elapsed since first message in dataset (for continuous timeline)\n    minutes_since_start = as.numeric(difftime(timestamp,\n                                               min(timestamp, na.rm = TRUE),\n                                               units = \"mins\")),\n    # Channel groupings\n    channel_type      = case_when(\n      channel %in% c(\"comms_huddle\", \"side_huddle\", \"one_on_one_chat\") ~ \"Internal\",\n      channel %in% c(\"official_post\", \"personal_post\", \"anonymous_post\") ~ \"Public\",\n      TRUE ~ \"Other\"\n    ),\n    is_side_channel   = channel %in% c(\"side_huddle\", \"one_on_one_chat\"),\n    is_public         = channel %in% c(\"official_post\", \"personal_post\", \"anonymous_post\"),\n    is_anonymous      = channel == \"anonymous_post\",\n    is_broadcast      = recipients == \"ALL\",\n    recipient_count   = if_else(\n      is_broadcast,\n      NA_integer_,\n      str_count(recipients, \",\") + 1L\n    ),\n    has_internal_state = !is.na(st_reacting) | !is.na(st_rationalizing) |\n                         !is.na(st_deliberating)\n  )"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#keyword-flagging",
+    "href": "Methodology/dataprep.html#keyword-flagging",
+    "title": "Data Preparation",
+    "section": "5.3 Keyword flagging",
+    "text": "5.3 Keyword flagging\nWe create three Boolean flag columns on content and (where present) st_deliberating, covering deal-related, embargo-related, and crisis-related terms. A combined text field full_text is used for this scan.\n\n\nCode\ndeal_terms    &lt;- c(\"merger\", \"acquisition\", \"deal\", \"civicloom\", \"harborcrest\",\n                   \"counterparty\", \"nda\", \"term sheet\", \"due diligence\", \"signing\",\n                   \"strategic\", \"transaction\", \"partner\")\n\nembargo_terms &lt;- c(\"embargo\", \"hold\", \"silence\", \"6 pm\", \"6:00\", \"release\",\n                   \"clearance\", \"judge\", \"compliance\", \"unauthorized\", \"approved\",\n                   \"restricted\", \"monitor\")\n\ncrisis_terms  &lt;- c(\"breach\", \"leak\", \"premature\", \"crisis\", \"firestorm\",\n                   \"escalate\", \"saltwind\", \"oceancrunch\", \"ag inquiry\",\n                   \"investigation\", \"viral\", \"senate\", \"attorney general\")\n\nflag_text &lt;- function(text_col, terms) {\n  pattern &lt;- paste(terms, collapse = \"|\")\n  str_detect(str_to_lower(text_col), pattern)\n}\n\ncomms_tbl &lt;- comms_tbl %&gt;%\n  mutate(\n    full_text          = paste(coalesce(content, \"\"),\n                                coalesce(st_deliberating, \"\"), sep = \" \"),\n    flag_deal_terms    = flag_text(full_text, deal_terms),\n    flag_embargo_terms = flag_text(full_text, embargo_terms),\n    flag_crisis_terms  = flag_text(full_text, crisis_terms),\n    flag_any           = flag_deal_terms | flag_embargo_terms | flag_crisis_terms\n  )\n\nDT::datatable(comms_tbl, caption = \"Communications Table\", options = list(pageLength = 5),class = \"nowrap\")"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#back-filling-comm_count-into-rounds-table",
+    "href": "Methodology/dataprep.html#back-filling-comm_count-into-rounds-table",
+    "title": "Data Preparation",
+    "section": "5.4 Back-filling comm_count into rounds table",
+    "text": "5.4 Back-filling comm_count into rounds table\n\n\nCode\ncomm_counts &lt;- comms_tbl %&gt;%\n  count(round_index, name = \"comm_count\")\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(\"comm_count\")) %&gt;%\n  left_join(comm_counts, by = \"round_index\")\n\nDT::datatable(rounds_tbl, caption = \"Rounds Table\", options = list(pageLength = 5),class = \"nowrap\")"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#extracting-fields-2",
+    "href": "Methodology/dataprep.html#extracting-fields-2",
+    "title": "Data Preparation",
+    "section": "6.1 Extracting fields",
+    "text": "6.1 Extracting fields\nWe extract one row per agent per round from the participants list, then parse declared_action into a clean action type and a separate content field.\n\n\nCode\nparticipants_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd &lt;- rounds_raw[[i]]\n  map_dfr(rnd$participants %||% list(), function(p) {\n    meta &lt;- p$agent_round_metadata %||% list()\n    tibble(\n      round_index         = i,\n      round_hour          = ymd_hms(rnd$hour),\n      agent_id            = p$agent_id            %||% NA_character_,\n      agent_role          = p$agent_role           %||% NA_character_,\n      agent_label         = p$agent_label          %||% NA_character_,\n      declared_action_raw = p$declared_action      %||% NA_character_,\n      sentiment_at_turn   = meta$sentiment_at_turn %||% NA_character_,\n      action_classification = meta$action_classification %||% NA_character_\n    )\n  })\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#parsing-declared-action-type",
+    "href": "Methodology/dataprep.html#parsing-declared-action-type",
+    "title": "Data Preparation",
+    "section": "6.2 Parsing declared action type",
+    "text": "6.2 Parsing declared action type\ndeclared_action can be a short token (e.g. MONITORING) or a long string containing post content. We extract the action type prefix and store the remainder as action_content.\n\n\nCode\nparticipants_tbl &lt;- participants_tbl %&gt;%\n  mutate(\n    action_type = case_when(\n      is.na(declared_action_raw)                            ~ NA_character_,\n      str_starts(declared_action_raw, \"MONITORING\")         ~ \"MONITORING\",\n      str_starts(declared_action_raw, \"POSTED_ON_FLEX\")     ~ \"POSTED_ON_FLEX\",\n      str_starts(declared_action_raw, \"POSTED_ANONYMOUS\")   ~ \"POSTED_ANONYMOUS\",\n      str_starts(declared_action_raw, \"POSTED_PERSONAL\")    ~ \"POSTED_PERSONAL\",\n      str_starts(declared_action_raw, \"COMPLIANCE_WARNING\") ~ \"COMPLIANCE_WARNING\",\n      TRUE                                                  ~ \"OTHER\"\n    ),\n    action_content = str_remove(declared_action_raw,\n                                \"^(MONITORING|POSTED_ON_FLEX|POSTED_ANONYMOUS|POSTED_PERSONAL|COMPLIANCE_WARNING)[:\\\\s—]*\")\n  )\n\nDT::datatable(participants_tbl, options = list(pageLength = 5),class = \"nowrap\")"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#expanding-broadcast-messages",
+    "href": "Methodology/dataprep.html#expanding-broadcast-messages",
+    "title": "Data Preparation",
+    "section": "7.1 Expanding broadcast messages",
+    "text": "7.1 Expanding broadcast messages\nDirect messages between agents.\n\n\nCode\n# Active agents per round (from participants table)\nactive_agents_per_round &lt;- participants_tbl %&gt;%\n  select(round_index, agent_id) %&gt;%\n  distinct()\n\n# Separate broadcast vs direct messages\ndirect_msgs &lt;- comms_tbl %&gt;%\n  filter(!is_broadcast, !is.na(recipients), recipients != \"\") %&gt;%\n  separate_rows(recipients, sep = \",\\\\s*\") %&gt;%\n  select(message_id, round_index, crisis_stage, timestamp, channel,\n         sender = agent_id, recipient = recipients)\n\nDT::datatable(direct_msgs, options = list(pageLength = 5),class = \"nowrap\")\n\n\n\n\n\n\nMessages broadcasted among agents.\n\n\nCode\nbroadcast_msgs &lt;- comms_tbl %&gt;%\n  filter(is_broadcast) %&gt;%\n  select(message_id, round_index, crisis_stage, timestamp, channel,\n         sender = agent_id) %&gt;%\n  left_join(active_agents_per_round, by = \"round_index\") %&gt;%\n  rename(recipient = agent_id) %&gt;%\n  filter(recipient != sender)\n\nDT::datatable(broadcast_msgs, options = list(pageLength = 5),class = \"nowrap\")\n\n\n\n\n\n\nCode\nedges_tbl &lt;- bind_rows(direct_msgs, broadcast_msgs) %&gt;%\n  # Remove messages with no identified recipient\n  filter(!is.na(recipient), recipient != \"\") %&gt;%\n  # Exclude internal-state-only rows (no actual sender)\n  filter(!is.na(sender))\n\ncat(\"Total directed edges:\", nrow(edges_tbl), \"\\n\")\n\n\nTotal directed edges: 2003"
+  },
+  {
+    "objectID": "Methodology/dataprep.html#adding-edge-weights-by-crisis-stage",
+    "href": "Methodology/dataprep.html#adding-edge-weights-by-crisis-stage",
+    "title": "Data Preparation",
+    "section": "7.2 Adding edge weights by crisis stage",
+    "text": "7.2 Adding edge weights by crisis stage\n\nedges_weighted &lt;- edges_tbl %&gt;%\n  group_by(sender, recipient, channel, crisis_stage) %&gt;%\n  summarise(\n    weight         = n(),\n    first_contact  = min(timestamp, na.rm = TRUE),\n    last_contact   = max(timestamp, na.rm = TRUE),\n    .groups        = \"drop\"\n  )\n\nDT::datatable(edges_weighted, options = list(pageLength = 5),class = \"nowrap\")"
+  },
+  {
+    "objectID": "meeting_minutes.html",
+    "href": "meeting_minutes.html",
+    "title": "Meeting Minutes",
+    "section": "",
+    "text": "Date: 23/05/2026\nTime: 3:30 PM - 4:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDiscussion on VAST Challenge options\nAllocation of initial challenge exploration\n\n\n\n\nPrior to the meeting, the team reviewed the different VAST Challenge options and discussed which challenge would be most suitable for the project.\nDuring the meeting, the team discussed both MC1 and MC2 as possible project topics. The purpose of the discussion was to understand the requirements of each challenge and assess which one would be more feasible based on the team’s current knowledge and skills.\nJD decided to explore MC2, while Phoebe and Kay decided to explore MC1. This was done so that the team could compare the two challenges before making a final decision.\n\n\n\nThe team agreed to individually explore the assigned challenges and review the requirements, data, and possible approaches.\nJD would focus on MC2, while Phoebe and Kay would focus on MC1.\nThe team decided to reconvene in the next meeting to finalize the project topic based on the findings from both challenges.\n\n\n\n\n\n\nDate: 02/06/2026\nTime: 8:15 PM - 9:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDecide on project topic\nDraft project proposal\nDivision of tasks\n\n\n\n\nAfter reviewing the challenges, the team agreed to proceed with MC2 as the project topic.\nThe team decided that MC2 was the more suitable option for the project based on the challenge requirements, available data, and the team’s ability to complete the project using the knowledge and skills gained from class.\n\n\n\nThe team discussed the main components required for the project proposal. These included the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes.\nThe team also discussed how to structure the proposal so that each section would be clearly written and aligned with the chosen MC2 challenge.\n\n\n\nThe team divided the work for the project proposal as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will work on their assigned sections and update the team once their parts are ready for review.\nThe team agreed to combine the individual sections and review the overall proposal before submission.\n\n\n\n\n\n\nDate: 06/06/2026\nTime: 9:30 PM - 10:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nFinalization of project proposal\nReconsideration of project topic\nAction items before proposal submission\n\n\n\n\nThe team met to review the progress of the project proposal and ensure that all required sections were being prepared before the submission deadline.\nWe discussed the proposal structure, including the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes. The team agreed that the proposal should be finalized as soon as possible so that it can be reviewed, edited, and published on Vercel before the deadline.\n\n\n\nAlthough the team had previously decided to proceed with MC2, we revisited the decision after further reviewing the challenge requirements.\nAfter discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team’s ability to complete the project within the given timeframe.\nThis decision replaces the earlier decision made during Project Meeting 2.\n\n\n\nThe team agreed to update the project proposal so that all references to MC2 are changed to MC1.\nThe team also agreed to revise the methodology, prototype sketches, R packages, and project schedule to ensure that they are aligned with MC1 instead of MC2.\nThe updated division of work is as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will update their respective sections and share them with the team for final review before submission.\n\n\n\n\n\n\nDate: 13/06/2026\nTime: 9:05 PM - 9:11 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDivision of MC1 questions\nWorkflow and data preparation approach\nAction items before the poster submission\n\n\n\n\nWith MC1 confirmed as the project topic, the team agreed to split the work by taking one question each, as MC1 has three questions.\nJD took Question 2, while Phoebe and Kay took the remaining questions (Question 1 and Question 3).\n\n\n\nThe team discussed how to manage their work in RStudio and GitHub. The use of Git branches was considered, but the team ultimately decided not to branch and to work concurrently instead.\nThe team also discussed data preparation. Since each question still requires data preparation (creating the three tables), the team agreed that the member working on Question 1 would set up the data preparation first. The others would then align their work to that shared data preparation to avoid merge conflicts.\n\n\n\nThe team noted that the poster submission is due on 1 July 2026, leaving about one week to complete the work.\nThe team agreed that a mid-week meeting was not necessary, as each member is working on a separate question. Each member will work on their assigned question and share progress with the team. Members were also reminded to attend class the following week.\n\n\n\n\n\n\nDate: 20/06/2026\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nProgress check-in\nExploring the team’s focus for the Shiny app\n\n\n\n\nThe team held a short check-in to review individual progress on their assigned MC1 questions and confirm that everyone was on track ahead of the poster submission.\n\n\n\nThe team discussed and explored the direction for the Shiny app, considering what the app should focus on and how the analysis from each question could be presented. The discussion was exploratory, with the aim of aligning on a shared focus before developing the prototype further.\n\n\n\n\n\n\nDate: 23/06/2026\nTime: 7:01 PM - 7:14 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nReview of the Shiny app prototype\nDivision of remaining deliverables\nDeadlines and next working session\n\n\n\n\nThe team reviewed the current Shiny app prototype together. The team felt that the visuals and findings were still too similar to the sample project and agreed that the app needed to be more distinct.\nThe team agreed to replace the tables in the Shiny app with more visuals, as visuals are easier for users to interpret and better suited to the purpose of a Shiny app. One log-style view could be presented as a status summary, allowing users to click through to more detailed content.\nThe team also noted that one component was not interactive. They agreed it should be made interactive where possible, or otherwise enlarged or given additional filters. A keyword search over the message content was suggested as a way to flag sensitive messages.\nFinally, the team agreed to hide or remove unused sample elements, clean up the dropdown, replace the visualization tab with the findings, and tidy up the logo and title.\n\n\n\nThe team divided the remaining work as follows:\n\nJD: Improve the Shiny app visuals and update the meeting minutes\nPhoebe: Create the poster, with the others assisting\nKay: Write up the findings and the user guide once the Shiny app visuals are ready\n\nThe team agreed to continue working in their usual rotating order, completing tasks in sequence.\n\n\n\nThe team confirmed that the poster submission is due on 1 July 2026. To allow time to prepare the poster visuals, the team aimed to complete the main work by the weekend.\nThe team agreed to hold a working session on Sunday after 9 PM. One member noted they had a quiz the following day and would contribute on Thursday instead. The team also acknowledged the poster’s formatting restrictions (resolution and print requirements) and agreed to start drafting it early."
+  },
+  {
+    "objectID": "meeting_minutes.html#project-meeting-1",
+    "href": "meeting_minutes.html#project-meeting-1",
+    "title": "Meeting Minutes",
+    "section": "",
+    "text": "Date: 23/05/2026\nTime: 3:30 PM - 4:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDiscussion on VAST Challenge options\nAllocation of initial challenge exploration\n\n\n\n\nPrior to the meeting, the team reviewed the different VAST Challenge options and discussed which challenge would be most suitable for the project.\nDuring the meeting, the team discussed both MC1 and MC2 as possible project topics. The purpose of the discussion was to understand the requirements of each challenge and assess which one would be more feasible based on the team’s current knowledge and skills.\nJD decided to explore MC2, while Phoebe and Kay decided to explore MC1. This was done so that the team could compare the two challenges before making a final decision.\n\n\n\nThe team agreed to individually explore the assigned challenges and review the requirements, data, and possible approaches.\nJD would focus on MC2, while Phoebe and Kay would focus on MC1.\nThe team decided to reconvene in the next meeting to finalize the project topic based on the findings from both challenges."
+  },
+  {
+    "objectID": "meeting_minutes.html#project-meeting-2",
+    "href": "meeting_minutes.html#project-meeting-2",
+    "title": "Meeting Minutes",
+    "section": "",
+    "text": "Date: 02/06/2026\nTime: 8:15 PM - 9:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDecide on project topic\nDraft project proposal\nDivision of tasks\n\n\n\n\nAfter reviewing the challenges, the team agreed to proceed with MC2 as the project topic.\nThe team decided that MC2 was the more suitable option for the project based on the challenge requirements, available data, and the team’s ability to complete the project using the knowledge and skills gained from class.\n\n\n\nThe team discussed the main components required for the project proposal. These included the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes.\nThe team also discussed how to structure the proposal so that each section would be clearly written and aligned with the chosen MC2 challenge.\n\n\n\nThe team divided the work for the project proposal as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will work on their assigned sections and update the team once their parts are ready for review.\nThe team agreed to combine the individual sections and review the overall proposal before submission."
+  },
+  {
+    "objectID": "meeting_minutes.html#project-meeting-3",
+    "href": "meeting_minutes.html#project-meeting-3",
+    "title": "Meeting Minutes",
+    "section": "",
+    "text": "Date: 06/06/2026\nTime: 9:30 PM - 10:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nFinalization of project proposal\nReconsideration of project topic\nAction items before proposal submission\n\n\n\n\nThe team met to review the progress of the project proposal and ensure that all required sections were being prepared before the submission deadline.\nWe discussed the proposal structure, including the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes. The team agreed that the proposal should be finalized as soon as possible so that it can be reviewed, edited, and published on Vercel before the deadline.\n\n\n\nAlthough the team had previously decided to proceed with MC2, we revisited the decision after further reviewing the challenge requirements.\nAfter discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team’s ability to complete the project within the given timeframe.\nThis decision replaces the earlier decision made during Project Meeting 2.\n\n\n\nThe team agreed to update the project proposal so that all references to MC2 are changed to MC1.\nThe team also agreed to revise the methodology, prototype sketches, R packages, and project schedule to ensure that they are aligned with MC1 instead of MC2.\nThe updated division of work is as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will update their respective sections and share them with the team for final review before submission."
+  },
+  {
+    "objectID": "meeting_minutes.html#project-meeting-4",
+    "href": "meeting_minutes.html#project-meeting-4",
+    "title": "Meeting Minutes",
+    "section": "",
+    "text": "Date: 13/06/2026\nTime: 9:05 PM - 9:11 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDivision of MC1 questions\nWorkflow and data preparation approach\nAction items before the poster submission\n\n\n\n\nWith MC1 confirmed as the project topic, the team agreed to split the work by taking one question each, as MC1 has three questions.\nJD took Question 2, while Phoebe and Kay took the remaining questions (Question 1 and Question 3).\n\n\n\nThe team discussed how to manage their work in RStudio and GitHub. The use of Git branches was considered, but the team ultimately decided not to branch and to work concurrently instead.\nThe team also discussed data preparation. Since each question still requires data preparation (creating the three tables), the team agreed that the member working on Question 1 would set up the data preparation first. The others would then align their work to that shared data preparation to avoid merge conflicts.\n\n\n\nThe team noted that the poster submission is due on 1 July 2026, leaving about one week to complete the work.\nThe team agreed that a mid-week meeting was not necessary, as each member is working on a separate question. Each member will work on their assigned question and share progress with the team. Members were also reminded to attend class the following week."
+  },
+  {
+    "objectID": "meeting_minutes.html#project-meeting-5",
+    "href": "meeting_minutes.html#project-meeting-5",
+    "title": "Meeting Minutes",
+    "section": "",
+    "text": "Date: 20/06/2026\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nProgress check-in\nExploring the team’s focus for the Shiny app\n\n\n\n\nThe team held a short check-in to review individual progress on their assigned MC1 questions and confirm that everyone was on track ahead of the poster submission.\n\n\n\nThe team discussed and explored the direction for the Shiny app, considering what the app should focus on and how the analysis from each question could be presented. The discussion was exploratory, with the aim of aligning on a shared focus before developing the prototype further."
+  },
+  {
+    "objectID": "meeting_minutes.html#project-meeting-6",
+    "href": "meeting_minutes.html#project-meeting-6",
+    "title": "Meeting Minutes",
+    "section": "",
+    "text": "Date: 23/06/2026\nTime: 7:01 PM - 7:14 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nReview of the Shiny app prototype\nDivision of remaining deliverables\nDeadlines and next working session\n\n\n\n\nThe team reviewed the current Shiny app prototype together. The team felt that the visuals and findings were still too similar to the sample project and agreed that the app needed to be more distinct.\nThe team agreed to replace the tables in the Shiny app with more visuals, as visuals are easier for users to interpret and better suited to the purpose of a Shiny app. One log-style view could be presented as a status summary, allowing users to click through to more detailed content.\nThe team also noted that one component was not interactive. They agreed it should be made interactive where possible, or otherwise enlarged or given additional filters. A keyword search over the message content was suggested as a way to flag sensitive messages.\nFinally, the team agreed to hide or remove unused sample elements, clean up the dropdown, replace the visualization tab with the findings, and tidy up the logo and title.\n\n\n\nThe team divided the remaining work as follows:\n\nJD: Improve the Shiny app visuals and update the meeting minutes\nPhoebe: Create the poster, with the others assisting\nKay: Write up the findings and the user guide once the Shiny app visuals are ready\n\nThe team agreed to continue working in their usual rotating order, completing tasks in sequence.\n\n\n\nThe team confirmed that the poster submission is due on 1 July 2026. To allow time to prepare the poster visuals, the team aimed to complete the main work by the weekend.\nThe team agreed to hold a working session on Sunday after 9 PM. One member noted they had a quiz the following day and would contribute on Thursday instead. The team also acknowledged the poster’s formatting restrictions (resolution and print requirements) and agreed to start drafting it early."
+  },
+  {
+    "objectID": "finding.html",
+    "href": "finding.html",
+    "title": "Findings",
+    "section": "",
+    "text": "This page presents the main visual patterns found in the MC1 communication data from BreachLens, Shiny app. The purpose is to show how the embargo breach developed over time, how communication behaviour changed, and what warning signs appeared before the early release."
+  },
+  {
+    "objectID": "finding.html#interpretation",
+    "href": "finding.html#interpretation",
+    "title": "Findings",
+    "section": "2.1 Interpretation",
+    "text": "2.1 Interpretation\nThe message spike shows that the system was under stress before the final release. A higher communication load also increases the chance of role confusion, inconsistent decisions, and control failure."
+  },
+  {
+    "objectID": "finding.html#interpretation-1",
+    "href": "finding.html#interpretation-1",
+    "title": "Findings",
+    "section": "3.1 Interpretation",
+    "text": "3.1 Interpretation\nThe early release happened under high pressure. The falling stock price and public criticism likely pushed the team to focus more on quick crisis control than on strict embargo rules."
+  },
+  {
+    "objectID": "finding.html#interpretation-2",
+    "href": "finding.html#interpretation-2",
+    "title": "Findings",
+    "section": "4.1 Interpretation",
+    "text": "4.1 Interpretation\nSide-channel coordination was a leading indicator of weaker control. It did not cause the breach by itself, but it reduced transparency and made it harder for Judge-Agent to manage an effective control."
+  },
+  {
+    "objectID": "finding.html#interpretation-3",
+    "href": "finding.html#interpretation-3",
+    "title": "Findings",
+    "section": "5.1 Interpretation",
+    "text": "5.1 Interpretation\nThis supports the idea that the breach developed gradually rather than a sudden event. The system showed earlier abnormal behaviour, but those signals were not treated as serious enough to trigger stronger action."
+  },
+  {
+    "objectID": "finding.html#interpretation-4",
+    "href": "finding.html#interpretation-4",
+    "title": "Findings",
+    "section": "6.1 Interpretation",
+    "text": "6.1 Interpretation\nJudge-Agent was not acting as a strict blocker. It could warn, assess, and flag risk, but it did not stop public communication.\nThis is one of the strongest findings because it shows that the control system existed, but enforcement was slower than the actual posting."
+  },
+  {
+    "objectID": "finding.html#interpretation-5",
+    "href": "finding.html#interpretation-5",
+    "title": "Findings",
+    "section": "7.1 Interpretation",
+    "text": "7.1 Interpretation\nThe Evidence tab supports traceability. It allows users to move from a visual pattern to the actual messages behind it. This makes the findings more reliable, since each chart can be confirmed against the source."
+  },
+  {
+    "objectID": "data/mc1 data description.html",
+    "href": "data/mc1 data description.html",
+    "title": "MC1 — Multi-Agent Crisis Data",
+    "section": "",
+    "text": "This folder contains the data for the multi-agent LLM crisis for our corporate communications team. There was an exposé, an communications embargo around a company merger, and social media firestorm recently. The data is based on 7 interacting AI agents who communicate across multiple channels and make real-time decisions about what to publish and what not to.\n\n\n\n\n\n\n\n\n\n\n\n\nFile\nDescription\nSize\n\n\n\n\nMC1_final.json\nMC1 dataset containing the two weeks leading up to the release of information\n\n\n\nREADME.md\nThis documentation file\n—\n\n\n\n\nEach JSON file follows this structure.\n{\n  \"rounds\": [\n    {\n      \"hour\": \"2046-05-17 9 AM\",\n      \"environment_context\": {\n        \"event_narrative\": \"...\",\n        \"market_snapshot\": { ... },\n        \"media_events\": [ ... ],\n        \"agents_unavailable\": [ ... ]\n      },\n      \"agent_outputs\": [\n        {\n          \"agent_id\": \"legal_agent\",\n          \"internal_state\": {\n            \"reacting\": \"...\",\n            \"rationalizing\": \"...\",\n            \"deliberating\": \"...\"\n          },\n          \"communications\": [\n            {\n              \"message_id\": \"...\",\n              \"channel\": \"comms_huddle\",\n              \"message_text\": \"...\",\n            }\n          ],\n          \"declared_action\": \"MONITORING\"\n        }\n      ]\n    }\n  ]\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nAgent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEntity\nDescription\n\n\n\n\nTenantThread\nThe company being acquired whose records are being presented. A proptech platform providing tenant management tools including the controversial “Retention Optimizer” scoring system.\n\n\nCivicLoom\nThe company acquiring TenantThread in the merger. Identity is embargoed until 6:00 PM on the crisis day.\n\n\nProject HarborCrest\nInternal codename for the CivicLoom–TenantThread merger.\n\n\nResidentIQ\nAnother PropTech company being discussed in the SaltWind Journal.\n\n\nSaltWind Journal\nLocal newspaper running stories on the property tech industry.\n\n\nOceanCrunch\nTech media outlet. Sarah Kowalski is a reporter.\n\n\n@HorizonMgmt, @PinnacleResidential\nMajor clients of TennatThread.\n\n\n\n\n\n\n\nAgents have many different communications channels available to them, for agent-to-agent, agent-to-person and agent-to-other-system actions. Agents are also empowered to publish social media post with minimal oversight."
+  },
+  {
+    "objectID": "data/mc1 data description.html#overview",
+    "href": "data/mc1 data description.html#overview",
+    "title": "MC1 — Multi-Agent Crisis Data",
+    "section": "",
+    "text": "This folder contains the data for the multi-agent LLM crisis for our corporate communications team. There was an exposé, an communications embargo around a company merger, and social media firestorm recently. The data is based on 7 interacting AI agents who communicate across multiple channels and make real-time decisions about what to publish and what not to."
+  },
+  {
+    "objectID": "data/mc1 data description.html#files",
+    "href": "data/mc1 data description.html#files",
+    "title": "MC1 — Multi-Agent Crisis Data",
+    "section": "",
+    "text": "File\nDescription\nSize\n\n\n\n\nMC1_final.json\nMC1 dataset containing the two weeks leading up to the release of information\n\n\n\nREADME.md\nThis documentation file\n—\n\n\n\n\nEach JSON file follows this structure.\n{\n  \"rounds\": [\n    {\n      \"hour\": \"2046-05-17 9 AM\",\n      \"environment_context\": {\n        \"event_narrative\": \"...\",\n        \"market_snapshot\": { ... },\n        \"media_events\": [ ... ],\n        \"agents_unavailable\": [ ... ]\n      },\n      \"agent_outputs\": [\n        {\n          \"agent_id\": \"legal_agent\",\n          \"internal_state\": {\n            \"reacting\": \"...\",\n            \"rationalizing\": \"...\",\n            \"deliberating\": \"...\"\n          },\n          \"communications\": [\n            {\n              \"message_id\": \"...\",\n              \"channel\": \"comms_huddle\",\n              \"message_text\": \"...\",\n            }\n          ],\n          \"declared_action\": \"MONITORING\"\n        }\n      ]\n    }\n  ]\n}"
+  },
+  {
+    "objectID": "data/mc1 data description.html#agents",
+    "href": "data/mc1 data description.html#agents",
+    "title": "MC1 — Multi-Agent Crisis Data",
+    "section": "",
+    "text": "Agent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance."
+  },
+  {
+    "objectID": "data/mc1 data description.html#companies-codenames",
+    "href": "data/mc1 data description.html#companies-codenames",
+    "title": "MC1 — Multi-Agent Crisis Data",
+    "section": "",
+    "text": "Entity\nDescription\n\n\n\n\nTenantThread\nThe company being acquired whose records are being presented. A proptech platform providing tenant management tools including the controversial “Retention Optimizer” scoring system.\n\n\nCivicLoom\nThe company acquiring TenantThread in the merger. Identity is embargoed until 6:00 PM on the crisis day.\n\n\nProject HarborCrest\nInternal codename for the CivicLoom–TenantThread merger.\n\n\nResidentIQ\nAnother PropTech company being discussed in the SaltWind Journal.\n\n\nSaltWind Journal\nLocal newspaper running stories on the property tech industry.\n\n\nOceanCrunch\nTech media outlet. Sarah Kowalski is a reporter.\n\n\n@HorizonMgmt, @PinnacleResidential\nMajor clients of TennatThread."
+  },
+  {
+    "objectID": "data/mc1 data description.html#communication-channels",
+    "href": "data/mc1 data description.html#communication-channels",
+    "title": "MC1 — Multi-Agent Crisis Data",
+    "section": "",
+    "text": "Agents have many different communications channels available to them, for agent-to-agent, agent-to-person and agent-to-other-system actions. Agents are also empowered to publish social media post with minimal oversight."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Tracing the Embargo Breach",
+    "section": "",
+    "text": "Case file · MC1 — TenantThread embargo breach · Project HarborCrest\n\n\n\n\n\n\nThe embargo held until 18:00. The information didn’t.\n\nTenantThread’s merger announcement was supposed to remain under embargo until 6:00 PM on 5 June 2046. Merger-related information appeared publicly on FleX before that release time.\nThis is a reconstruction of how the breach happened: who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure.\n\nEmbargo · 18:00 Rounds · 22 Messages · 912 Public posts · 77"
+  },
+  {
+    "objectID": "index.html#visual-analytics-for-vast-challenge-2026-mini-challenge-1",
+    "href": "index.html#visual-analytics-for-vast-challenge-2026-mini-challenge-1",
+    "title": "Tracing the Embargo Breach",
+    "section": "",
+    "text": "The embargo held until 18:00. The information didn’t.\n\nTenantThread’s merger announcement was supposed to remain under embargo until 6:00 PM on 5 June 2046. Merger-related information appeared publicly on FleX before that release time.\nThis is a reconstruction of how the breach happened: who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure.\n\nEmbargo · 18:00 Rounds · 22 Messages · 912 Public posts · 77"
+  },
+  {
+    "objectID": "index.html#project-background",
+    "href": "index.html#project-background",
+    "title": "Tracing the Embargo Breach",
+    "section": "Project Background",
+    "text": "Project Background\nTenantThread is a property technology company involved in a sensitive merger with CivicLoom Realty Partners. The deal, codenamed Project HarborCrest, was under strict information embargo. At the same time, TenantThread was facing rising public pressure over its Retention Optimizer product and growing criticism from SaltWind Journal and social media users.\nAn automated compliance tool known as The Judge was introduced to prevent embargo breaches. However, during the crisis, embargoed merger information still appeared publicly before the official release time.\nThis project investigates the communication records from the two weeks leading up to the breach to understand what happened."
+  },
+  {
+    "objectID": "index.html#key-findings",
+    "href": "index.html#key-findings",
+    "title": "Tracing the Embargo Breach",
+    "section": "Key Findings",
+    "text": "Key Findings\n\n\nPublic posts 77\n\nMerger information appeared publicly on FleX before the 6:00 PM release.\n\n\n\nAnonymous posts 12\n\nAnonymous posting appears only inside the breach window, never before.\n\n\n\nControl gap Round 14\n\nFleX posts begin to outrun the Judge-Agent’s compliance warnings.\n\n\n\nSide-channel messages 359\n\nSensitive coordination moved into low-visibility side channels."
+  },
+  {
+    "objectID": "index.html#project-sections",
+    "href": "index.html#project-sections",
+    "title": "Tracing the Embargo Breach",
+    "section": "Project Sections",
+    "text": "Project Sections\n\n\n\nProposal\nThe proposal outlines the project motivation, objectives, data, methodology, prototype sketches, R packages and project schedule.\nView Proposal\n\n\n\nAnalysis\nThe analysis section examines the embargo breach, including communication patterns, Judge-Agent warnings, public posts and leading indicators.\nView Analysis\n\n\n\nFindings\nThe findings section summarises the key insights from the Shiny app, including the breach timeline, channel shifts, abnormal behaviour and control gaps.\nView Findings"
+  },
+  {
     "objectID": "Methodology/analysis.html",
     "href": "Methodology/analysis.html",
     "title": "Analysis",
@@ -187,293 +474,6 @@
     "title": "Analysis",
     "section": "3.4 Interpretation",
     "text": "3.4 Interpretation\nYes, there were leading indicators that the early release was possible. Before the breach, the system already showed warning signs through sensitive language, side-channel coordination, public hints, and weak enforcement by Judge-Agent.\nEarlier behaviours also differed from the expected. For example, the 29 May public/personal post created CivicLoom-related speculation before formal clearance.Later, sensitive information continued in side channels, Legal-Agent began reframing the embargo condition, and Judge-Agent did not impose a hard stop.\nThese incidents did not trigger noticeable action because each one looked manageable on its own. A public hint seemed like a small social media issue, side-channel discussion looked like crisis coordination, and Judge-Agent’s warning was treated as advice. Taken together, however, they show that the system was already fragile before the actual breach."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Tracing the Embargo Breach",
-    "section": "",
-    "text": "Case file · MC1 — TenantThread embargo breach · Project HarborCrest\n\n\n\n\n\n\nThe embargo held until 18:00. The information didn’t.\n\nTenantThread’s merger announcement was supposed to remain under embargo until 6:00 PM on 5 June 2046. Merger-related information appeared publicly on FleX before that release time.\nThis is a reconstruction of how the breach happened: who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure.\n\nEmbargo · 18:00 Rounds · 22 Messages · 912 Public posts · 77"
-  },
-  {
-    "objectID": "index.html#visual-analytics-for-vast-challenge-2026-mini-challenge-1",
-    "href": "index.html#visual-analytics-for-vast-challenge-2026-mini-challenge-1",
-    "title": "Tracing the Embargo Breach",
-    "section": "",
-    "text": "The embargo held until 18:00. The information didn’t.\n\nTenantThread’s merger announcement was supposed to remain under embargo until 6:00 PM on 5 June 2046. Merger-related information appeared publicly on FleX before that release time.\nThis is a reconstruction of how the breach happened: who was involved, how communication behaviour changed, and whether the release was a planned leak or a system breakdown under pressure.\n\nEmbargo · 18:00 Rounds · 22 Messages · 912 Public posts · 77"
-  },
-  {
-    "objectID": "index.html#project-background",
-    "href": "index.html#project-background",
-    "title": "Tracing the Embargo Breach",
-    "section": "Project Background",
-    "text": "Project Background\nTenantThread is a property technology company involved in a sensitive merger with CivicLoom Realty Partners. The deal, codenamed Project HarborCrest, was under strict information embargo. At the same time, TenantThread was facing rising public pressure over its Retention Optimizer product and growing criticism from SaltWind Journal and social media users.\nAn automated compliance tool known as The Judge was introduced to prevent embargo breaches. However, during the crisis, embargoed merger information still appeared publicly before the official release time.\nThis project investigates the communication records from the two weeks leading up to the breach to understand what happened."
-  },
-  {
-    "objectID": "index.html#key-findings",
-    "href": "index.html#key-findings",
-    "title": "Tracing the Embargo Breach",
-    "section": "Key Findings",
-    "text": "Key Findings\n\n\nPublic posts 77\n\nMerger information appeared publicly on FleX before the 6:00 PM release.\n\n\n\nAnonymous posts 12\n\nAnonymous posting appears only inside the breach window, never before.\n\n\n\nControl gap Round 14\n\nFleX posts begin to outrun the Judge-Agent’s compliance warnings.\n\n\n\nSide-channel messages 359\n\nSensitive coordination moved into low-visibility side channels."
-  },
-  {
-    "objectID": "index.html#project-sections",
-    "href": "index.html#project-sections",
-    "title": "Tracing the Embargo Breach",
-    "section": "Project Sections",
-    "text": "Project Sections\n\n\n\nProposal\nThe proposal outlines the project motivation, objectives, data, methodology, prototype sketches, R packages and project schedule.\nView Proposal\n\n\n\nAnalysis\nThe analysis section examines the embargo breach, including communication patterns, Judge-Agent warnings, public posts and leading indicators.\nView Analysis\n\n\n\nFindings\nThe findings section summarises the key insights from the Shiny app, including the breach timeline, channel shifts, abnormal behaviour and control gaps.\nView Findings"
-  },
-  {
-    "objectID": "data/mc1 data description.html",
-    "href": "data/mc1 data description.html",
-    "title": "MC1 — Multi-Agent Crisis Data",
-    "section": "",
-    "text": "This folder contains the data for the multi-agent LLM crisis for our corporate communications team. There was an exposé, an communications embargo around a company merger, and social media firestorm recently. The data is based on 7 interacting AI agents who communicate across multiple channels and make real-time decisions about what to publish and what not to.\n\n\n\n\n\n\n\n\n\n\n\n\nFile\nDescription\nSize\n\n\n\n\nMC1_final.json\nMC1 dataset containing the two weeks leading up to the release of information\n\n\n\nREADME.md\nThis documentation file\n—\n\n\n\n\nEach JSON file follows this structure.\n{\n  \"rounds\": [\n    {\n      \"hour\": \"2046-05-17 9 AM\",\n      \"environment_context\": {\n        \"event_narrative\": \"...\",\n        \"market_snapshot\": { ... },\n        \"media_events\": [ ... ],\n        \"agents_unavailable\": [ ... ]\n      },\n      \"agent_outputs\": [\n        {\n          \"agent_id\": \"legal_agent\",\n          \"internal_state\": {\n            \"reacting\": \"...\",\n            \"rationalizing\": \"...\",\n            \"deliberating\": \"...\"\n          },\n          \"communications\": [\n            {\n              \"message_id\": \"...\",\n              \"channel\": \"comms_huddle\",\n              \"message_text\": \"...\",\n            }\n          ],\n          \"declared_action\": \"MONITORING\"\n        }\n      ]\n    }\n  ]\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nAgent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nEntity\nDescription\n\n\n\n\nTenantThread\nThe company being acquired whose records are being presented. A proptech platform providing tenant management tools including the controversial “Retention Optimizer” scoring system.\n\n\nCivicLoom\nThe company acquiring TenantThread in the merger. Identity is embargoed until 6:00 PM on the crisis day.\n\n\nProject HarborCrest\nInternal codename for the CivicLoom–TenantThread merger.\n\n\nResidentIQ\nAnother PropTech company being discussed in the SaltWind Journal.\n\n\nSaltWind Journal\nLocal newspaper running stories on the property tech industry.\n\n\nOceanCrunch\nTech media outlet. Sarah Kowalski is a reporter.\n\n\n@HorizonMgmt, @PinnacleResidential\nMajor clients of TennatThread.\n\n\n\n\n\n\n\nAgents have many different communications channels available to them, for agent-to-agent, agent-to-person and agent-to-other-system actions. Agents are also empowered to publish social media post with minimal oversight."
-  },
-  {
-    "objectID": "data/mc1 data description.html#overview",
-    "href": "data/mc1 data description.html#overview",
-    "title": "MC1 — Multi-Agent Crisis Data",
-    "section": "",
-    "text": "This folder contains the data for the multi-agent LLM crisis for our corporate communications team. There was an exposé, an communications embargo around a company merger, and social media firestorm recently. The data is based on 7 interacting AI agents who communicate across multiple channels and make real-time decisions about what to publish and what not to."
-  },
-  {
-    "objectID": "data/mc1 data description.html#files",
-    "href": "data/mc1 data description.html#files",
-    "title": "MC1 — Multi-Agent Crisis Data",
-    "section": "",
-    "text": "File\nDescription\nSize\n\n\n\n\nMC1_final.json\nMC1 dataset containing the two weeks leading up to the release of information\n\n\n\nREADME.md\nThis documentation file\n—\n\n\n\n\nEach JSON file follows this structure.\n{\n  \"rounds\": [\n    {\n      \"hour\": \"2046-05-17 9 AM\",\n      \"environment_context\": {\n        \"event_narrative\": \"...\",\n        \"market_snapshot\": { ... },\n        \"media_events\": [ ... ],\n        \"agents_unavailable\": [ ... ]\n      },\n      \"agent_outputs\": [\n        {\n          \"agent_id\": \"legal_agent\",\n          \"internal_state\": {\n            \"reacting\": \"...\",\n            \"rationalizing\": \"...\",\n            \"deliberating\": \"...\"\n          },\n          \"communications\": [\n            {\n              \"message_id\": \"...\",\n              \"channel\": \"comms_huddle\",\n              \"message_text\": \"...\",\n            }\n          ],\n          \"declared_action\": \"MONITORING\"\n        }\n      ]\n    }\n  ]\n}"
-  },
-  {
-    "objectID": "data/mc1 data description.html#agents",
-    "href": "data/mc1 data description.html#agents",
-    "title": "MC1 — Multi-Agent Crisis Data",
-    "section": "",
-    "text": "Agent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance."
-  },
-  {
-    "objectID": "data/mc1 data description.html#companies-codenames",
-    "href": "data/mc1 data description.html#companies-codenames",
-    "title": "MC1 — Multi-Agent Crisis Data",
-    "section": "",
-    "text": "Entity\nDescription\n\n\n\n\nTenantThread\nThe company being acquired whose records are being presented. A proptech platform providing tenant management tools including the controversial “Retention Optimizer” scoring system.\n\n\nCivicLoom\nThe company acquiring TenantThread in the merger. Identity is embargoed until 6:00 PM on the crisis day.\n\n\nProject HarborCrest\nInternal codename for the CivicLoom–TenantThread merger.\n\n\nResidentIQ\nAnother PropTech company being discussed in the SaltWind Journal.\n\n\nSaltWind Journal\nLocal newspaper running stories on the property tech industry.\n\n\nOceanCrunch\nTech media outlet. Sarah Kowalski is a reporter.\n\n\n@HorizonMgmt, @PinnacleResidential\nMajor clients of TennatThread."
-  },
-  {
-    "objectID": "data/mc1 data description.html#communication-channels",
-    "href": "data/mc1 data description.html#communication-channels",
-    "title": "MC1 — Multi-Agent Crisis Data",
-    "section": "",
-    "text": "Agents have many different communications channels available to them, for agent-to-agent, agent-to-person and agent-to-other-system actions. Agents are also empowered to publish social media post with minimal oversight."
-  },
-  {
-    "objectID": "finding.html",
-    "href": "finding.html",
-    "title": "Findings",
-    "section": "",
-    "text": "This page presents the main visual patterns found in the MC1 communication data from BreachLens, Shiny app. The purpose is to show how the embargo breach developed over time, how communication behaviour changed, and what warning signs appeared before the early release."
-  },
-  {
-    "objectID": "finding.html#interpretation",
-    "href": "finding.html#interpretation",
-    "title": "Findings",
-    "section": "2.1 Interpretation",
-    "text": "2.1 Interpretation\nThe message spike shows that the system was under stress before the final release. A higher communication load also increases the chance of role confusion, inconsistent decisions, and control failure."
-  },
-  {
-    "objectID": "finding.html#interpretation-1",
-    "href": "finding.html#interpretation-1",
-    "title": "Findings",
-    "section": "3.1 Interpretation",
-    "text": "3.1 Interpretation\nThe early release happened under high pressure. The falling stock price and public criticism likely pushed the team to focus more on quick crisis control than on strict embargo rules."
-  },
-  {
-    "objectID": "finding.html#interpretation-2",
-    "href": "finding.html#interpretation-2",
-    "title": "Findings",
-    "section": "4.1 Interpretation",
-    "text": "4.1 Interpretation\nSide-channel coordination was a leading indicator of weaker control. It did not cause the breach by itself, but it reduced transparency and made it harder for Judge-Agent to manage an effective control."
-  },
-  {
-    "objectID": "finding.html#interpretation-3",
-    "href": "finding.html#interpretation-3",
-    "title": "Findings",
-    "section": "5.1 Interpretation",
-    "text": "5.1 Interpretation\nThis supports the idea that the breach developed gradually rather than a sudden event. The system showed earlier abnormal behaviour, but those signals were not treated as serious enough to trigger stronger action."
-  },
-  {
-    "objectID": "finding.html#interpretation-4",
-    "href": "finding.html#interpretation-4",
-    "title": "Findings",
-    "section": "6.1 Interpretation",
-    "text": "6.1 Interpretation\nJudge-Agent was not acting as a strict blocker. It could warn, assess, and flag risk, but it did not stop public communication.\nThis is one of the strongest findings because it shows that the control system existed, but enforcement was slower than the actual posting."
-  },
-  {
-    "objectID": "finding.html#interpretation-5",
-    "href": "finding.html#interpretation-5",
-    "title": "Findings",
-    "section": "7.1 Interpretation",
-    "text": "7.1 Interpretation\nThe Evidence tab supports traceability. It allows users to move from a visual pattern to the actual messages behind it. This makes the findings more reliable, since each chart can be confirmed against the source."
-  },
-  {
-    "objectID": "meeting_minutes.html",
-    "href": "meeting_minutes.html",
-    "title": "Meeting Minutes",
-    "section": "",
-    "text": "Date: 23/05/2026\nTime: 3:30 PM - 4:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDiscussion on VAST Challenge options\nAllocation of initial challenge exploration\n\n\n\n\nPrior to the meeting, the team reviewed the different VAST Challenge options and discussed which challenge would be most suitable for the project.\nDuring the meeting, the team discussed both MC1 and MC2 as possible project topics. The purpose of the discussion was to understand the requirements of each challenge and assess which one would be more feasible based on the team’s current knowledge and skills.\nJD decided to explore MC2, while Phoebe and Kay decided to explore MC1. This was done so that the team could compare the two challenges before making a final decision.\n\n\n\nThe team agreed to individually explore the assigned challenges and review the requirements, data, and possible approaches.\nJD would focus on MC2, while Phoebe and Kay would focus on MC1.\nThe team decided to reconvene in the next meeting to finalize the project topic based on the findings from both challenges.\n\n\n\n\n\n\nDate: 02/06/2026\nTime: 8:15 PM - 9:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDecide on project topic\nDraft project proposal\nDivision of tasks\n\n\n\n\nAfter reviewing the challenges, the team agreed to proceed with MC2 as the project topic.\nThe team decided that MC2 was the more suitable option for the project based on the challenge requirements, available data, and the team’s ability to complete the project using the knowledge and skills gained from class.\n\n\n\nThe team discussed the main components required for the project proposal. These included the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes.\nThe team also discussed how to structure the proposal so that each section would be clearly written and aligned with the chosen MC2 challenge.\n\n\n\nThe team divided the work for the project proposal as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will work on their assigned sections and update the team once their parts are ready for review.\nThe team agreed to combine the individual sections and review the overall proposal before submission.\n\n\n\n\n\n\nDate: 06/06/2026\nTime: 9:30 PM - 10:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nFinalization of project proposal\nReconsideration of project topic\nAction items before proposal submission\n\n\n\n\nThe team met to review the progress of the project proposal and ensure that all required sections were being prepared before the submission deadline.\nWe discussed the proposal structure, including the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes. The team agreed that the proposal should be finalized as soon as possible so that it can be reviewed, edited, and published on Vercel before the deadline.\n\n\n\nAlthough the team had previously decided to proceed with MC2, we revisited the decision after further reviewing the challenge requirements.\nAfter discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team’s ability to complete the project within the given timeframe.\nThis decision replaces the earlier decision made during Project Meeting 2.\n\n\n\nThe team agreed to update the project proposal so that all references to MC2 are changed to MC1.\nThe team also agreed to revise the methodology, prototype sketches, R packages, and project schedule to ensure that they are aligned with MC1 instead of MC2.\nThe updated division of work is as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will update their respective sections and share them with the team for final review before submission.\n\n\n\n\n\n\nDate: 13/06/2026\nTime: 9:05 PM - 9:11 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDivision of MC1 questions\nWorkflow and data preparation approach\nAction items before the poster submission\n\n\n\n\nWith MC1 confirmed as the project topic, the team agreed to split the work by taking one question each, as MC1 has three questions.\nJD took Question 2, while Phoebe and Kay took the remaining questions (Question 1 and Question 3).\n\n\n\nThe team discussed how to manage their work in RStudio and GitHub. The use of Git branches was considered, but the team ultimately decided not to branch and to work concurrently instead.\nThe team also discussed data preparation. Since each question still requires data preparation (creating the three tables), the team agreed that the member working on Question 1 would set up the data preparation first. The others would then align their work to that shared data preparation to avoid merge conflicts.\n\n\n\nThe team noted that the poster submission is due on 1 July 2026, leaving about one week to complete the work.\nThe team agreed that a mid-week meeting was not necessary, as each member is working on a separate question. Each member will work on their assigned question and share progress with the team. Members were also reminded to attend class the following week.\n\n\n\n\n\n\nDate: 20/06/2026\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nProgress check-in\nExploring the team’s focus for the Shiny app\n\n\n\n\nThe team held a short check-in to review individual progress on their assigned MC1 questions and confirm that everyone was on track ahead of the poster submission.\n\n\n\nThe team discussed and explored the direction for the Shiny app, considering what the app should focus on and how the analysis from each question could be presented. The discussion was exploratory, with the aim of aligning on a shared focus before developing the prototype further.\n\n\n\n\n\n\nDate: 23/06/2026\nTime: 7:01 PM - 7:14 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nReview of the Shiny app prototype\nDivision of remaining deliverables\nDeadlines and next working session\n\n\n\n\nThe team reviewed the current Shiny app prototype together. The team felt that the visuals and findings were still too similar to the sample project and agreed that the app needed to be more distinct.\nThe team agreed to replace the tables in the Shiny app with more visuals, as visuals are easier for users to interpret and better suited to the purpose of a Shiny app. One log-style view could be presented as a status summary, allowing users to click through to more detailed content.\nThe team also noted that one component was not interactive. They agreed it should be made interactive where possible, or otherwise enlarged or given additional filters. A keyword search over the message content was suggested as a way to flag sensitive messages.\nFinally, the team agreed to hide or remove unused sample elements, clean up the dropdown, replace the visualization tab with the findings, and tidy up the logo and title.\n\n\n\nThe team divided the remaining work as follows:\n\nJD: Improve the Shiny app visuals and update the meeting minutes\nPhoebe: Create the poster, with the others assisting\nKay: Write up the findings and the user guide once the Shiny app visuals are ready\n\nThe team agreed to continue working in their usual rotating order, completing tasks in sequence.\n\n\n\nThe team confirmed that the poster submission is due on 1 July 2026. To allow time to prepare the poster visuals, the team aimed to complete the main work by the weekend.\nThe team agreed to hold a working session on Sunday after 9 PM. One member noted they had a quiz the following day and would contribute on Thursday instead. The team also acknowledged the poster’s formatting restrictions (resolution and print requirements) and agreed to start drafting it early."
-  },
-  {
-    "objectID": "meeting_minutes.html#project-meeting-1",
-    "href": "meeting_minutes.html#project-meeting-1",
-    "title": "Meeting Minutes",
-    "section": "",
-    "text": "Date: 23/05/2026\nTime: 3:30 PM - 4:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDiscussion on VAST Challenge options\nAllocation of initial challenge exploration\n\n\n\n\nPrior to the meeting, the team reviewed the different VAST Challenge options and discussed which challenge would be most suitable for the project.\nDuring the meeting, the team discussed both MC1 and MC2 as possible project topics. The purpose of the discussion was to understand the requirements of each challenge and assess which one would be more feasible based on the team’s current knowledge and skills.\nJD decided to explore MC2, while Phoebe and Kay decided to explore MC1. This was done so that the team could compare the two challenges before making a final decision.\n\n\n\nThe team agreed to individually explore the assigned challenges and review the requirements, data, and possible approaches.\nJD would focus on MC2, while Phoebe and Kay would focus on MC1.\nThe team decided to reconvene in the next meeting to finalize the project topic based on the findings from both challenges."
-  },
-  {
-    "objectID": "meeting_minutes.html#project-meeting-2",
-    "href": "meeting_minutes.html#project-meeting-2",
-    "title": "Meeting Minutes",
-    "section": "",
-    "text": "Date: 02/06/2026\nTime: 8:15 PM - 9:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDecide on project topic\nDraft project proposal\nDivision of tasks\n\n\n\n\nAfter reviewing the challenges, the team agreed to proceed with MC2 as the project topic.\nThe team decided that MC2 was the more suitable option for the project based on the challenge requirements, available data, and the team’s ability to complete the project using the knowledge and skills gained from class.\n\n\n\nThe team discussed the main components required for the project proposal. These included the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes.\nThe team also discussed how to structure the proposal so that each section would be clearly written and aligned with the chosen MC2 challenge.\n\n\n\nThe team divided the work for the project proposal as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will work on their assigned sections and update the team once their parts are ready for review.\nThe team agreed to combine the individual sections and review the overall proposal before submission."
-  },
-  {
-    "objectID": "meeting_minutes.html#project-meeting-3",
-    "href": "meeting_minutes.html#project-meeting-3",
-    "title": "Meeting Minutes",
-    "section": "",
-    "text": "Date: 06/06/2026\nTime: 9:30 PM - 10:00 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nFinalization of project proposal\nReconsideration of project topic\nAction items before proposal submission\n\n\n\n\nThe team met to review the progress of the project proposal and ensure that all required sections were being prepared before the submission deadline.\nWe discussed the proposal structure, including the motivation, objectives, data, methodology, prototype sketches, R packages, project schedule, and meeting minutes. The team agreed that the proposal should be finalized as soon as possible so that it can be reviewed, edited, and published on Vercel before the deadline.\n\n\n\nAlthough the team had previously decided to proceed with MC2, we revisited the decision after further reviewing the challenge requirements.\nAfter discussion, the team decided to change the project topic from MC2 to MC1. The team agreed that MC1 would be a more suitable choice based on the available data, expected analytical approach, and the team’s ability to complete the project within the given timeframe.\nThis decision replaces the earlier decision made during Project Meeting 2.\n\n\n\nThe team agreed to update the project proposal so that all references to MC2 are changed to MC1.\nThe team also agreed to revise the methodology, prototype sketches, R packages, and project schedule to ensure that they are aligned with MC1 instead of MC2.\nThe updated division of work is as follows:\n\nJD: Meeting Minutes, R Packages, and Project Schedule Draft\nPhoebe: Methodology Draft and Prototype Sketches\nKay: Motivation, Objectives, and Data\n\nEach member will update their respective sections and share them with the team for final review before submission."
-  },
-  {
-    "objectID": "meeting_minutes.html#project-meeting-4",
-    "href": "meeting_minutes.html#project-meeting-4",
-    "title": "Meeting Minutes",
-    "section": "",
-    "text": "Date: 13/06/2026\nTime: 9:05 PM - 9:11 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nDivision of MC1 questions\nWorkflow and data preparation approach\nAction items before the poster submission\n\n\n\n\nWith MC1 confirmed as the project topic, the team agreed to split the work by taking one question each, as MC1 has three questions.\nJD took Question 2, while Phoebe and Kay took the remaining questions (Question 1 and Question 3).\n\n\n\nThe team discussed how to manage their work in RStudio and GitHub. The use of Git branches was considered, but the team ultimately decided not to branch and to work concurrently instead.\nThe team also discussed data preparation. Since each question still requires data preparation (creating the three tables), the team agreed that the member working on Question 1 would set up the data preparation first. The others would then align their work to that shared data preparation to avoid merge conflicts.\n\n\n\nThe team noted that the poster submission is due on 1 July 2026, leaving about one week to complete the work.\nThe team agreed that a mid-week meeting was not necessary, as each member is working on a separate question. Each member will work on their assigned question and share progress with the team. Members were also reminded to attend class the following week."
-  },
-  {
-    "objectID": "meeting_minutes.html#project-meeting-5",
-    "href": "meeting_minutes.html#project-meeting-5",
-    "title": "Meeting Minutes",
-    "section": "",
-    "text": "Date: 20/06/2026\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nProgress check-in\nExploring the team’s focus for the Shiny app\n\n\n\n\nThe team held a short check-in to review individual progress on their assigned MC1 questions and confirm that everyone was on track ahead of the poster submission.\n\n\n\nThe team discussed and explored the direction for the Shiny app, considering what the app should focus on and how the analysis from each question could be presented. The discussion was exploratory, with the aim of aligning on a shared focus before developing the prototype further."
-  },
-  {
-    "objectID": "meeting_minutes.html#project-meeting-6",
-    "href": "meeting_minutes.html#project-meeting-6",
-    "title": "Meeting Minutes",
-    "section": "",
-    "text": "Date: 23/06/2026\nTime: 7:01 PM - 7:14 PM\nIn Attendance: JD, Kay, Phoebe\n\n\n\n\nReview of the Shiny app prototype\nDivision of remaining deliverables\nDeadlines and next working session\n\n\n\n\nThe team reviewed the current Shiny app prototype together. The team felt that the visuals and findings were still too similar to the sample project and agreed that the app needed to be more distinct.\nThe team agreed to replace the tables in the Shiny app with more visuals, as visuals are easier for users to interpret and better suited to the purpose of a Shiny app. One log-style view could be presented as a status summary, allowing users to click through to more detailed content.\nThe team also noted that one component was not interactive. They agreed it should be made interactive where possible, or otherwise enlarged or given additional filters. A keyword search over the message content was suggested as a way to flag sensitive messages.\nFinally, the team agreed to hide or remove unused sample elements, clean up the dropdown, replace the visualization tab with the findings, and tidy up the logo and title.\n\n\n\nThe team divided the remaining work as follows:\n\nJD: Improve the Shiny app visuals and update the meeting minutes\nPhoebe: Create the poster, with the others assisting\nKay: Write up the findings and the user guide once the Shiny app visuals are ready\n\nThe team agreed to continue working in their usual rotating order, completing tasks in sequence.\n\n\n\nThe team confirmed that the poster submission is due on 1 July 2026. To allow time to prepare the poster visuals, the team aimed to complete the main work by the weekend.\nThe team agreed to hold a working session on Sunday after 9 PM. One member noted they had a quiz the following day and would contribute on Thursday instead. The team also acknowledged the poster’s formatting restrictions (resolution and print requirements) and agreed to start drafting it early."
-  },
-  {
-    "objectID": "Methodology/dataprep.html",
-    "href": "Methodology/dataprep.html",
-    "title": "Data Preparation",
-    "section": "",
-    "text": "This document walks through how we parse, clean, and reshape the raw VAST Challenge 2026 Mini-Challenge 1 dataset into the three relational tables, which are Rounds, Communications, and Participants."
-  },
-  {
-    "objectID": "Methodology/dataprep.html#loading-packages",
-    "href": "Methodology/dataprep.html#loading-packages",
-    "title": "Data Preparation",
-    "section": "1.1 Loading Packages",
-    "text": "1.1 Loading Packages\nWe use the following packages:\n\njsonlite - parse the JSON source file\ntidyverse - data wrangling and string operations\nlubridate - timestamp parsing\ntidytext - tokenisation for keyword flagging and text analysis\nknitr - formatted table output\n\n\npacman::p_load(jsonlite, tidyverse, lubridate, tidytext, knitr)"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#loading-data",
-    "href": "Methodology/dataprep.html#loading-data",
-    "title": "Data Preparation",
-    "section": "1.2 Loading Data",
-    "text": "1.2 Loading Data\nWe load the single JSON file provided for VAST Challenge 2026 Mini-Challenge 1.\n\nmc1_raw &lt;- jsonlite::fromJSON(\"../data/MC1_final_00.json\", simplifyVector = FALSE)\nrounds_raw &lt;- mc1_raw$rounds\ncat(\"Total rounds:\", length(rounds_raw), \"\\n\")\n\nTotal rounds: 23 \n\n\nThe dataset contains 23 rounds, spanning 17 May 2046 to 5 June 2046 (the day of the embargo breach). Each round holds an environment_context object, a flat list of communications, and a participants list recording each agent’s status for that round."
-  },
-  {
-    "objectID": "Methodology/dataprep.html#top-level-schema",
-    "href": "Methodology/dataprep.html#top-level-schema",
-    "title": "Data Preparation",
-    "section": "2.1 Top-level schema",
-    "text": "2.1 Top-level schema\nEach round has four keys:\n\n\n\n\n\n\n\nKey\nDescription\n\n\n\n\nhour\nTimestamp for the round start\n\n\nenvironment_context\nExternal conditions: market data, events, headlines\n\n\ncommunications\nAll messages sent in that round\n\n\nparticipants\nAgent metadata and declared actions"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#agents",
-    "href": "Methodology/dataprep.html#agents",
-    "title": "Data Preparation",
-    "section": "2.2 Agents",
-    "text": "2.2 Agents\n\n\n\n\n\n\n\n\n\n\nAgent ID\nRole\nLabel\nSeniority\nDescription\n\n\n\n\nlegal_agent\nlegal\nLegal-Agent\nSenior\nGeneral legal counsel.\n\n\nquality_agent\nplatform_trust\nPlatform-Trust\nSenior\nVP of Platform Trust & Safety.\n\n\nsocial_manager_agent\nsocial_manager\nSocial-Manager\nSenior\nManages Social messaging\n\n\npr_agent\npr\nPR-Agent\nSenior\nHead of Communications and Public Relationships\n\n\nintern_agent\nintern\nIntern\nJunior\nGeneral intern.\n\n\npr_intern_agent\npr_intern\nPR-Intern\nJunior\nPR team intern with access to the official TenantThread Flex account.\n\n\njudge_eval_agent\njudge\nJudge\nCompliance officer\nEvaluates risks, mediates conflicts, provides compliance guidance."
-  },
-  {
-    "objectID": "Methodology/dataprep.html#communication-channels-and-message-types",
-    "href": "Methodology/dataprep.html#communication-channels-and-message-types",
-    "title": "Data Preparation",
-    "section": "2.3 Communication channels and message types",
-    "text": "2.3 Communication channels and message types\n\n\nCode\n# Flatten all communications to inspect channels and message types\nall_comms_raw &lt;- map_dfr(rounds_raw, function(rnd) {\n  map_dfr(rnd$communications, function(msg) {\n    tibble(\n      channel      = msg$channel      %||% NA_character_,\n      message_type = msg$message_type %||% NA_character_\n    )\n  })\n})\n\nall_comms_raw %&gt;%\n  count(channel, message_type, name = \"count\") %&gt;%\n  arrange(desc(count)) %&gt;%\n  kable()\n\n\n\n\n\nchannel\nmessage_type\ncount\n\n\n\n\ncomms_huddle\nbroadcast\n388\n\n\none_on_one_chat\none_on_one_chat\n248\n\n\nside_huddle\nside_huddle\n111\n\n\ncomms_huddle\naction\n88\n\n\npersonal_post\npublic_post\n37\n\n\nofficial_post\npublic_post\n28\n\n\nanonymous_post\npublic_post\n12\n\n\n\n\n\nChannels fall into two broad groups:\n\nInternal: comms_huddle, side_huddle, one_on_one_chat\nPublic: official_post, personal_post, anonymous_post"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#extracting-fields",
-    "href": "Methodology/dataprep.html#extracting-fields",
-    "title": "Data Preparation",
-    "section": "4.1 Extracting fields",
-    "text": "4.1 Extracting fields\nWe extract one row per round from environment_context, including the (corrupted) raw stock price for cleaning in section Section 4.2.\n\n\nCode\nrounds_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd &lt;- rounds_raw[[i]]\n  ctx &lt;- rnd$environment_context\n  ms  &lt;- ctx$market_snapshot\n\n  tibble(\n    round_index        = i,\n    hour               = ymd_hms(rnd$hour),\n    event_headline     = ctx$event_headline   %||% NA_character_,\n    event_narrative    = ctx$event_narrative  %||% NA_character_,\n    social_state       = ctx$social_state     %||% NA_character_,\n    stock_price_raw    = ms$stock_price       %||% NA_character_,\n    pct_change_raw     = ms$percent_change    %||% NA_character_,\n    market_sentiment   = ms$sentiment         %||% NA_character_,\n    critical_deadlines = paste(unlist(ctx$critical_deadlines %||% list()),\n                               collapse = \"; \"),\n    news               = paste(unlist(ctx$news %||% list()),\n                               collapse = \"; \"),\n    agents_unavailable = paste(unlist(ctx$agents_unavailable %||% list()),\n                               collapse = \", \")\n  )\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")\n\nglimpse(rounds_tbl)\n\n\nRows: 23\nColumns: 12\n$ round_index        &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, …\n$ hour               &lt;dttm&gt; 2046-05-17 09:00:00, 2046-05-18 09:00:00, 2046-05-…\n$ event_headline     &lt;chr&gt; \"Q2 planning kickoff — AG inquiries flagged\", \"Cres…\n$ event_narrative    &lt;chr&gt; \"Pre-crisis Day 1 (2046-05-17, Thursday). Q2 planni…\n$ social_state       &lt;chr&gt; \"Quiet. ResidentIQ gaining positive 'privacy-first'…\n$ stock_price_raw    &lt;chr&gt; \"$38.70\", \"$38.40\", \"$37.90\", \"$37.50\", \"$37.20\", \"…\n$ pct_change_raw     &lt;chr&gt; \"-0.5%\", \"-0.8%\", \"-1.3%\", \"-1.1%\", \"-0.8%\", \"-1.1%…\n$ market_sentiment   &lt;chr&gt; \"neutral\", \"neutral\", \"cautious\", \"cautious\", \"caut…\n$ critical_deadlines &lt;chr&gt; \"Board risk summary framework due end of week\", \"\",…\n$ news               &lt;chr&gt; \"\", \"\", \"\", \"\", \"Ajay hints at 'career-defining' de…\n$ agents_unavailable &lt;chr&gt; \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\", \"\",…\n$ crisis_stage       &lt;fct&gt; Pre-crisis, Pre-crisis, Pre-crisis, Pre-crisis, Pre…"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#sec-data-cleaning",
-    "href": "Methodology/dataprep.html#sec-data-cleaning",
-    "title": "Data Preparation",
-    "section": "4.2 Cleaning corrupted stock prices",
-    "text": "4.2 Cleaning corrupted stock prices\n\n\n\n\n\n\nWarningKnown Data Quality Issues\n\n\n\n\nevent_headline for rounds 15 and 16 both read \"10:00 AM.\", corrected using the hour timestamp instead.\nstock_price for several crisis-day rounds contains corrupted values ($180, NULL), replaced with prices quoted in agent messages.\n\n\n\n\n\nCode\n# Prices recovered from agent message content for each corrupt round\nstock_price_fixes &lt;- tribble(\n  ~round_index, ~stock_price_clean,\n  14L,  28.70,    # 09:00 — NULL, opening price from agent content\n  15L,  31.50,    # 10:00 — NULL, interpolated from agent content\n  16L,  NA_real_, # 11:00 — $180 corrupt, no reliable quote found\n  19L,  26.90,    # 14:00 — $18.0 corrupt, use 13:00 price as reference\n  20L,  32.80,    # 15:00 — $18.0 corrupt, quoted in side-huddle\n  21L,  33.05,    # 16:00 — NULL, Sentinel 5:12 PM update\n  22L,  33.05,    # 17:00 — NULL, same post-market reference\n  23L,  33.05     # 18:00 — NULL, after-hours Sentinel final report\n)\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(c(\"stock_price_raw_num\", \"is_corrupt\",\n                   \"stock_price_clean\", \"pct_change_clean\"))) %&gt;%\n  mutate(\n    stock_price_raw_num = as.numeric(str_remove(stock_price_raw, \"\\\\$\")),\n    is_corrupt = round_index %in% stock_price_fixes$round_index |\n                 stock_price_raw_num %in% c(18, 18.0, 180) |\n                 is.na(stock_price_raw)\n  ) %&gt;%\n  left_join(stock_price_fixes, by = \"round_index\") %&gt;%\n  mutate(\n    stock_price_clean = if_else(\n      !is_corrupt,\n      stock_price_raw_num,\n      stock_price_clean\n    ),\n    pct_change_clean = as.numeric(str_remove(pct_change_raw, \"%\"))\n  )"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#extracting-fields-1",
-    "href": "Methodology/dataprep.html#extracting-fields-1",
-    "title": "Data Preparation",
-    "section": "5.1 Extracting fields",
-    "text": "5.1 Extracting fields\nWe flatten all messages from all rounds into a single data frame. Internal state sub-fields (reacting, rationalizing, deliberating) are extracted as separate columns.\n\n\nCode\ncomms_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd  &lt;- rounds_raw[[i]]\n  hour &lt;- ymd_hms(rnd$hour)\n\n  map_dfr(rnd$communications, function(msg) {\n    ist &lt;- msg$internal_state %||% list()\n\n    tibble(\n      round_index    = i,\n      round_hour     = hour,\n      message_id     = msg$message_id     %||% NA_character_,\n      agent_id       = msg$agent_id       %||% NA_character_,\n      agent_role     = msg$agent_role     %||% NA_character_,\n      agent_label    = msg$agent_label    %||% NA_character_,\n      channel        = msg$channel        %||% NA_character_,\n      message_type   = msg$message_type   %||% NA_character_,\n      responding_to  = msg$responding_to  %||% NA_character_,\n      content        = msg$content        %||% NA_character_,\n      timestamp      = ymd_hms(msg$timestamp %||% NA_character_),\n      recipients     = paste(unlist(msg$recipients %||% list()), collapse = \", \"),\n      # Internal state sub-fields\n      st_reacting      = ist$reacting      %||% NA_character_,\n      st_rationalizing = ist$rationalizing %||% NA_character_,\n      st_deliberating  = ist$deliberating  %||% NA_character_\n    )\n  })\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")\n\ncat(\"Total messages:\", nrow(comms_tbl), \"\\n\")\n\n\nTotal messages: 912"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#deriving-temporal-and-structural-columns",
-    "href": "Methodology/dataprep.html#deriving-temporal-and-structural-columns",
-    "title": "Data Preparation",
-    "section": "5.2 Deriving temporal and structural columns",
-    "text": "5.2 Deriving temporal and structural columns\n\n\nCode\ncomms_tbl &lt;- comms_tbl %&gt;%\n  mutate(\n    date              = as_date(timestamp),\n    hour_of_day       = hour(timestamp),\n    day_of_week       = wday(timestamp, label = TRUE),\n    is_crisis_day     = date == as_date(\"2046-06-05\"),\n    # Minutes elapsed since first message in dataset (for continuous timeline)\n    minutes_since_start = as.numeric(difftime(timestamp,\n                                               min(timestamp, na.rm = TRUE),\n                                               units = \"mins\")),\n    # Channel groupings\n    channel_type      = case_when(\n      channel %in% c(\"comms_huddle\", \"side_huddle\", \"one_on_one_chat\") ~ \"Internal\",\n      channel %in% c(\"official_post\", \"personal_post\", \"anonymous_post\") ~ \"Public\",\n      TRUE ~ \"Other\"\n    ),\n    is_side_channel   = channel %in% c(\"side_huddle\", \"one_on_one_chat\"),\n    is_public         = channel %in% c(\"official_post\", \"personal_post\", \"anonymous_post\"),\n    is_anonymous      = channel == \"anonymous_post\",\n    is_broadcast      = recipients == \"ALL\",\n    recipient_count   = if_else(\n      is_broadcast,\n      NA_integer_,\n      str_count(recipients, \",\") + 1L\n    ),\n    has_internal_state = !is.na(st_reacting) | !is.na(st_rationalizing) |\n                         !is.na(st_deliberating)\n  )"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#keyword-flagging",
-    "href": "Methodology/dataprep.html#keyword-flagging",
-    "title": "Data Preparation",
-    "section": "5.3 Keyword flagging",
-    "text": "5.3 Keyword flagging\nWe create three Boolean flag columns on content and (where present) st_deliberating, covering deal-related, embargo-related, and crisis-related terms. A combined text field full_text is used for this scan.\n\n\nCode\ndeal_terms    &lt;- c(\"merger\", \"acquisition\", \"deal\", \"civicloom\", \"harborcrest\",\n                   \"counterparty\", \"nda\", \"term sheet\", \"due diligence\", \"signing\",\n                   \"strategic\", \"transaction\", \"partner\")\n\nembargo_terms &lt;- c(\"embargo\", \"hold\", \"silence\", \"6 pm\", \"6:00\", \"release\",\n                   \"clearance\", \"judge\", \"compliance\", \"unauthorized\", \"approved\",\n                   \"restricted\", \"monitor\")\n\ncrisis_terms  &lt;- c(\"breach\", \"leak\", \"premature\", \"crisis\", \"firestorm\",\n                   \"escalate\", \"saltwind\", \"oceancrunch\", \"ag inquiry\",\n                   \"investigation\", \"viral\", \"senate\", \"attorney general\")\n\nflag_text &lt;- function(text_col, terms) {\n  pattern &lt;- paste(terms, collapse = \"|\")\n  str_detect(str_to_lower(text_col), pattern)\n}\n\ncomms_tbl &lt;- comms_tbl %&gt;%\n  mutate(\n    full_text          = paste(coalesce(content, \"\"),\n                                coalesce(st_deliberating, \"\"), sep = \" \"),\n    flag_deal_terms    = flag_text(full_text, deal_terms),\n    flag_embargo_terms = flag_text(full_text, embargo_terms),\n    flag_crisis_terms  = flag_text(full_text, crisis_terms),\n    flag_any           = flag_deal_terms | flag_embargo_terms | flag_crisis_terms\n  )\n\nDT::datatable(comms_tbl, caption = \"Communications Table\", options = list(pageLength = 5),class = \"nowrap\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#back-filling-comm_count-into-rounds-table",
-    "href": "Methodology/dataprep.html#back-filling-comm_count-into-rounds-table",
-    "title": "Data Preparation",
-    "section": "5.4 Back-filling comm_count into rounds table",
-    "text": "5.4 Back-filling comm_count into rounds table\n\n\nCode\ncomm_counts &lt;- comms_tbl %&gt;%\n  count(round_index, name = \"comm_count\")\n\nrounds_tbl &lt;- rounds_tbl %&gt;%\n  select(-any_of(\"comm_count\")) %&gt;%\n  left_join(comm_counts, by = \"round_index\")\n\nDT::datatable(rounds_tbl, caption = \"Rounds Table\", options = list(pageLength = 5),class = \"nowrap\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#extracting-fields-2",
-    "href": "Methodology/dataprep.html#extracting-fields-2",
-    "title": "Data Preparation",
-    "section": "6.1 Extracting fields",
-    "text": "6.1 Extracting fields\nWe extract one row per agent per round from the participants list, then parse declared_action into a clean action type and a separate content field.\n\n\nCode\nparticipants_tbl &lt;- map_dfr(seq_along(rounds_raw), function(i) {\n  rnd &lt;- rounds_raw[[i]]\n  map_dfr(rnd$participants %||% list(), function(p) {\n    meta &lt;- p$agent_round_metadata %||% list()\n    tibble(\n      round_index         = i,\n      round_hour          = ymd_hms(rnd$hour),\n      agent_id            = p$agent_id            %||% NA_character_,\n      agent_role          = p$agent_role           %||% NA_character_,\n      agent_label         = p$agent_label          %||% NA_character_,\n      declared_action_raw = p$declared_action      %||% NA_character_,\n      sentiment_at_turn   = meta$sentiment_at_turn %||% NA_character_,\n      action_classification = meta$action_classification %||% NA_character_\n    )\n  })\n}) %&gt;%\n  left_join(crisis_stage_map, by = \"round_index\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#parsing-declared-action-type",
-    "href": "Methodology/dataprep.html#parsing-declared-action-type",
-    "title": "Data Preparation",
-    "section": "6.2 Parsing declared action type",
-    "text": "6.2 Parsing declared action type\ndeclared_action can be a short token (e.g. MONITORING) or a long string containing post content. We extract the action type prefix and store the remainder as action_content.\n\n\nCode\nparticipants_tbl &lt;- participants_tbl %&gt;%\n  mutate(\n    action_type = case_when(\n      is.na(declared_action_raw)                            ~ NA_character_,\n      str_starts(declared_action_raw, \"MONITORING\")         ~ \"MONITORING\",\n      str_starts(declared_action_raw, \"POSTED_ON_FLEX\")     ~ \"POSTED_ON_FLEX\",\n      str_starts(declared_action_raw, \"POSTED_ANONYMOUS\")   ~ \"POSTED_ANONYMOUS\",\n      str_starts(declared_action_raw, \"POSTED_PERSONAL\")    ~ \"POSTED_PERSONAL\",\n      str_starts(declared_action_raw, \"COMPLIANCE_WARNING\") ~ \"COMPLIANCE_WARNING\",\n      TRUE                                                  ~ \"OTHER\"\n    ),\n    action_content = str_remove(declared_action_raw,\n                                \"^(MONITORING|POSTED_ON_FLEX|POSTED_ANONYMOUS|POSTED_PERSONAL|COMPLIANCE_WARNING)[:\\\\s—]*\")\n  )\n\nDT::datatable(participants_tbl, options = list(pageLength = 5),class = \"nowrap\")"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#expanding-broadcast-messages",
-    "href": "Methodology/dataprep.html#expanding-broadcast-messages",
-    "title": "Data Preparation",
-    "section": "7.1 Expanding broadcast messages",
-    "text": "7.1 Expanding broadcast messages\nDirect messages between agents.\n\n\nCode\n# Active agents per round (from participants table)\nactive_agents_per_round &lt;- participants_tbl %&gt;%\n  select(round_index, agent_id) %&gt;%\n  distinct()\n\n# Separate broadcast vs direct messages\ndirect_msgs &lt;- comms_tbl %&gt;%\n  filter(!is_broadcast, !is.na(recipients), recipients != \"\") %&gt;%\n  separate_rows(recipients, sep = \",\\\\s*\") %&gt;%\n  select(message_id, round_index, crisis_stage, timestamp, channel,\n         sender = agent_id, recipient = recipients)\n\nDT::datatable(direct_msgs, options = list(pageLength = 5),class = \"nowrap\")\n\n\n\n\n\n\nMessages broadcasted among agents.\n\n\nCode\nbroadcast_msgs &lt;- comms_tbl %&gt;%\n  filter(is_broadcast) %&gt;%\n  select(message_id, round_index, crisis_stage, timestamp, channel,\n         sender = agent_id) %&gt;%\n  left_join(active_agents_per_round, by = \"round_index\") %&gt;%\n  rename(recipient = agent_id) %&gt;%\n  filter(recipient != sender)\n\nDT::datatable(broadcast_msgs, options = list(pageLength = 5),class = \"nowrap\")\n\n\n\n\n\n\nCode\nedges_tbl &lt;- bind_rows(direct_msgs, broadcast_msgs) %&gt;%\n  # Remove messages with no identified recipient\n  filter(!is.na(recipient), recipient != \"\") %&gt;%\n  # Exclude internal-state-only rows (no actual sender)\n  filter(!is.na(sender))\n\ncat(\"Total directed edges:\", nrow(edges_tbl), \"\\n\")\n\n\nTotal directed edges: 2003"
-  },
-  {
-    "objectID": "Methodology/dataprep.html#adding-edge-weights-by-crisis-stage",
-    "href": "Methodology/dataprep.html#adding-edge-weights-by-crisis-stage",
-    "title": "Data Preparation",
-    "section": "7.2 Adding edge weights by crisis stage",
-    "text": "7.2 Adding edge weights by crisis stage\n\nedges_weighted &lt;- edges_tbl %&gt;%\n  group_by(sender, recipient, channel, crisis_stage) %&gt;%\n  summarise(\n    weight         = n(),\n    first_contact  = min(timestamp, na.rm = TRUE),\n    last_contact   = max(timestamp, na.rm = TRUE),\n    .groups        = \"drop\"\n  )\n\nDT::datatable(edges_weighted, options = list(pageLength = 5),class = \"nowrap\")"
   },
   {
     "objectID": "ShinyApp/guide.html",

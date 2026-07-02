@@ -15,6 +15,8 @@ website:
         href: "Methodology/analysis.qmd"
     - text: "Findings"
       href: "finding.qmd"
+    - text: "Poster"
+      href: "poster.qmd"
     - text: "Meeting Minutes"
       href: "meeting_minutes.qmd"
     right:
