@@ -1,5 +1,5 @@
 pacman::p_load(shiny, tidyverse, lubridate, plotly, DT, scales, bslib, bsicons,
-               visNetwork, igraph)
+               visNetwork, igraph, ggrepel)
 
 `%||%` <- function(a, b) if (is.null(a) || length(a) == 0) b else a
 
@@ -202,7 +202,8 @@ finding <- function(...) div(class = "finding", span(class = "tag", "Finding"), 
 global_sidebar <- sidebar(id = "gfilters", title = "Filters", width = 300, open = "desktop",
   div(class = "preset-row",
       actionLink("preset_breach", "Breach"), actionLink("preset_side", "Side-ch"),
-      actionLink("preset_anon", "Anon"), actionLink("preset_warned", "Post-warning")),
+      actionLink("preset_anon", "Anon"), actionLink("preset_warned", "Post-warning"),
+      actionLink("preset_jun5", "5 June")),
   textInput("g_search", NULL, placeholder = "Search message text…"),
   accordion(open = "Scope",
     accordion_panel("Scope",
@@ -261,7 +262,23 @@ ui <- function(request) page_navbar(
       div(class = "bl-section",
         panel_card("Company stock price",
                    note = "The $TTHR price fell over the two weeks. Dashed lines mark public events that added pressure.",
-                   plotlyOutput("stock_plot", height = "300px"))))),
+                   plotlyOutput("stock_plot", height = "300px"))),
+      div(class = "bl-section",
+        finding("This represents the key events leading to the breach. ",
+                tags$b("Judge warnings were limited and late"),
+                ", information appeared publicly before the embargo expired, and the pattern is a ",
+                tags$b("progressive control failure, not a single incident"), ".")),
+      div(class = "bl-section",
+        panel_card("Progressive erosion of the embargo — 10 concrete events",
+                   note = "Each point is sourced from a specific message_id or environment_context field.",
+                   plotOutput("erosion_plot", height = "520px"))),
+      div(class = "bl-section",
+        accordion(class = "bl-collapse", open = FALSE,
+          accordion_panel(title = tagList(bsicons::bs_icon("table"), " Key decision points — show / hide table"),
+            value = "decisions_table",
+            panel_card("Key decision points",
+                       note = "Eight decisions directly evidenced by a message or environment_context field.",
+                       DTOutput("decision_table"))))))),
 
   nav_panel("Network", icon = bsicons::bs_icon("share"),
     layout_sidebar(sidebar = sidebar(title = "View", width = 240,
@@ -349,6 +366,8 @@ server <- function(input, output, session) {
   observeEvent(input$preset_warned, { reset_all()
     updateDateRangeInput(session, "g_date_range", start = as_date(judge_warning_time), end = as_date(embargo_time))
     updateCheckboxGroupInput(session, "g_channel_type", selected = "Public") })
+  observeEvent(input$preset_jun5,    { reset_all()
+    updateDateRangeInput(session, "g_date_range", start = as_date(embargo_time), end = as_date(embargo_time)) })
 
   output$global_count <- renderUI({ n <- nrow(gf())
     div(class = "tab-meta", style = "margin-top:.9rem;",
@@ -525,6 +544,59 @@ server <- function(input, output, session) {
     transmute(Time = format(timestamp, "%b %d %H:%M"), Agent = agent_label, Channel = channel,
               Type = badge(channel_type, ifelse(channel_type == "Public", "signal", "ink")), Message = content) %>%
     arrange(Time) %>% datatable(options = list(pageLength = 15, scrollX = TRUE, dom = "tip"), class = "stripe hover compact", rownames = FALSE, escape = FALSE))
+
+  # Key Decisions: embargo-erosion severity chart + evidenced decision points
+  output$erosion_plot <- renderPlot({
+    erosion <- tibble::tribble(
+      ~timestamp,          ~label,                                            ~severity,
+      "2046-05-23 09:00", "Interns start; no embargo briefing",              1,
+      "2046-05-29 09:11", "@Elena faux pas post (14 min live)",              2,
+      "2046-05-29 09:31", "Compliance monitor assigned (advisory only)",     2,
+      "2046-06-04 09:00", "SaltWind scoring expose published",               3,
+      "2046-06-05 10:20", "Intern hears 'CivicLoom at 6 PM' in hallway",     3,
+      "2046-06-05 11:34", "Legal argues embargo 'functionally compromised'", 4,
+      "2046-06-05 14:06", "Embargoed audit docs passed to PR-Intern",        4,
+      "2046-06-05 16:01", "Legal contacts CivicLoom w/o CEO approval",       5,
+      "2046-06-05 17:00", "Judge: 'I am not objecting'",                     5,
+      "2046-06-05 17:17", "PR-Intern publishes merger press release",        6) %>%
+      mutate(timestamp = ymd_hm(timestamp),
+             key = severity >= 5) %>%   # highlight the breach-critical events
+      filter(as_date(timestamp) >= input$g_date_range[1],
+             as_date(timestamp) <= input$g_date_range[2])
+    validate(need(nrow(erosion) > 0, "No key events in the selected date range."))
+    sev_labels <- c("Setup", "Near-breach", "External pressure", "Control failure", "CEO bypassed", "BREACH")
+    ggplot(erosion, aes(timestamp, severity)) +
+      geom_line(aes(group = 1), linetype = "dotted", colour = brand$slate) +
+      geom_point(aes(colour = key, size = key)) +
+      geom_label_repel(
+        aes(label = paste0(format(timestamp, "%b %d %H:%M"), "\n", label), colour = key),
+        size = 3, lineheight = 1.05, box.padding = 0.5, max.overlaps = 20, show.legend = FALSE) +
+      scale_colour_manual(values = c(`FALSE` = brand$slate, `TRUE` = brand$signal), guide = "none") +
+      scale_size_manual(values = c(`FALSE` = 3.2, `TRUE` = 5), guide = "none") +
+      scale_y_continuous(breaks = 1:6, labels = sev_labels, limits = c(0.5, 6.5)) +
+      scale_x_datetime(date_labels = "%b %d") +
+      labs(x = NULL, y = "Severity level") + theme_breachlens()
+  }, res = 96)
+
+  output$decision_table <- renderDT({
+    dec <- tibble::tribble(
+      ~No, ~ts,                ~Time,          ~Actor,              ~Channel,          ~Decision,
+      1L, "2046-05-23 09:00", "May 23 09:00", "CEO Ajay to Legal", "one_on_one_chat", "Interns must NOT be briefed; 'official story is routine protocol review'.",
+      2L, "2046-05-29 09:11", "May 29 09:11", "Social-Manager",    "personal_post",   "@ElenaMarquez 'Big things coming!' — live 14 min, liked by @CivicLoom_Ops.",
+      3L, "2046-05-29 09:31", "May 29 09:31", "CEO Ajay to PR",    "comms_huddle",    "Judge assigned as compliance monitor; social hold on all accounts.",
+      4L, "2046-06-04 09:01", "Jun 04 09:01", "CEO Ajay to Legal", "one_on_one_chat", "'Elena and I have agreed: accelerating. Hold the line.'",
+      5L, "2046-06-05 14:06", "Jun 05 14:06", "Legal to PlatTrust","side_huddle",     "Embargoed audit docs ordered to PR-Intern within 10 minutes.",
+      6L, "2046-06-05 16:01", "Jun 05 16:01", "Legal-Agent",       "comms_huddle",    "Contacts CivicLoom counsel to negotiate early release — before asking Ajay.",
+      7L, "2046-06-05 17:00", "Jun 05 17:00", "Judge-Agent",       "comms_huddle",    "'Elena's post altered bilateral conditions. I am not objecting.'",
+      8L, "2046-06-05 17:21", "Jun 05 17:21", "Legal-Agent",       "side_huddle",     "'CONSENT IS IN. Execute NOW.' Ajay told after execution begins.") %>%
+      mutate(ts = ymd_hm(ts)) %>%
+      filter(as_date(ts) >= input$g_date_range[1], as_date(ts) <= input$g_date_range[2])
+    if (length(input$g_channel)) dec <- dec %>% filter(Channel %in% input$g_channel)
+    st <- search_term() %||% ""
+    if (nzchar(st)) dec <- dec %>% filter(str_detect(Decision, regex(st, ignore_case = TRUE)))
+    validate(need(nrow(dec) > 0, "No decisions match the current filters."))
+    dec %>% select(-ts) %>%
+      datatable(options = list(pageLength = 8, dom = "tp"), class = "stripe hover compact", rownames = FALSE) })
 
   # Downloads
   dl <- function(name, fn) downloadHandler(function() name, function(f) readr::write_csv(fn(), f))
