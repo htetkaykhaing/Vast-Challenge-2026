@@ -407,7 +407,9 @@ server <- function(input, output, session) {
       scale_colour_manual(values = c(Internal = brand$context, Public = brand$highlight),
                           breaks = c("Public", "Internal")) +
       labs(x = NULL, y = "Messages per round") + theme_breachlens()
-    to_plotly(p) %>% layout(xaxis = list(range = c(format(focus_start), format(focus_end)))) })
+    # ggplotly maps this POSIXct axis to numeric seconds on a linear axis, so the default
+    # zoom range must be given in the same units (as.numeric = seconds), not date strings.
+    to_plotly(p) %>% layout(xaxis = list(range = c(as.numeric(focus_start), as.numeric(focus_end)))) })
   output$stock_plot <- renderPlotly({
     sd <- rounds_tbl %>% filter(!is.na(stock_price_clean)); validate(need(nrow(sd) > 0, ""))
     ev <- tibble(hour = c(ymd_hms("2046-05-22 09:00:00"), ymd_hms("2046-05-29 09:00:00"), ymd_hms("2046-06-04 09:00:00"), legal_go_time))
