@@ -41,7 +41,10 @@ FLAG_CHOICES <- c("Deal terms" = "flag_deal_terms", "Embargo terms" = "flag_emba
 # ---- Brand (calm: one accent, flat) -----------------------------------------
 brand <- list(ink = "#1b2026", graph = "#3a434c", teal = "#2f6e7b", ochre = "#b97f2e",
               brown = "#8a7a5c", signal = "#d8412a", slate = "#6b7681", grid = "#eceef0",
-              line = "#e4e7ea", paper = "#f6f7f8", panel = "#ffffff")
+              line = "#e4e7ea", paper = "#f6f7f8", panel = "#ffffff",
+              # highlight = the one bright accent reserved for the focus series (Public);
+              # context = muted grey for the supporting series (Internal) so the focus pops.
+              highlight = "#f5b301", highlight_ink = "#8a6100", context = "#c2c8ce")
 
 theme_breachlens <- function(base_size = 13) {
   theme_minimal(base_size = base_size) +
@@ -67,6 +70,7 @@ badge  <- function(x, kind) sprintf('<span class="bl-badge bl-badge--%s">%s</spa
 # ---- CSS: whitespace-first, flat, scarce colour -----------------------------
 app_css <- HTML("
   :root{ --bl-ink:#1b2026; --bl-signal:#d8412a; --bl-teal:#2f6e7b; --bl-ochre:#b97f2e;
+         --bl-highlight:#f5b301; --bl-highlight-ink:#8a6100;
          --bl-line:#e4e7ea; --bl-paper:#f6f7f8; --bl-graph:#3a434c; --bl-mute:#6b7681;
          --bl-mono:'IBM Plex Mono',monospace; --bl-display:'Space Grotesk',sans-serif; --r:8px; }
   body{ background:var(--bl-paper); }
@@ -119,6 +123,14 @@ app_css <- HTML("
   .kpi--alert .kpi-value{ color:var(--bl-signal); }
   .kpi--alert .kpi-label .bi{ color:var(--bl-signal); }
   .kpi--teal .kpi-label .bi{ color:var(--bl-teal); }
+  /* gold = the Public highlight; keeps the KPI's colour consistent with the bar chart */
+  .kpi--gold .kpi-value{ color:var(--bl-highlight-ink); }
+  .kpi--gold .kpi-label .bi{ color:var(--bl-highlight); }
+
+  /* collapsible 'show/hide' pane for secondary tables — keeps core charts on one screen */
+  .bl-collapse .accordion-button{ background:#fff; }
+  .bl-collapse .accordion-item{ border:1px solid var(--bl-line); border-radius:var(--r); }
+  .bl-collapse .card{ border:none; margin-bottom:0; }
 
   /* sidebar: quiet, grouped via accordion */
   .bslib-sidebar-layout > .sidebar, .bslib-page-sidebar > .sidebar{ background:#fff; border-right:1px solid var(--bl-line); }
@@ -234,7 +246,7 @@ ui <- function(request) page_navbar(
               " — the day the embargo broke. Public posts and sensitive messages cluster on that day."),
       div(class = "kpi-row",
         kpi("Messages in scope", "chat-dots", "k_total", "k_total_sub"),
-        kpi("Public posts", "broadcast", "k_public", "k_public_sub", "kpi--teal"),
+        kpi("Public posts", "broadcast", "k_public", "k_public_sub", "kpi--gold"),
         kpi("Sensitive", "exclamation-triangle", "k_sensitive", "k_sensitive_sub", "kpi--alert")),
       panel_card("Daily message volume", note = "Click a bar to open that day in Evidence",
                  plotlyOutput("overview_volume", height = "340px"), dl = "dl_overview"))),
@@ -244,7 +256,7 @@ ui <- function(request) page_navbar(
       "When the messages happened, and the falling company stock price that pressured the agents.",
       finding(tags$b("Internal coordination spiked in the final hours of 5 June"),
               " — around the 3:08 PM compliance warning, the 5:19 PM go-decision and the 6:00 PM deadline. The stock had been sliding for days before that."),
-      panel_card("Messages over time", note = "Each dashed line is a key moment: 3:08 PM warning · 5:19 PM go-decision · 6:00 PM deadline. Drag to zoom.",
+      panel_card("Messages over time", note = "Opens zoomed on 5 June — the breach day — where the shaded band and the three dashed key moments sit (3:08 PM warning · 5:19 PM go-decision · 6:00 PM deadline). Double-click to pull back to the full two weeks.",
                  plotlyOutput("timeline_plot", height = "360px"), dl = "dl_timeline"),
       div(class = "bl-section",
         panel_card("Company stock price",
@@ -287,7 +299,10 @@ ui <- function(request) page_navbar(
           panel_card("Warnings vs posts, per round", note = "The red line (posts that went out) pulls away from the dark line (Judge warnings) after round 14. The gap is the enforcement shortfall.",
                      plotlyOutput("control_gap_plot", height = "300px"))),
         div(class = "bl-section",
-          panel_card("Messages in this window", DTOutput("post_warning_table"), dl = "dl_judge"))))),
+          accordion(class = "bl-collapse", open = FALSE,
+            accordion_panel(title = tagList(bsicons::bs_icon("table"), " Underlying messages — show / hide table"),
+              value = "judge_table",
+              panel_card("Messages in this window", DTOutput("post_warning_table"), dl = "dl_judge"))))))),
 
   nav_panel("Evidence", icon = bsicons::bs_icon("table"),
     page("The messages themselves",
@@ -315,12 +330,6 @@ server <- function(input, output, session) {
     st <- search_term() %||% ""; if (nzchar(st)) out <- out %>% filter(str_detect(content, regex(st, ignore_case = TRUE)))
     out })
 
-  observeEvent(input$preset_breach, { updateSelectizeInput(session, "g_stage", selected = "Breach window") })
-  observeEvent(input$preset_side,   { updateSelectizeInput(session, "g_channel", selected = c("side_huddle", "one_on_one_chat")) })
-  observeEvent(input$preset_anon,   { updateCheckboxGroupInput(session, "g_flags", selected = "is_anonymous") })
-  observeEvent(input$preset_warned, {
-    updateDateRangeInput(session, "g_date_range", start = as_date(judge_warning_time), end = as_date(embargo_time))
-    updateCheckboxGroupInput(session, "g_channel_type", selected = "Public") })
   reset_all <- function() {
     updateTextInput(session, "g_search", value = ""); updateDateRangeInput(session, "g_date_range", start = day_min, end = day_max)
     updateSliderInput(session, "g_round", value = c(1, round_max)); updateSelectizeInput(session, "g_agent", selected = character(0))
@@ -328,6 +337,18 @@ server <- function(input, output, session) {
     updateSelectizeInput(session, "g_stage", selected = character(0)); updateCheckboxGroupInput(session, "g_flags", selected = character(0))
     xfilter$day <- NULL }
   observeEvent(input$reset_all, reset_all()); observeEvent(input$reset_all2, reset_all())
+
+  # Presets are mutually-exclusive "scenarios": each one clears every other filter first,
+  # then applies only its own. This fixes the earlier additive bug where cycling
+  # Breach -> Side-ch -> Breach left the side-channel filter stuck on and never returned a
+  # clean Breach view. reset_all() also re-selects the value even if it was already set,
+  # so re-clicking the same preset reliably re-applies it.
+  observeEvent(input$preset_breach, { reset_all(); updateSelectizeInput(session, "g_stage", selected = "Breach window") })
+  observeEvent(input$preset_side,   { reset_all(); updateSelectizeInput(session, "g_channel", selected = c("side_huddle", "one_on_one_chat")) })
+  observeEvent(input$preset_anon,   { reset_all(); updateCheckboxGroupInput(session, "g_flags", selected = "is_anonymous") })
+  observeEvent(input$preset_warned, { reset_all()
+    updateDateRangeInput(session, "g_date_range", start = as_date(judge_warning_time), end = as_date(embargo_time))
+    updateCheckboxGroupInput(session, "g_channel_type", selected = "Public") })
 
   output$global_count <- renderUI({ n <- nrow(gf())
     div(class = "tab-meta", style = "margin-top:.9rem;",
@@ -355,8 +376,12 @@ server <- function(input, output, session) {
   output$overview_volume <- renderPlotly({
     dd <- gf() %>% count(day, channel_type) %>% mutate(text = sprintf("%s\n%s: %s", format(day, "%b %d"), channel_type, comma(n)))
     validate(need(nrow(dd) > 0, ""))
-    p <- ggplot(dd, aes(day, n, fill = channel_type, text = text)) + geom_col(width = 0.78) +
-      scale_fill_manual(values = c(Internal = brand$ink, Public = brand$teal)) +
+    # Highlighting principle: Public (the focus) gets the one bright accent; Internal
+    # (context, the bulk of volume) recedes to a muted grey so the Public bars pop.
+    p <- ggplot(dd, aes(day, n, fill = channel_type, text = text)) +
+      geom_col(width = 0.78, colour = "#ffffff", linewidth = 0.3) +
+      scale_fill_manual(values = c(Internal = brand$context, Public = brand$highlight),
+                        breaks = c("Public", "Internal")) +
       scale_x_date(date_labels = "%b %d") + labs(x = NULL, y = "Messages") + theme_breachlens()
     to_plotly(p, source = "overview") })
   observeEvent(event_data("plotly_click", source = "overview"), {
@@ -368,12 +393,21 @@ server <- function(input, output, session) {
   output$timeline_plot <- renderPlotly({
     dd <- gf() %>% count(round_hour, channel_type) %>% mutate(text = sprintf("%s\n%s: %s", fmt_dt(round_hour), channel_type, comma(n)))
     validate(need(nrow(dd) > 0, "")); ev <- tibble(time = c(judge_warning_time, legal_go_time, embargo_time))
+    # Focus the reader on 5 June: shade the breach day, and open the view zoomed on the
+    # last ~36h in scope (the June 4 evening → June 5 breach window) rather than letting
+    # the two flat weeks before it dominate the horizontal space. Double-click resets.
+    breach_start <- ymd_hms("2046-06-05 00:00:00"); breach_end <- ymd_hms("2046-06-06 00:00:00")
+    d_max <- max(dd$round_hour, na.rm = TRUE); d_min <- min(dd$round_hour, na.rm = TRUE)
+    focus_start <- max(d_min, d_max - hours(36)); focus_end <- d_max + hours(2)
     p <- ggplot(dd, aes(round_hour, n, colour = channel_type, text = text)) +
+      annotate("rect", xmin = breach_start, xmax = breach_end, ymin = -Inf, ymax = Inf,
+               fill = brand$signal, alpha = 0.06) +
       geom_line(aes(group = channel_type), linewidth = 0.9) + geom_point(size = 1.9) +
       geom_vline(data = ev, aes(xintercept = time), linetype = "dashed", colour = brand$signal, linewidth = 0.6) +
-      scale_colour_manual(values = c(Internal = brand$ink, Public = brand$teal)) +
+      scale_colour_manual(values = c(Internal = brand$context, Public = brand$highlight),
+                          breaks = c("Public", "Internal")) +
       labs(x = NULL, y = "Messages per round") + theme_breachlens()
-    to_plotly(p) })
+    to_plotly(p) %>% layout(xaxis = list(range = c(format(focus_start), format(focus_end)))) })
   output$stock_plot <- renderPlotly({
     sd <- rounds_tbl %>% filter(!is.na(stock_price_clean)); validate(need(nrow(sd) > 0, ""))
     ev <- tibble(hour = c(ymd_hms("2046-05-22 09:00:00"), ymd_hms("2046-05-29 09:00:00"), ymd_hms("2046-06-04 09:00:00"), legal_go_time))
