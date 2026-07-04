@@ -5,7 +5,7 @@ account: kaykhaing
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 17535105
-bundleId: 12186510
+bundleId: 12219108
 url: https://kaykhaing.shinyapps.io/BreachLens/
 version: 1
 asMultiple: FALSE
