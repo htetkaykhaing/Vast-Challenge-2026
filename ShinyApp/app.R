@@ -367,7 +367,8 @@ server <- function(input, output, session) {
     updateDateRangeInput(session, "g_date_range", start = as_date(judge_warning_time), end = as_date(embargo_time))
     updateCheckboxGroupInput(session, "g_channel_type", selected = "Public") })
   observeEvent(input$preset_jun5,    { reset_all()
-    updateDateRangeInput(session, "g_date_range", start = as_date(embargo_time), end = as_date(embargo_time)) })
+    updateDateRangeInput(session, "g_date_range", start = as_date(embargo_time), end = as_date(embargo_time))
+    updateSliderInput(session, "g_round", value = c(14, 23)) })
 
   output$global_count <- renderUI({ n <- nrow(gf())
     div(class = "tab-meta", style = "margin-top:.9rem;",
@@ -430,8 +431,11 @@ server <- function(input, output, session) {
     # zoom range must be given in the same units (as.numeric = seconds), not date strings.
     to_plotly(p) %>% layout(xaxis = list(range = c(as.numeric(focus_start), as.numeric(focus_end)))) })
   output$stock_plot <- renderPlotly({
-    sd <- rounds_tbl %>% filter(!is.na(stock_price_clean)); validate(need(nrow(sd) > 0, ""))
-    ev <- tibble(hour = c(ymd_hms("2046-05-22 09:00:00"), ymd_hms("2046-05-29 09:00:00"), ymd_hms("2046-06-04 09:00:00"), legal_go_time))
+    sd <- rounds_tbl %>% filter(!is.na(stock_price_clean),
+      as_date(hour) >= input$g_date_range[1], as_date(hour) <= input$g_date_range[2])
+    validate(need(nrow(sd) > 0, "No stock data in the selected date range."))
+    ev <- tibble(hour = c(ymd_hms("2046-05-22 09:00:00"), ymd_hms("2046-05-29 09:00:00"), ymd_hms("2046-06-04 09:00:00"), legal_go_time)) %>%
+      filter(as_date(hour) >= input$g_date_range[1], as_date(hour) <= input$g_date_range[2])
     p <- ggplot(sd, aes(hour, stock_price_clean, text = sprintf("%s\n$%.2f", fmt_dt(hour), stock_price_clean))) +
       geom_vline(data = ev, aes(xintercept = hour), linetype = "dashed", colour = brand$signal, linewidth = 0.5) +
       geom_line(aes(group = 1), colour = brand$ink, linewidth = 0.8) + geom_point(size = 1.6, colour = brand$ink) +
@@ -441,9 +445,11 @@ server <- function(input, output, session) {
 
   # Network (small arrows, thin edges, room to breathe)
   output$network_graph <- renderVisNetwork({
-    e <- edges_tbl; if (input$net_channel != "All") e <- e %>% filter(channel == input$net_channel)
+    e <- edges_tbl %>% filter(as_date(last_contact) >= input$g_date_range[1],
+                              as_date(first_contact) <= input$g_date_range[2])
+    if (input$net_channel != "All") e <- e %>% filter(channel == input$net_channel)
     if (length(input$net_stage)) e <- e %>% filter(as.character(crisis_stage) %in% input$net_stage)
-    validate(need(nrow(e) > 0, ""))
+    validate(need(nrow(e) > 0, "No contacts in the selected date range."))
     ed <- e %>% group_by(from = sender, to = recipient) %>%
       summarise(weight = sum(weight), fc = min(first_contact), lc = max(last_contact), .groups = "drop")
     nv <- bind_rows(ed %>% select(id = from, weight), ed %>% select(id = to, weight)) %>%
@@ -489,6 +495,7 @@ server <- function(input, output, session) {
       annotate("text", x = 10,  y = ytop, label = "crisis building", size = 2.9, colour = brand$slate) +
       annotate("text", x = 19,  y = ytop, label = "breach window", size = 2.9, colour = brand$signal) +
       scale_colour_manual(values = c(`FALSE` = brand$ink, `TRUE` = brand$signal), guide = "none") +
+      coord_cartesian(xlim = c(input$g_round[1] - 0.5, input$g_round[2] + 0.5)) +
       labs(x = "Round (scenario turn 1–23)", y = "How unusual  (0 = normal day)") + theme_breachlens()
     to_plotly(p) })
   output$agent_round_heatmap <- renderPlotly({
